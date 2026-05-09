@@ -22,7 +22,7 @@ macOS/Linux shell:
 node "${CLAUDE_PLUGIN_ROOT}/scripts/list-yaml.js"
 ```
 
-2. 사용자가 번호, 파일명, basename 중 하나로 선택하게 한다.
+2. 사용자가 번호, 파일명, basename 중 하나로 항목을 선택하게 한다.
 3. 선택한 YAML을 DOCX로 생성한다.
 
 Windows PowerShell:
@@ -43,3 +43,4 @@ node "${CLAUDE_PLUGIN_ROOT}/scripts/build-docx.js" <번호|파일명|basename>
 
 - 이 명령은 기존 YAML을 DOCX로 변환하는 명령이다.
 - 새 연구일지 초안이 필요하면 먼저 `/silotek-research-log:draft`를 사용한다.
+- 스키마 오류가 나오면 YAML을 임의로 우회하지 말고 `/draft` 규칙의 flat `sections` 형식에 맞게 보정한다.

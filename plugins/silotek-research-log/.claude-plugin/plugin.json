@@ -1,7 +1,7 @@
 {
   "name": "silotek-research-log",
   "description": "Create Silotek research-log YAML records and formatted DOCX reports from Claude Code conversations, project folders, or mixed work context.",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "author": {
     "name": "Silotek"
   },
