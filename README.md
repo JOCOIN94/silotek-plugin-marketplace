@@ -8,11 +8,9 @@ Internal Claude Code plugin marketplace for Silotek workflows.
 
 플러그인 본체는 [plugins/silotek-research-log/](plugins/silotek-research-log/) 안에 있고, 자세한 사용법과 YAML 스키마는 plugin 폴더의 [README](plugins/silotek-research-log/README.md)와 [CLAUDE.md](CLAUDE.md)에 있다.
 
-> **이 README의 코드블록 표기**
-> - **슬래시 명령** (`/...`): Claude Code **채팅창**에 입력한다. `/`를 누르면 명령 목록이 뜬다.
-> - **셸 명령** (`claude ...`, `npm ...`): **시스템 터미널**에서 입력한다 (Windows: PowerShell / macOS: 터미널 앱).
->
-> OS별로 명령이 다른 경우 PowerShell 블록과 bash 블록을 함께 둔다.
+> **명령 입력 위치**
+> - **슬래시 명령** (`/...`): Claude Code 채팅창에 입력한다. `/`를 누르면 명령 목록이 뜬다.
+> - **셸 명령** (`claude ...`, `npm ...`): 시스템 터미널에서 입력한다 (Windows: PowerShell / macOS: 터미널 앱).
 
 ## 설치
 
@@ -46,7 +44,7 @@ claude plugin install silotek-research-log@silotek-tools --scope user
 
 ## 업데이트
 
-이미 설치한 팀원이 새 버전을 받을 때 **Claude Code 채팅창** 안에서 슬래시 명령을 입력한다 (시스템 터미널이 아니다). 슬래시 명령이라 Windows / macOS 모두 동일하다.
+이미 설치한 팀원이 새 버전을 받을 때 Claude Code 채팅창에서 다음 슬래시 명령을 입력한다.
 
 1. marketplace 캐시 갱신 (새 버전 메타 가져오기):
 
@@ -69,7 +67,7 @@ claude plugin install silotek-research-log@silotek-tools --scope user
 
 ## 플러그인 개발 (로컬 검증)
 
-이 레포를 직접 고치는 컨트리뷰터용 흐름이다. **시스템 터미널을 열어 레포 루트 폴더에서 실행**한다. 두 가지 흐름을 상황에 맞게 골라 쓴다.
+시스템 터미널을 열어 레포 루트 폴더에서 실행한다.
 
 ### A. 빠른 반복 검증 (개발 중에 자주 쓰는 길)
 
@@ -96,7 +94,7 @@ claude --plugin-dir ./plugins/silotek-research-log
 
 ### B. 마켓플레이스 시뮬레이션 (push 직전 자기검증)
 
-GitHub에 push했을 때 팀원이 받게 될 흐름을 push 전에 미리 굴려보는 단계다. 같은 시스템 터미널, 같은 레포 루트에서 실행한다.
+GitHub에 push했을 때 팀원이 받게 될 흐름을 push 전에 미리 굴려본다.
 
 Windows PowerShell:
 
@@ -116,9 +114,9 @@ claude plugin install silotek-research-log@silotek-tools --scope user
 
 각 줄이 하는 일:
 
-- `claude plugin validate .` — `.claude-plugin/marketplace.json`, plugin.json, commands/skills 메타데이터가 Claude Code 파서를 통과하는지 검사한다. push 후 marketplace 등록이 깨지지 않을지 미리 확인.
-- `claude plugin marketplace add .` — 현재 폴더(`.`)를 **로컬 marketplace**로 등록한다. GitHub에 push하지 않은 상태에서도 마켓플레이스처럼 동작한다.
-- `claude plugin install silotek-research-log@silotek-tools --scope user` — 위에서 등록한 로컬 마켓플레이스에서 실제로 설치한다. 팀원이 받게 될 환경을 그대로 재현.
+- `claude plugin validate .` — `.claude-plugin/marketplace.json`, plugin.json, commands/skills 메타데이터가 Claude Code 파서를 통과하는지 검사한다.
+- `claude plugin marketplace add .` — 현재 폴더(`.`)를 로컬 marketplace로 등록한다.
+- `claude plugin install silotek-research-log@silotek-tools --scope user` — 위에서 등록한 로컬 마켓플레이스에서 실제로 설치한다.
 
 ### A 와 B, 언제 뭘 써야 하나
 
