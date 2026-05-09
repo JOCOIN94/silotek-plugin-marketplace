@@ -5,8 +5,11 @@ const path = require('path');
 const { buildDocx } = require('../build');
 const {
   ensureStorage,
+  formatValidationErrors,
   listYaml,
+  loadYaml,
   readJsonIfExists,
+  validateResearchLog,
   writeJson
 } = require('./common');
 
@@ -85,6 +88,12 @@ async function main() {
   }
 
   const target = resolveInput(args[0], entries, storage);
+  const doc = loadYaml(target.inputPath);
+  const schemaErrors = validateResearchLog(doc);
+  if (schemaErrors.length) {
+    throw new Error(formatValidationErrors(schemaErrors));
+  }
+
   fs.mkdirSync(path.dirname(target.outputPath), { recursive: true });
   await buildDocx(target.inputPath, target.outputPath);
 

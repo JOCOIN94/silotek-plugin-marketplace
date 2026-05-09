@@ -23,6 +23,8 @@ Choose the mode from the user request. If it is unclear, ask briefly.
 - Do not include customer names, private person names, internal URLs, API keys, secrets, or proprietary query strings unless the user explicitly asks.
 - For folder/mixed mode, inspect likely source files first: README, docs, package/config files, source entrypoints, tests, outputs, images, and screenshots. Ignore heavy or generated folders such as `node_modules`, `.git`, `.next`, `dist`, `build`, caches, and binary dependencies.
 - Use image elements only for images that materially support the research log. Keep paths as they exist while drafting; the save script will copy them into central storage and rewrite paths.
+- Treat `sections` as the DOCX renderer's flat command list. Every `sections` item must be either a string paragraph or an object with exactly one supported key.
+- Do not use semantic grouped keys such as `heading`, `body`, `paragraph`, `list`, `items`, `content`, or `subsections`.
 
 ## Required YAML Shape
 
@@ -37,10 +39,21 @@ meta:
   분류: "AI/ML, RAG"
 sections:
   - h1: "1. 연구 배경 및 목적"
+  - h2: "1.1 배경"
   - p: "본문..."
 ```
 
 Supported section elements: `h1`, `h2`, `h3`, `p`, `bullets`, `numbers`, `code`, `image`, `table`, `note`, `spacer`.
+
+Do not write this shape:
+
+```yaml
+sections:
+  - heading: "1. 연구 배경"
+    body: "본문..."
+```
+
+If the save script reports a schema error, rewrite the draft into the flat section element form and run the save script again. Do not bypass the validator.
 
 ## Save Procedure
 

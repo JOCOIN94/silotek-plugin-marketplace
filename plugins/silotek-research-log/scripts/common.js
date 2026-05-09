@@ -4,6 +4,25 @@ const path = require('path');
 const yaml = require('js-yaml');
 
 const STORAGE_DIRS = ['inputs', 'outputs', 'manifests', 'figures'];
+const SECTION_ELEMENT_KEYS = new Set([
+  'h1',
+  'h2',
+  'h3',
+  'p',
+  'text',
+  'bullets',
+  'numbers',
+  'ordered',
+  'code',
+  'image',
+  'table',
+  'note',
+  'callout',
+  'spacer',
+  'blank'
+]);
+
+const SCALAR_SECTION_KEYS = new Set(['h1', 'h2', 'h3', 'p', 'text', 'code', 'note', 'callout']);
 
 function pluginRoot() {
   return path.resolve(__dirname, '..');
@@ -59,6 +78,95 @@ function writeJson(filePath, data) {
 function readJsonIfExists(filePath) {
   if (!fs.existsSync(filePath)) return {};
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+}
+
+function isPlainObject(value) {
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+function validateResearchLog(doc) {
+  const errors = [];
+
+  if (!isPlainObject(doc)) {
+    return ['YAML 최상위 값은 객체여야 합니다.'];
+  }
+
+  if (doc.title !== undefined && typeof doc.title !== 'string') {
+    errors.push('title은 문자열이어야 합니다.');
+  }
+
+  if (doc.subtitle !== undefined && typeof doc.subtitle !== 'string') {
+    errors.push('subtitle은 문자열이어야 합니다.');
+  }
+
+  if (doc.meta !== undefined && !isPlainObject(doc.meta)) {
+    errors.push('meta는 객체여야 합니다.');
+  }
+
+  if (!Array.isArray(doc.sections)) {
+    errors.push('sections 배열이 필요합니다.');
+    return errors;
+  }
+
+  doc.sections.forEach((element, index) => {
+    const label = `sections[${index}]`;
+
+    if (typeof element === 'string') return;
+
+    if (!isPlainObject(element)) {
+      errors.push(`${label}은 문자열 또는 단일 키 객체여야 합니다.`);
+      return;
+    }
+
+    const keys = Object.keys(element);
+    if (keys.length !== 1) {
+      errors.push(`${label}은 렌더링 요소 하나만 포함해야 합니다. 예: '- h1: "1. 제목"' 뒤에 '- p: "본문"'을 별도 항목으로 작성하세요.`);
+    }
+
+    for (const key of keys) {
+      if (!SECTION_ELEMENT_KEYS.has(key)) {
+        errors.push(`${label}에 지원하지 않는 키 "${key}"가 있습니다. heading/body/paragraph/list/content/items 구조를 쓰지 말고 h1, h2, h3, p, bullets, numbers, code, image, table, note, spacer 중 하나를 사용하세요.`);
+        continue;
+      }
+
+      const value = element[key];
+      if (SCALAR_SECTION_KEYS.has(key) && typeof value !== 'string') {
+        errors.push(`${label}.${key} 값은 문자열이어야 합니다.`);
+      } else if ((key === 'bullets' || key === 'numbers' || key === 'ordered') && !Array.isArray(value)) {
+        errors.push(`${label}.${key} 값은 배열이어야 합니다.`);
+      } else if (key === 'image' && !isPlainObject(value)) {
+        errors.push(`${label}.image 값은 path/caption/width를 담은 객체여야 합니다.`);
+      } else if (key === 'table' && !isPlainObject(value)) {
+        errors.push(`${label}.table 값은 headers/rows를 담은 객체여야 합니다.`);
+      }
+    }
+  });
+
+  return errors;
+}
+
+function formatValidationErrors(errors) {
+  const maxShown = 12;
+  const shown = errors.slice(0, maxShown);
+  const hiddenCount = errors.length - shown.length;
+  return [
+    'YAML schema error:',
+    ...shown.map(error => `- ${error}`),
+    ...(hiddenCount > 0 ? [`- ... ${hiddenCount}개 추가 오류 생략`] : []),
+    '',
+    '허용되는 flat section 형식:',
+    'sections:',
+    '  - h1: "1. 제목"',
+    '  - p: "본문"',
+    '  - h2: "1.1 세부 제목"',
+    '  - bullets:',
+    '      - "항목"',
+    '',
+    '금지 형식:',
+    'sections:',
+    '  - heading: "1. 제목"',
+    '    body: "본문"'
+  ].join('\n');
 }
 
 function dateStamp(date = new Date()) {
@@ -193,6 +301,8 @@ module.exports = {
   researchRoot,
   rewriteImages,
   uniqueBasename,
+  validateResearchLog,
+  formatValidationErrors,
   writeJson,
   writeYaml
 };

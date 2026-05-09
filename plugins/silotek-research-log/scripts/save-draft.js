@@ -5,10 +5,12 @@ const path = require('path');
 const {
   basenameFromDoc,
   ensureStorage,
+  formatValidationErrors,
   loadYaml,
   pluginRoot,
   rewriteImages,
   uniqueBasename,
+  validateResearchLog,
   writeJson,
   writeYaml
 } = require('./common');
@@ -65,15 +67,13 @@ function main() {
     throw new Error(`초안 YAML을 찾을 수 없음: ${draftPath}`);
   }
 
-  const storage = ensureStorage();
   const doc = loadYaml(draftPath);
-  if (!doc || typeof doc !== 'object') {
-    throw new Error('YAML 최상위 값은 객체여야 합니다.');
-  }
-  if (!Array.isArray(doc.sections)) {
-    throw new Error('YAML에 sections 배열이 필요합니다.');
+  const schemaErrors = validateResearchLog(doc);
+  if (schemaErrors.length) {
+    throw new Error(formatValidationErrors(schemaErrors));
   }
 
+  const storage = ensureStorage();
   const base = uniqueBasename(storage, basenameFromDoc(doc, args.slug));
   const draftDir = path.dirname(draftPath);
   const copiedFigures = rewriteImages(doc, {

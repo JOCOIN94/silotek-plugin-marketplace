@@ -19,6 +19,7 @@ const fs = require('fs');
 const path = require('path');
 const yaml = require('js-yaml');
 const AdmZip = require('adm-zip');
+const { validateResearchLog, formatValidationErrors } = require('./scripts/common');
 
 // ============================================================
 // DOCX 후처리: fontTable.xml relationship 누락 수정
@@ -304,8 +305,7 @@ function renderElement(element, baseDir) {
     }
     
     default:
-      console.warn(`⚠ 알 수 없는 요소 타입: ${key}`);
-      return [para(`[${key}]: ${JSON.stringify(value)}`)];
+      throw new Error(`알 수 없는 요소 타입: ${key}`);
   }
 }
 
@@ -349,6 +349,10 @@ function buildDocx(inputPath, outputPath) {
   const baseDir = path.dirname(path.resolve(inputPath));
   const yamlText = fs.readFileSync(inputPath, 'utf-8');
   const doc_data = yaml.load(yamlText);
+  const schemaErrors = validateResearchLog(doc_data);
+  if (schemaErrors.length) {
+    throw new Error(formatValidationErrors(schemaErrors));
+  }
   
   const children = [];
   
