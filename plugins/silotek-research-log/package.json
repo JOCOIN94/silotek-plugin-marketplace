@@ -1,0 +1,22 @@
+{
+  "name": "silotek-research-log",
+  "version": "0.1.0",
+  "description": "사일로텍 연구일지 Claude Code 플러그인 및 DOCX 생성 엔진",
+  "main": "build.js",
+  "scripts": {
+    "build": "node build.js",
+    "example": "node build.js inputs/example_rag_research.yaml",
+    "new": "cp inputs/_template.yaml inputs/$(date +%Y-%m-%d)-new.yaml && echo '생성됨: inputs/'$(date +%Y-%m-%d)'-new.yaml'",
+    "research:list": "node scripts/list-yaml.js",
+    "research:save": "node scripts/save-draft.js",
+    "research:docx": "node scripts/build-docx.js",
+    "plugin:check": "node scripts/list-yaml.js --json"
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.17",
+    "docx": "^8.5.0",
+    "js-yaml": "^4.1.0"
+  },
+  "author": "Silotek",
+  "license": "UNLICENSED"
+}

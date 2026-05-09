@@ -1,0 +1,24 @@
+{
+  "name": "silotek-tools",
+  "owner": {
+    "name": "Silotek"
+  },
+  "description": "Internal Claude Code plugins for Silotek workflows.",
+  "plugins": [
+    {
+      "name": "silotek-research-log",
+      "source": "./plugins/silotek-research-log",
+      "description": "Create standardized Silotek research-log YAML records and DOCX reports.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Silotek"
+      },
+      "category": "Documentation",
+      "tags": [
+        "research-log",
+        "docx",
+        "yaml"
+      ]
+    }
+  ]
+}
