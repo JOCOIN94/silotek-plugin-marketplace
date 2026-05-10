@@ -3,6 +3,16 @@ const path = require('node:path');
 
 const SCRIPTS_DIR = path.resolve(__dirname, '..', '..', 'scripts');
 
+function buildEnv(opts) {
+  const env = { ...process.env };
+  if (opts.storage !== undefined) {
+    env.SILOTEK_RESEARCH_LOG_ROOT = opts.storage;
+  } else {
+    delete env.SILOTEK_RESEARCH_LOG_ROOT;
+  }
+  return env;
+}
+
 function runSaveDraft(draftPath, opts = {}) {
   const args = [path.join(SCRIPTS_DIR, 'save-draft.js'), draftPath];
   if (opts.mode) args.push('--mode', opts.mode);
@@ -10,7 +20,7 @@ function runSaveDraft(draftPath, opts = {}) {
   if (opts.slug) args.push('--slug', opts.slug);
   return spawnSync('node', args, {
     encoding: 'utf8',
-    env: { ...process.env, SILOTEK_RESEARCH_LOG_ROOT: opts.storage || '' }
+    env: buildEnv(opts)
   });
 }
 
@@ -18,7 +28,7 @@ function runBuildDocx(selector, opts = {}) {
   const args = [path.join(SCRIPTS_DIR, 'build-docx.js'), String(selector)];
   return spawnSync('node', args, {
     encoding: 'utf8',
-    env: { ...process.env, SILOTEK_RESEARCH_LOG_ROOT: opts.storage || '' }
+    env: buildEnv(opts)
   });
 }
 
