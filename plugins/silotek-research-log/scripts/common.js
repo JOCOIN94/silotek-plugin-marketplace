@@ -313,6 +313,13 @@ function analyzeQuality(doc, options = {}) {
       detail: {}
     });
   }
+  if (stats.imageCount === 0 && stats.visualBriefCount === 0) {
+    warnings.push({
+      code: 'NO_VISUAL_BRIEF',
+      message: '이미지와 visual_brief가 모두 0개입니다. 시각 자료가 필요한 자리에 visual_brief element를 미리 두는 것을 강하게 권장합니다.',
+      detail: { imageCount: stats.imageCount, visualBriefCount: stats.visualBriefCount }
+    });
+  }
   if (stats.tableCount === 0) {
     warnings.push({
       code: 'NO_TABLES',

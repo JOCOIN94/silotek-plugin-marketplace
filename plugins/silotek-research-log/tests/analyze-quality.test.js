@@ -100,3 +100,16 @@ test('analyzeQuality does NOT warn META_INVALID_VALUE on baseline (구축)', () 
   const codes = result.warnings.map(w => w.code);
   assert.ok(!codes.includes('META_INVALID_VALUE'));
 });
+
+test('analyzeQuality warns NO_VISUAL_BRIEF when both image and visual_brief are zero', () => {
+  const result = analyzeQuality(loadFixture('no-images.yaml'));
+  // no-images.yaml은 image 0개, visual_brief 0개
+  const codes = result.warnings.map(w => w.code);
+  assert.ok(codes.includes('NO_VISUAL_BRIEF'));
+});
+
+test('analyzeQuality does NOT warn NO_VISUAL_BRIEF when visual_brief exists', () => {
+  const result = analyzeQuality(loadFixture('visual-brief-complete.yaml'));
+  const codes = result.warnings.map(w => w.code);
+  assert.ok(!codes.includes('NO_VISUAL_BRIEF'));
+});
