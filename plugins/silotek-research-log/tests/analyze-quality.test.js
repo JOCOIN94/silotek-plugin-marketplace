@@ -52,6 +52,7 @@ test('analyzeQuality warns NO_IMAGES and NO_TABLES when both are zero', () => {
   const codes = result.warnings.map(w => w.code);
   assert.ok(codes.includes('NO_IMAGES'));
   assert.ok(codes.includes('NO_TABLES'));
+  assert.ok(!codes.includes('TEXT_TOO_SHORT'), `fixture should not be short, got textLength=${result.stats.textLength}`);
 });
 
 test('analyzeQuality warns TEXT_TOO_SHORT when total text is under 800', () => {
