@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const { buildDocx } = require('../build');
 const {
+  analyzeQuality,
   ensureStorage,
   formatValidationErrors,
   listYaml,
@@ -92,6 +93,16 @@ async function main() {
   const schemaErrors = validateResearchLog(doc);
   if (schemaErrors.length) {
     throw new Error(formatValidationErrors(schemaErrors));
+  }
+
+  const quality = analyzeQuality(doc, {
+    draftDir: path.dirname(target.inputPath)
+  });
+  if (quality.warnings.length) {
+    console.log('⚠ 품질 경고 (빌드는 진행됨):');
+    for (const w of quality.warnings) {
+      console.log(`  - ${w.code}: ${w.message}`);
+    }
   }
 
   fs.mkdirSync(path.dirname(target.outputPath), { recursive: true });
