@@ -24,7 +24,8 @@ const SECTION_ELEMENT_KEYS = new Set([
 
 const SCALAR_SECTION_KEYS = new Set(['h1', 'h2', 'h3', 'p', 'text', 'code', 'note', 'callout']);
 
-const META_RECOMMENDED_KEYS = ['연구 주제', '연구 단계', '분류', '작성일', '작성자'];
+const META_RECOMMENDED_KEYS = ['연구 주제', '연구 성격', '연구 단계', '분류', '작성일', '작성자'];
+const RESEARCH_NATURES = ['구축', '분석', '검증'];
 const FORBIDDEN_TOP_LEVEL_KEYS = ['project', 'date', 'authors', 'keywords', 'category'];
 
 function pluginRoot() {
@@ -486,6 +487,7 @@ module.exports = {
   pluginRoot,
   readJsonIfExists,
   researchRoot,
+  RESEARCH_NATURES,
   rewriteImages,
   uniqueBasename,
   validateResearchLog,

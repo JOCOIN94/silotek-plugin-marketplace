@@ -26,10 +26,10 @@ test('analyzeQuality returns the documented shape', () => {
 test('analyzeQuality warns for each missing META_RECOMMENDED key', () => {
   const result = analyzeQuality(loadFixture('missing-meta.yaml'));
   const metaWarnings = result.warnings.filter(w => w.code === 'META_MISSING_KEY');
-  // 연구 단계, 분류, 작성자 — 3건
-  assert.equal(metaWarnings.length, 3);
+  // 연구 성격, 연구 단계, 분류, 작성자 — 4건
+  assert.equal(metaWarnings.length, 4);
   const missingKeys = metaWarnings.map(w => w.detail.key).sort();
-  assert.deepEqual(missingKeys, ['분류', '연구 단계', '작성자']);
+  assert.deepEqual(missingKeys, ['분류', '연구 단계', '연구 성격', '작성자']);
 });
 
 test('analyzeQuality warns when no validation/trial-error/future heading is found', () => {
