@@ -16,8 +16,9 @@ Marketplace 등록부는 [.claude-plugin/marketplace.json](.claude-plugin/market
 
 ### 1. 플러그인 표면 (Claude Code)
 
-- [commands/setup.md](plugins/silotek-research-log/commands/setup.md), [commands/draft.md](plugins/silotek-research-log/commands/draft.md), [commands/build-docx.md](plugins/silotek-research-log/commands/build-docx.md) — 세 개 slash command (`/silotek-research-log:setup`, `:draft`, `:build-docx`).
+- [commands/setup.md](plugins/silotek-research-log/commands/setup.md), [commands/draft.md](plugins/silotek-research-log/commands/draft.md), [commands/build-docx.md](plugins/silotek-research-log/commands/build-docx.md), [commands/critique.md](plugins/silotek-research-log/commands/critique.md) — 네 개 slash command (`/silotek-research-log:setup`, `:draft`, `:build-docx`, `:critique`).
 - [skills/draft/SKILL.md](plugins/silotek-research-log/skills/draft/SKILL.md), [skills/build-docx/SKILL.md](plugins/silotek-research-log/skills/build-docx/SKILL.md) — drafting/build 동작을 안내하는 Claude Skill. Skill **description**은 영어(Anthropic 권장), 본문은 한국어 가능.
+- [agents/research-diagrammer.md](plugins/silotek-research-log/agents/research-diagrammer.md), [agents/research-critic.md](plugins/silotek-research-log/agents/research-critic.md) — 두 개 서브에이전트 (v0.2.0). 메인 세션이 자동 호출하며, Claude Code 환경이 플러그인 안 `agents/` 자동 등록을 지원하지 않으면 사용자가 `~/.claude/agents/`에 복사. 미설치 시 `scripts/critique.js`가 fallback.
 
 ### 2. Node 엔진 (CLI 스크립트)
 
@@ -46,10 +47,14 @@ macOS:   $HOME/Documents/Silotek Research Logs/
 `sections`는 flat command list다. 각 항목은 문자열 문단이거나 단일 키 객체. 허용 키는 [scripts/common.js](plugins/silotek-research-log/scripts/common.js)의 `SECTION_ELEMENT_KEYS`에 정의:
 
 ```
-h1, h2, h3, p, text, bullets, numbers, ordered, code, image, table, note, callout, spacer, blank
+h1, h2, h3, p, text, bullets, numbers, ordered, code, image, table, note, callout, spacer, blank, visual_brief
 ```
 
-금지 grouping 키(`heading`, `body`, `paragraph`, `list`, `items`, `content`, `subsections`)가 들어오면 `save-draft.js` / `build-docx.js`가 구조화된 오류와 함께 거부한다. [templates/research-log.yaml](plugins/silotek-research-log/templates/research-log.yaml)이 유일한 정식 템플릿이다. 프로젝트 로컬 `inputs/_template.yaml`을 다시 만들지 말 것 — v0.1.2에서 분기 방지를 위해 제거됨.
+`visual_brief`(v0.2.0)는 `purpose / claim / evidence / forbidden / palette / caption` 6필드를 모두 가진다. research-diagrammer 서브에이전트가 brief를 받아 그림을 만들고, 메인 세션이 결과 image element와 페어링한다.
+
+금지 grouping 키(`heading`, `body`, `paragraph`, `list`, `items`, `content`, `subsections`)가 들어오면 `save-draft.js` / `build-docx.js`가 구조화된 오류와 함께 거부한다. [templates/research-log.yaml](plugins/silotek-research-log/templates/research-log.yaml)이 유일한 정식 템플릿이다.
+
+`meta` 권장 키 6개 (`연구 주제`, `연구 성격`, `연구 단계`, `분류`, `작성일`, `작성자`). `연구 성격`은 `구축` / `분석` / `검증` 중 하나 (`META_INVALID_VALUE` warn). top-level에 `project`/`date`/`authors`/`keywords`/`category` 같은 영문 키는 거절.
 
 ## 자주 쓰는 명령
 
@@ -72,6 +77,9 @@ claude --plugin-dir .\plugins\silotek-research-log
 node .\plugins\silotek-research-log\scripts\list-yaml.js
 node .\plugins\silotek-research-log\scripts\save-draft.js .\.silotek-research-log-draft.yaml --mode folder --source-root .
 node .\plugins\silotek-research-log\scripts\build-docx.js 1
+
+# 채점 (서브에이전트 미설치 환경 fallback)
+node .\plugins\silotek-research-log\scripts\critique.js 1
 ```
 
 테스트는 `node:test` 기반으로 `plugins/silotek-research-log/tests/` 아래에 있다. `npm test --prefix plugins/silotek-research-log`로 실행한다 (Node 18+). 통합 테스트는 `tests/save-draft.test.js`, `tests/build-docx.test.js`가 spawn으로 실제 스크립트를 호출해 검증한다. 린터, 포매터는 여전히 설정되지 않았다.
