@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const {
+  analyzeQuality,
   basenameFromDoc,
   ensureStorage,
   formatValidationErrors,
@@ -71,6 +72,18 @@ function main() {
   const schemaErrors = validateResearchLog(doc);
   if (schemaErrors.length) {
     throw new Error(formatValidationErrors(schemaErrors));
+  }
+
+  const draftDirForQuality = path.dirname(draftPath);
+  const quality = analyzeQuality(doc, {
+    draftDir: draftDirForQuality,
+    sourceRoot: args.sourceRoot ? path.resolve(args.sourceRoot) : null
+  });
+  if (quality.warnings.length) {
+    console.log('⚠ 품질 경고 (저장은 진행됨):');
+    for (const w of quality.warnings) {
+      console.log(`  - ${w.code}: ${w.message}`);
+    }
   }
 
   const storage = ensureStorage();
