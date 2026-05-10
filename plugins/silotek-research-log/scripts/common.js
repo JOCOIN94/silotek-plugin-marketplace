@@ -232,7 +232,7 @@ function analyzeQuality(doc, options = {}) {
     if (value === undefined || value === null || String(value).trim() === '') {
       warnings.push({
         code: 'META_MISSING_KEY',
-        message: `meta.${key}가 비어 있습니다. 권장 메타 5개(${META_RECOMMENDED_KEYS.join(', ')})를 모두 채우는 것을 권장합니다.`,
+        message: `meta.${key}가 비어 있습니다. 권장 메타 ${META_RECOMMENDED_KEYS.length}개(${META_RECOMMENDED_KEYS.join(', ')})를 모두 채우는 것을 권장합니다.`,
         detail: { key }
       });
     }

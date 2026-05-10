@@ -37,8 +37,6 @@ test('validateResearchLog rejects forbidden top-level english keys', () => {
   assert.match(errors[0], /meta/);
 });
 
-const { RESEARCH_NATURES: RN } = require('../scripts/common');
-
 test('RESEARCH_NATURES exports the 3 user-confirmed Korean labels', () => {
   assert.deepEqual(RESEARCH_NATURES, ['구축', '분석', '검증']);
 });
