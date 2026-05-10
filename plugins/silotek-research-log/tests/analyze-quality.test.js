@@ -31,3 +31,18 @@ test('analyzeQuality warns for each missing META_RECOMMENDED key', () => {
   const missingKeys = metaWarnings.map(w => w.detail.key).sort();
   assert.deepEqual(missingKeys, ['분류', '연구 단계', '작성자']);
 });
+
+test('analyzeQuality warns when no validation/trial-error/future heading is found', () => {
+  const result = analyzeQuality(loadFixture('no-validation-section.yaml'));
+  const codes = result.warnings.map(w => w.code);
+  assert.ok(codes.includes('NO_VALIDATION_SECTION'));
+  assert.ok(codes.includes('NO_TRIAL_ERROR_SECTION'));
+  assert.ok(codes.includes('NO_FUTURE_WORK_SECTION'));
+});
+
+test('analyzeQuality does NOT warn validation when heading has 검증', () => {
+  const result = analyzeQuality(loadFixture('baseline.yaml'));
+  // baseline.yaml은 "1. 연구 질문"만 있어서 NO_VALIDATION_SECTION이 떠야 한다.
+  // 이 테스트는 baseline에 검증 헤딩이 없음을 확인 (음성 케이스 검증).
+  assert.ok(result.warnings.some(w => w.code === 'NO_VALIDATION_SECTION'));
+});

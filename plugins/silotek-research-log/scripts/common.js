@@ -237,6 +237,43 @@ function analyzeQuality(doc, options = {}) {
     }
   }
 
+  const KEYWORD_GROUPS = {
+    NO_VALIDATION_SECTION: {
+      keywords: ['검증', '실험', '비교', '측정', '평가', '결과'],
+      label: '검증/실험/비교/측정'
+    },
+    NO_TRIAL_ERROR_SECTION: {
+      keywords: ['시행착오', '실패', '문제', '오류', '재시도', '에러'],
+      label: '시행착오/실패/문제/오류'
+    },
+    NO_FUTURE_WORK_SECTION: {
+      keywords: ['남은', '향후', '한계', '불확실', '추후'],
+      label: '남은/향후/한계/불확실'
+    }
+  };
+
+  const headingTexts = [];
+  for (const element of (doc.sections || [])) {
+    if (!isPlainObject(element)) continue;
+    const [key] = Object.keys(element);
+    if (key === 'h1' || key === 'h2' || key === 'h3') {
+      const value = element[key];
+      if (typeof value === 'string') headingTexts.push(value);
+    }
+  }
+  const allHeadings = headingTexts.join(' ');
+
+  for (const [code, group] of Object.entries(KEYWORD_GROUPS)) {
+    const found = group.keywords.some(kw => allHeadings.includes(kw));
+    if (!found) {
+      warnings.push({
+        code,
+        message: `'${group.label}' 중 하나가 들어간 섹션 제목이 보이지 않습니다. 연구일지 흐름을 갖추는 것을 권장합니다.`,
+        detail: { keywords: group.keywords }
+      });
+    }
+  }
+
   return { errors, warnings, stats };
 }
 
