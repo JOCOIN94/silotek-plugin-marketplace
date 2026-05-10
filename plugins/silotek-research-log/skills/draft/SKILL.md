@@ -6,6 +6,34 @@ description: Create a Silotek research-log YAML draft from the current conversat
 
 Create a Korean Silotek research-log YAML record and save it through the bundled plugin script.
 
+## Self-Question Before Drafting (Required)
+
+Before writing anything, answer to yourself in one line:
+
+> **What is the research question this document tries to answer?**
+
+If you cannot answer in one line, infer the narrowest plausible question from the user's working context and write it out explicitly. A folder summary is not a research question.
+
+## Required Section Checklist
+
+Bias the draft toward this arc. Adapt headings to the actual work, but the arc must show through.
+
+- 연구 질문 (한 줄)
+- 문제 정의 / 배경
+- 시도와 시행착오 (실패 사례 포함)
+- 관찰 / 측정
+- 원인 분석
+- 검증 (실험, 비교, 측정)
+- 교훈 / 판단 기록
+- 향후 과제 / 남은 불확실성
+
+## Anti-patterns to Reject Yourself
+
+- 파일 경로/디렉터리 나열형 본문
+- 근거 없는 단정 ("그래서 X가 맞다")
+- 시행착오 없이 "이렇게 했더니 잘 됐다"형 서술
+- "단순히 ~을 정리한다", "구조를 살펴본다" 같은 폴더 탐구형 문장 — 코드가 자동 경고함
+
 ## Plugin Model
 
 The normal plugin flow is:
@@ -13,7 +41,7 @@ The normal plugin flow is:
 1. Inspect the conversation, current folder, or both.
 2. Create `.silotek-research-log-draft.yaml` in the current workspace.
 3. Run `scripts/save-draft.js` from `CLAUDE_PLUGIN_ROOT`.
-4. Report the central YAML path and manifest path.
+4. Report the central YAML path, manifest path, copied figure count, **and any quality warnings** printed by the script.
 5. Build DOCX only when the user asks for `/silotek-research-log:build-docx`.
 
 ## Modes
@@ -35,24 +63,15 @@ Choose the mode from the user request. If it is unclear, ask briefly.
 - Ignore heavy or generated folders such as `node_modules`, `.git`, `.next`, `dist`, `build`, caches, and binary dependencies.
 - Use image elements only for images that materially support the research log. Keep paths as they exist while drafting; the save script will copy them into central storage and rewrite paths.
 
-## Report Quality
+## Meta Standard (warn policy)
 
-Do not produce a shallow folder summary. For implementation, debugging, verification, or folder-analysis logs, prefer this report arc:
+Recommended 5 keys (warn if missing — save still proceeds):
 
-```text
-1. 연구 배경 및 목적
-2. 문제 정의
-3. 시스템 구조 및 동작 방식
-4. 구현 과정과 시행착오
-5. 핵심 변경 사항
-6. 변경 전후 비교
-7. 핵심 교훈
-8. 종합 분석
-9. 결론 및 향후 과제
-10. 참고 사항
-```
+- `연구 주제`, `연구 단계`, `분류`, `작성일`, `작성자`
 
-Adapt the headings to the actual work. The important quality bar is that the document shows `problem -> structure -> process -> changes -> validation -> lessons -> conclusion`.
+Free Korean optional keys are allowed (e.g. `커밋버전`, `변경 규모`, `관련 프로젝트`).
+
+**Forbidden at top level**: `project`, `date`, `authors`, `keywords`, `category`. Move them under `meta` with Korean keys; the script rejects otherwise.
 
 ## Required YAML Shape
 
@@ -65,26 +84,17 @@ title: "연구 일지"
 subtitle: "연구 주제 요약"
 meta:
   연구 주제: "상세 설명"
-  작성일: "2026년 5월 9일"
-  작성자: "작성자명 또는 생략 가능"
   연구 단계: "구현/검증"
   분류: "AI/ML, RAG"
+  작성일: "2026년 5월 9일"
+  작성자: "작성자명"
 sections:
-  - h1: "1. 연구 배경 및 목적"
-  - h2: "1.1 배경"
+  - h1: "1. 연구 질문"
   - p: "본문..."
   - table:
       headers: ["구분", "기존", "변경 후"]
       rows:
         - ["저장 위치", "프로젝트별 분산", "중앙 저장소"]
-```
-
-Do not write this shape:
-
-```yaml
-sections:
-  - heading: "1. 연구 배경"
-    body: "본문..."
 ```
 
 Do not use semantic grouped keys such as `heading`, `body`, `paragraph`, `list`, `items`, `content`, or `subsections`.
@@ -100,16 +110,16 @@ If the save script reports a schema error, rewrite the draft into the flat secti
 node "${CLAUDE_PLUGIN_ROOT}/scripts/save-draft.js" .silotek-research-log-draft.yaml --mode <conversation|folder|mixed> --source-root "$PWD"
 ```
 
-On Windows PowerShell, use:
+On Windows PowerShell:
 
 ```powershell
 node "$env:CLAUDE_PLUGIN_ROOT\scripts\save-draft.js" .silotek-research-log-draft.yaml --mode <conversation|folder|mixed> --source-root (Get-Location).Path
 ```
 
-If `CLAUDE_PLUGIN_ROOT` is unavailable in the shell, use the absolute plugin root path and run `node <plugin-root>/scripts/save-draft.js`.
+If `CLAUDE_PLUGIN_ROOT` is unavailable in the shell, use the absolute plugin root path.
 
-3. Report the saved YAML path, manifest path, and copied figure count from the script output.
-4. Do not build DOCX in this skill. Tell the user to run `/silotek-research-log:build-docx` when they want to create the Word document.
+3. Report the saved YAML path, manifest path, copied figure count, **and any quality warnings** from the script's stdout (lines starting with `⚠ 품질 경고`).
+4. Do not build DOCX in this skill. Tell the user to run `/silotek-research-log:build-docx`.
 
 ## Manifest Guidance
 
