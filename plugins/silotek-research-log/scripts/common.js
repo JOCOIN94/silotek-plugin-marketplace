@@ -94,6 +94,12 @@ function validateResearchLog(doc) {
     return ['YAML 최상위 값은 객체여야 합니다.'];
   }
 
+  for (const forbidden of FORBIDDEN_TOP_LEVEL_KEYS) {
+    if (Object.prototype.hasOwnProperty.call(doc, forbidden)) {
+      errors.push(`top-level "${forbidden}" 키는 사용하지 마세요. meta 객체 안으로 옮기고 한국어 키(예: "연구 주제", "작성일", "작성자", "분류")로 적어주세요.`);
+    }
+  }
+
   if (doc.title !== undefined && typeof doc.title !== 'string') {
     errors.push('title은 문자열이어야 합니다.');
   }
