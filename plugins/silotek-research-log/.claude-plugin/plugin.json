@@ -1,6 +1,6 @@
 {
   "name": "silotek-research-log",
-  "description": "Create Silotek research-log YAML records and formatted DOCX reports from Claude Code conversations, project folders, or mixed work context.",
+  "description": "Create Silotek research-log YAML records and formatted DOCX reports from Claude Code conversations or project folders. Runs quality checks (meta standards, validation/trial-error/future-work headings, visual material) on save and build.",
   "version": "0.1.3",
   "author": {
     "name": "Silotek"
