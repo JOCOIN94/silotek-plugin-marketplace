@@ -331,6 +331,25 @@ function analyzeQuality(doc, options = {}) {
     });
   }
 
+  // 이미지 파일 존재성 검사
+  if (options.draftDir) {
+    for (const element of (doc.sections || [])) {
+      if (!isPlainObject(element) || !element.image || !element.image.path) continue;
+      const resolved = resolveImagePath(
+        String(element.image.path),
+        options.draftDir,
+        options.sourceRoot || null
+      );
+      if (!resolved) {
+        warnings.push({
+          code: 'IMAGE_FILE_MISSING',
+          message: `image element가 가리키는 파일을 찾을 수 없습니다: ${element.image.path}`,
+          detail: { path: element.image.path }
+        });
+      }
+    }
+  }
+
   return { errors, warnings, stats };
 }
 

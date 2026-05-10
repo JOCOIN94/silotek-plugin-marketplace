@@ -66,3 +66,20 @@ test('analyzeQuality warns FOLDER_EXPLORATION_ANTI_PATTERN when keywords appear 
   const codes = result.warnings.map(w => w.code);
   assert.ok(codes.includes('FOLDER_EXPLORATION_ANTI_PATTERN'));
 });
+
+test('analyzeQuality warns IMAGE_FILE_MISSING when image path does not resolve', () => {
+  const fixturesDir = path.join(__dirname, 'fixtures');
+  const result = analyzeQuality(loadFixture('missing-image-file.yaml'), {
+    draftDir: fixturesDir
+  });
+  const codes = result.warnings.map(w => w.code);
+  assert.ok(codes.includes('IMAGE_FILE_MISSING'));
+  const detail = result.warnings.find(w => w.code === 'IMAGE_FILE_MISSING').detail;
+  assert.match(detail.path, /does-not-exist\.png/);
+});
+
+test('analyzeQuality does NOT warn IMAGE_FILE_MISSING when no image element exists', () => {
+  const result = analyzeQuality(loadFixture('no-images.yaml'));
+  const codes = result.warnings.map(w => w.code);
+  assert.ok(!codes.includes('IMAGE_FILE_MISSING'));
+});
