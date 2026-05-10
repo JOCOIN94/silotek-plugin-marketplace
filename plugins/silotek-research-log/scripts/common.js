@@ -178,6 +178,68 @@ function formatValidationErrors(errors) {
   ].join('\n');
 }
 
+function collectSectionStats(doc) {
+  const stats = {
+    sectionCount: 0,
+    headingCount: 0,
+    imageCount: 0,
+    tableCount: 0,
+    visualBriefCount: 0,
+    textLength: 0
+  };
+  if (!Array.isArray(doc.sections)) return stats;
+  for (const element of doc.sections) {
+    stats.sectionCount += 1;
+    if (typeof element === 'string') {
+      stats.textLength += element.length;
+      continue;
+    }
+    if (!isPlainObject(element)) continue;
+    const [key] = Object.keys(element);
+    const value = element[key];
+    if (key === 'h1' || key === 'h2' || key === 'h3') {
+      stats.headingCount += 1;
+      if (typeof value === 'string') stats.textLength += value.length;
+    } else if (key === 'p' || key === 'text' || key === 'note' || key === 'callout' || key === 'code') {
+      if (typeof value === 'string') stats.textLength += value.length;
+    } else if (key === 'bullets' || key === 'numbers' || key === 'ordered') {
+      if (Array.isArray(value)) {
+        for (const item of value) {
+          if (typeof item === 'string') stats.textLength += item.length;
+        }
+      }
+    } else if (key === 'image') {
+      stats.imageCount += 1;
+    } else if (key === 'table') {
+      stats.tableCount += 1;
+    } else if (key === 'visual_brief') {
+      stats.visualBriefCount += 1;
+    }
+  }
+  return stats;
+}
+
+function analyzeQuality(doc, options = {}) {
+  const errors = [];
+  const warnings = [];
+  const stats = collectSectionStats(doc || {});
+
+  // META_MISSING_KEY 검사
+  const meta = (doc && doc.meta) || {};
+  for (const key of META_RECOMMENDED_KEYS) {
+    const value = meta[key];
+    if (value === undefined || value === null || String(value).trim() === '') {
+      warnings.push({
+        code: 'META_MISSING_KEY',
+        message: `meta.${key}가 비어 있습니다. 권장 메타 5개(${META_RECOMMENDED_KEYS.join(', ')})를 모두 채우는 것을 권장합니다.`,
+        detail: { key }
+      });
+    }
+  }
+
+  return { errors, warnings, stats };
+}
+
 function dateStamp(date = new Date()) {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, '0');
@@ -300,6 +362,7 @@ function rewriteImages(doc, options) {
 }
 
 module.exports = {
+  analyzeQuality,
   basenameFromDoc,
   dateStamp,
   ensureStorage,
