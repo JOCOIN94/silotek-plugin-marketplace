@@ -76,6 +76,7 @@ test('analyzeQuality warns IMAGE_FILE_MISSING when image path does not resolve',
   assert.ok(codes.includes('IMAGE_FILE_MISSING'));
   const detail = result.warnings.find(w => w.code === 'IMAGE_FILE_MISSING').detail;
   assert.match(detail.path, /does-not-exist\.png/);
+  assert.ok(!codes.includes('TEXT_TOO_SHORT'), `fixture should not be short, got textLength=${result.stats.textLength}`);
 });
 
 test('analyzeQuality does NOT warn IMAGE_FILE_MISSING when no image element exists', () => {
