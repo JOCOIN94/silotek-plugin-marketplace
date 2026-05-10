@@ -19,7 +19,8 @@ const SECTION_ELEMENT_KEYS = new Set([
   'note',
   'callout',
   'spacer',
-  'blank'
+  'blank',
+  'visual_brief'
 ]);
 
 const SCALAR_SECTION_KEYS = new Set(['h1', 'h2', 'h3', 'p', 'text', 'code', 'note', 'callout']);
@@ -148,6 +149,23 @@ function validateResearchLog(doc) {
         errors.push(`${label}.image 값은 path/caption/width를 담은 객체여야 합니다.`);
       } else if (key === 'table' && !isPlainObject(value)) {
         errors.push(`${label}.table 값은 headers/rows를 담은 객체여야 합니다.`);
+      } else if (key === 'visual_brief') {
+        if (!isPlainObject(value)) {
+          errors.push(`${label}.visual_brief 값은 purpose/claim/evidence/forbidden/palette/caption을 담은 객체여야 합니다.`);
+        } else {
+          for (const fld of ['purpose', 'claim', 'palette', 'caption']) {
+            if (typeof value[fld] !== 'string' || value[fld].trim() === '') {
+              errors.push(`${label}.visual_brief.${fld}는 비어있지 않은 문자열이어야 합니다.`);
+            }
+          }
+          for (const fld of ['evidence', 'forbidden']) {
+            if (!Array.isArray(value[fld]) || value[fld].length === 0) {
+              errors.push(`${label}.visual_brief.${fld}는 비어있지 않은 배열이어야 합니다.`);
+            } else if (!value[fld].every(item => typeof item === 'string')) {
+              errors.push(`${label}.visual_brief.${fld}의 모든 항목은 문자열이어야 합니다.`);
+            }
+          }
+        }
       }
     }
   });

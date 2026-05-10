@@ -49,3 +49,17 @@ test('META_RECOMMENDED_KEYS now includes 연구 성격 at index 1', () => {
     ['연구 주제', '연구 성격', '연구 단계', '분류', '작성일', '작성자']
   );
 });
+
+test('validateResearchLog accepts visual_brief with all required fields', () => {
+  const errors = validateResearchLog(loadFixture('visual-brief-complete.yaml'));
+  assert.deepEqual(errors, []);
+});
+
+test('validateResearchLog rejects visual_brief missing required fields', () => {
+  const errors = validateResearchLog(loadFixture('visual-brief-incomplete.yaml'));
+  assert.ok(errors.length >= 4); // claim, evidence, forbidden, palette 누락
+  assert.ok(errors.some(e => /claim/.test(e)));
+  assert.ok(errors.some(e => /evidence/.test(e)));
+  assert.ok(errors.some(e => /forbidden/.test(e)));
+  assert.ok(errors.some(e => /palette/.test(e)));
+});

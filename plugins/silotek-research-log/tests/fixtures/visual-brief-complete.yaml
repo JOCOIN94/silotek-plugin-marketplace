@@ -1,0 +1,22 @@
+title: "연구 일지"
+subtitle: "visual_brief 정상 케이스"
+meta:
+  연구 주제: "테스트"
+  연구 성격: "구축"
+  연구 단계: "기술 검증"
+  분류: "테스트"
+  작성일: "2026년 5월 10일"
+  작성자: "테스터"
+sections:
+  - h1: "1. 검증"
+  - p: "본문 길이 채움."
+  - visual_brief:
+      purpose: "테스트 다이어그램"
+      claim: "A는 B다"
+      evidence:
+        - "근거 1"
+        - "근거 2"
+      forbidden:
+        - "추측 1"
+      palette: "navy / teal / gray"
+      caption: "[그림 1] 테스트"
