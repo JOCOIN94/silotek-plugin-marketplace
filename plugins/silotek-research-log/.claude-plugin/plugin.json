@@ -1,6 +1,6 @@
 {
   "name": "silotek-research-log",
-  "description": "Create Silotek research-log YAML records and formatted DOCX reports from Claude Code conversations or project folders. Runs quality checks (meta standards, validation/trial-error/future-work headings, visual material) on save and build.",
+  "description": "Create Silotek research-log YAML records and formatted DOCX reports from Claude Code conversations or project folders. Classifies each log into 구축/분석/검증 (build/analysis/validation), uses visual_brief + research-diagrammer for diagrams, and scores completed drafts on a 100-point rubric via research-critic (or the bundled critique.js fallback).",
   "version": "0.2.0",
   "author": {
     "name": "Silotek"

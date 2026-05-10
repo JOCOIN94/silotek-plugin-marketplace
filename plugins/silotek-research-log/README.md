@@ -10,11 +10,22 @@ Claude Code 대화, 프로젝트 폴더, 작업 산출물을 기반으로 사일
 /silotek-research-log:setup
 /silotek-research-log:draft
 /silotek-research-log:build-docx
+/silotek-research-log:critique
 ```
 
 - `/setup`: 플러그인 캐시 폴더 안에 Node 의존성을 설치한다.
-- `/draft`: 현재 대화, 현재 폴더, 또는 둘 다를 조사해 연구일지 YAML 초안을 중앙 저장소에 저장한다.
+- `/draft`: 현재 대화, 현재 폴더, 또는 둘 다를 조사해 연구일지 YAML 초안을 중앙 저장소에 저장한다. v0.2.0부터 작성 전에 `구축` / `분석` / `검증` 중 하나로 연구일지 성격을 사용자와 합의한다.
 - `/build-docx`: 중앙 저장소에 있는 YAML을 선택해 DOCX 보고서를 생성한다.
+- `/critique` (v0.2.0): 저장된 연구일지 YAML을 100점 만점 10개 영역으로 채점한다. `research-critic` 서브에이전트가 등록돼 있으면 그것을 호출하고, 미등록 환경에서는 `scripts/critique.js`가 fallback.
+
+## Subagents (v0.2.0)
+
+플러그인은 두 개의 Claude 서브에이전트 정의를 포함한다 (`agents/`):
+
+- `research-diagrammer`: `visual_brief` 1개당 1회 호출되어 SVG 또는 imagegen skill로 그림 1장 생성. 외부 npm 도구 무의존.
+- `research-critic`: `save-draft.js` 종료 직후 자동 호출되어 100점 채점. 결과(영역별 점수, 부족 항목, 수정 제안)를 사용자에게 보고.
+
+두 에이전트가 자동 등록되지 않는 환경에서는 사용자가 `~/.claude/agents/`로 복사하거나, `scripts/critique.js`로 채점 fallback 사용.
 
 ## Storage
 
@@ -72,21 +83,32 @@ title: "연구 일지"
 subtitle: "연구 주제"
 meta:
   연구 주제: "상세 설명"
-  작성일: "2026년 5월 9일"
+  연구 성격: "구축"        # 구축 / 분석 / 검증 중 하나 (v0.2.0)
   연구 단계: "구현/검증"
   분류: "AI/ML, RAG"
+  작성일: "2026년 5월 9일"
+  작성자: "이름"
 sections:
-  - h1: "1. 연구 배경 및 목적"
-  - h2: "1.1 배경"
+  - h1: "1. 연구 질문"
   - p: "본문..."
+  - visual_brief:           # v0.2.0 — research-diagrammer가 그림으로 변환
+      purpose: "..."
+      claim: "..."
+      evidence: ["...", "..."]
+      forbidden: ["..."]
+      palette: "navy / teal / gray, 밝은 배경"
+      caption: "[그림 1] ..."
 ```
+
+`meta` 권장 6키 (모두 비어있지 않으면 권장 — 빠지면 `META_MISSING_KEY` warn):
+`연구 주제`, `연구 성격`, `연구 단계`, `분류`, `작성일`, `작성자`. `연구 성격` 도메인은 `구축` / `분석` / `검증` (다른 값은 `META_INVALID_VALUE` warn).
 
 `sections`는 flat command list여야 한다. 각 항목은 하나의 타입만 가진 객체로 작성한다.
 
 지원 타입:
 
 ```text
-h1, h2, h3, p, text, bullets, numbers, ordered, code, image, table, note, callout, spacer, blank
+h1, h2, h3, p, text, bullets, numbers, ordered, code, image, table, note, callout, spacer, blank, visual_brief
 ```
 
 금지 타입:
@@ -152,15 +174,28 @@ plugins/silotek-research-log/
 ├── commands/
 │   ├── setup.md
 │   ├── draft.md
-│   └── build-docx.md
+│   ├── build-docx.md
+│   └── critique.md           # v0.2.0
 ├── skills/
 │   ├── draft/SKILL.md
 │   └── build-docx/SKILL.md
+├── agents/                   # v0.2.0
+│   ├── research-diagrammer.md
+│   └── research-critic.md
 ├── scripts/
 │   ├── common.js
 │   ├── list-yaml.js
 │   ├── save-draft.js
-│   └── build-docx.js
+│   ├── build-docx.js
+│   └── critique.js           # v0.2.0
+├── examples/
+│   └── yaml/                 # v0.2.0 회귀 baseline
+│       ├── rf-card-baseline.yaml
+│       └── plugin-direction-baseline.yaml
+├── tests/                    # v0.1.3 도입, v0.2.0 확장 (35 tests, node:test)
+│   ├── helpers/
+│   ├── fixtures/
+│   ├── *.test.js
 ├── build.js
 ├── templates/research-log.yaml
 └── package.json
