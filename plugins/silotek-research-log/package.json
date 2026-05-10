@@ -1,6 +1,6 @@
 {
   "name": "silotek-research-log",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "사일로텍 연구일지 Claude Code 플러그인 및 DOCX 생성 엔진",
   "main": "build.js",
   "scripts": {

@@ -9,7 +9,7 @@
       "name": "silotek-research-log",
       "source": "./plugins/silotek-research-log",
       "description": "Create standardized Silotek research-log YAML records and DOCX reports.",
-      "version": "0.1.2",
+      "version": "0.1.3",
       "author": {
         "name": "Silotek"
       },
