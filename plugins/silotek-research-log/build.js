@@ -303,7 +303,22 @@ function renderElement(element, baseDir) {
         shading: { fill: "FFF9E6", type: ShadingType.CLEAR }
       })];
     }
-    
+
+    case 'visual_brief': {
+      // 회색 박스: [그림 명세] purpose / claim / caption
+      const lines = [
+        `[${value.caption || '그림 명세'}]`,
+        `목적: ${value.purpose || '(미명시)'}`,
+        `핵심 주장: ${value.claim || '(미명시)'}`
+      ];
+      const paragraphs = lines.map(line => new Paragraph({
+        children: parseInlineText(line),
+        spacing: { before: 60, after: 60 },
+        shading: { fill: "EEEEEE", type: ShadingType.CLEAR }
+      }));
+      return paragraphs;
+    }
+
     default:
       throw new Error(`알 수 없는 요소 타입: ${key}`);
   }

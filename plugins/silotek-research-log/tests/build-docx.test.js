@@ -37,3 +37,17 @@ test('build-docx still rejects forbidden top-level key (validateResearchLog)', (
   assert.notEqual(built.status, 0);
   assert.match(built.stderr, /project/);
 });
+
+test('build-docx renders visual_brief as a gray box (no error)', () => {
+  // visual-brief-complete.yaml을 inputs/에 직접 두고 build
+  const inputsDir = path.join(storage, 'inputs');
+  fs.mkdirSync(inputsDir, { recursive: true });
+  const target = path.join(inputsDir, '2026-05-10-vb-complete.yaml');
+  fs.copyFileSync(path.join(FIXTURES, 'visual-brief-complete.yaml'), target);
+  const built = runBuildDocx('2026-05-10-vb-complete', { storage });
+  assert.equal(built.status, 0, `stderr: ${built.stderr}`);
+  // 결과 docx 파일 생성 확인
+  const docx = path.join(storage, 'outputs', '2026-05-10-vb-complete.docx');
+  assert.ok(fs.existsSync(docx));
+  assert.ok(fs.statSync(docx).size > 0);
+});
