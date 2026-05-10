@@ -74,7 +74,7 @@ node .\plugins\silotek-research-log\scripts\save-draft.js .\.silotek-research-lo
 node .\plugins\silotek-research-log\scripts\build-docx.js 1
 ```
 
-테스트 스위트, 린터, 포매터는 설정되지 않았다. 검증은 "스크립트 실행 → 중앙 저장소 확인 → DOCX 열어보기"가 전부.
+테스트는 `node:test` 기반으로 `plugins/silotek-research-log/tests/` 아래에 있다. `npm test --prefix plugins/silotek-research-log`로 실행한다 (Node 18+). 통합 테스트는 `tests/save-draft.test.js`, `tests/build-docx.test.js`가 spawn으로 실제 스크립트를 호출해 검증한다. 린터, 포매터는 여전히 설정되지 않았다.
 
 ## 버전 관리
 
