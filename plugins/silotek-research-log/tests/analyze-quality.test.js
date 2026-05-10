@@ -84,3 +84,19 @@ test('analyzeQuality does NOT warn IMAGE_FILE_MISSING when no image element exis
   const codes = result.warnings.map(w => w.code);
   assert.ok(!codes.includes('IMAGE_FILE_MISSING'));
 });
+
+test('analyzeQuality warns META_INVALID_VALUE when 연구 성격 is out of domain', () => {
+  const result = analyzeQuality(loadFixture('invalid-research-nature.yaml'));
+  const codes = result.warnings.map(w => w.code);
+  assert.ok(codes.includes('META_INVALID_VALUE'));
+  const w = result.warnings.find(w => w.code === 'META_INVALID_VALUE');
+  assert.equal(w.detail.key, '연구 성격');
+  assert.equal(w.detail.value, '회고');
+  assert.deepEqual(w.detail.allowed, ['구축', '분석', '검증']);
+});
+
+test('analyzeQuality does NOT warn META_INVALID_VALUE on baseline (구축)', () => {
+  const result = analyzeQuality(loadFixture('baseline.yaml'));
+  const codes = result.warnings.map(w => w.code);
+  assert.ok(!codes.includes('META_INVALID_VALUE'));
+});

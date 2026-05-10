@@ -238,6 +238,18 @@ function analyzeQuality(doc, options = {}) {
     }
   }
 
+  // META_INVALID_VALUE 검사 — 도메인 강제 키들
+  if (meta['연구 성격'] !== undefined && meta['연구 성격'] !== null && String(meta['연구 성격']).trim() !== '') {
+    const value = String(meta['연구 성격']).trim();
+    if (!RESEARCH_NATURES.includes(value)) {
+      warnings.push({
+        code: 'META_INVALID_VALUE',
+        message: `meta.연구 성격은 ${RESEARCH_NATURES.join(' / ')} 중 하나여야 합니다 (현재: "${value}").`,
+        detail: { key: '연구 성격', value, allowed: RESEARCH_NATURES.slice() }
+      });
+    }
+  }
+
   const KEYWORD_GROUPS = {
     NO_VALIDATION_SECTION: {
       keywords: ['검증', '실험', '비교', '측정', '평가', '결과'],
