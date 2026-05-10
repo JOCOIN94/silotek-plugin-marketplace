@@ -46,3 +46,22 @@ test('analyzeQuality does NOT warn validation when heading has 검증', () => {
   // 이 테스트는 baseline에 검증 헤딩이 없음을 확인 (음성 케이스 검증).
   assert.ok(result.warnings.some(w => w.code === 'NO_VALIDATION_SECTION'));
 });
+
+test('analyzeQuality warns NO_IMAGES and NO_TABLES when both are zero', () => {
+  const result = analyzeQuality(loadFixture('no-images.yaml'));
+  const codes = result.warnings.map(w => w.code);
+  assert.ok(codes.includes('NO_IMAGES'));
+  assert.ok(codes.includes('NO_TABLES'));
+});
+
+test('analyzeQuality warns TEXT_TOO_SHORT when total text is under 800', () => {
+  const result = analyzeQuality(loadFixture('short-text.yaml'));
+  const codes = result.warnings.map(w => w.code);
+  assert.ok(codes.includes('TEXT_TOO_SHORT'));
+});
+
+test('analyzeQuality warns FOLDER_EXPLORATION_ANTI_PATTERN when keywords appear multiple times', () => {
+  const result = analyzeQuality(loadFixture('anti-pattern.yaml'));
+  const codes = result.warnings.map(w => w.code);
+  assert.ok(codes.includes('FOLDER_EXPLORATION_ANTI_PATTERN'));
+});

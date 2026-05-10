@@ -274,6 +274,63 @@ function analyzeQuality(doc, options = {}) {
     }
   }
 
+  // 정량 검사
+  if (stats.imageCount === 0) {
+    warnings.push({
+      code: 'NO_IMAGES',
+      message: '이미지가 0개입니다. 연구 산출물형 문서는 시각 자료를 1개 이상 두는 것을 권장합니다.',
+      detail: {}
+    });
+  }
+  if (stats.tableCount === 0) {
+    warnings.push({
+      code: 'NO_TABLES',
+      message: '표가 하나도 없습니다. 비교/요약 표를 1개 이상 두는 것을 권장합니다.',
+      detail: {}
+    });
+  }
+  if (stats.textLength < 800) {
+    warnings.push({
+      code: 'TEXT_TOO_SHORT',
+      message: `본문 텍스트가 ${stats.textLength}자입니다. 800자 이상으로 작성하는 것을 권장합니다.`,
+      detail: { textLength: stats.textLength, threshold: 800 }
+    });
+  }
+
+  // 안티패턴 검사
+  const ANTI_PATTERN_PHRASES = [
+    '단순히', '구조를 살펴본다', '구조를 살펴보면',
+    '디렉터리 구조를 정리', '폴더 구조를 정리'
+  ];
+  let bodyText = '';
+  for (const element of (doc.sections || [])) {
+    if (typeof element === 'string') {
+      bodyText += element + ' ';
+    } else if (isPlainObject(element)) {
+      const [key] = Object.keys(element);
+      const value = element[key];
+      if (typeof value === 'string') bodyText += value + ' ';
+      else if (Array.isArray(value)) {
+        for (const item of value) {
+          if (typeof item === 'string') bodyText += item + ' ';
+        }
+      }
+    }
+  }
+  let antiPatternHits = 0;
+  for (const phrase of ANTI_PATTERN_PHRASES) {
+    const re = new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+    const matches = bodyText.match(re);
+    if (matches) antiPatternHits += matches.length;
+  }
+  if (antiPatternHits >= 2) {
+    warnings.push({
+      code: 'FOLDER_EXPLORATION_ANTI_PATTERN',
+      message: `폴더 탐구형 키워드(${ANTI_PATTERN_PHRASES.join(', ')})가 ${antiPatternHits}회 등장합니다. 연구 질문 중심으로 본문을 다시 짜는 것을 권장합니다.`,
+      detail: { hits: antiPatternHits, threshold: 2 }
+    });
+  }
+
   return { errors, warnings, stats };
 }
 
