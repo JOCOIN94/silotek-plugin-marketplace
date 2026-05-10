@@ -1,0 +1,29 @@
+title: "연구 일지"
+subtitle: "사내 Claude Code 플러그인·Skill 기반 AI 자동화 방향성"
+meta:
+  연구 주제: "사내 Claude Code 플러그인·Skill 기반 AI 자동화 방향성"
+  연구 성격: "분석"
+  연구 단계: "방향성 검토"
+  분류: "AI/자동화"
+  작성일: "2026년 4월 22일"
+  작성자: "익명"
+sections:
+  - h1: "1. 배경"
+  - p: "사내 여러 팀에서 Claude Code 플러그인과 Skill을 산발적으로 도입하고 있다. 표준 가이드 없이 도입 중이라 중복과 누락이 동시에 발생한다. 본 문서는 자동화 방향성을 정리한다."
+  - h1: "2. 현재 도입 현황"
+  - p: "팀 A: 자체 plugin 1개. 팀 B: SKILL.md 3개. 팀 C: 자체 명령어 모음."
+  - h1: "3. 표준화 제안"
+  - bullets:
+      - "공유 marketplace 운영"
+      - "Skill 작성 가이드 한 곳"
+      - "Plugin 버전 관리 정책"
+  - h1: "4. 우선순위"
+  - p: "단계 1 — marketplace 인프라. 단계 2 — Skill 가이드. 단계 3 — Plugin 버전."
+  - table:
+      headers: ["단계", "기간", "산출물"]
+      rows:
+        - ["1", "2주", "marketplace 운영"]
+        - ["2", "1주", "Skill 가이드"]
+        - ["3", "1주", "버전 정책"]
+  - h1: "5. 결론"
+  - p: "marketplace 우선 도입. 단계적 표준화 진행."
