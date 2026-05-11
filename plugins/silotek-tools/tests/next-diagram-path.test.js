@@ -81,3 +81,24 @@ test('CLI --count with a bad value exits non-zero', () => {
   const out = spawnSync('node', [NEXT_DIAGRAM_SCRIPT, dir, '--count', 'abc', '--json'], { encoding: 'utf8' });
   assert.notEqual(out.status, 0);
 });
+
+test('CLI --count=N (equals form) prints a JSON array', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'silotek-diagram-'));
+  const out = spawnSync('node', [NEXT_DIAGRAM_SCRIPT, dir, '--count=2', '--json'], { encoding: 'utf8' });
+  assert.equal(out.status, 0);
+  const parsed = JSON.parse(out.stdout);
+  assert.equal(Array.isArray(parsed), true);
+  assert.equal(parsed.length, 2);
+});
+
+test('CLI --count with no value exits non-zero', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'silotek-diagram-'));
+  const out = spawnSync('node', [NEXT_DIAGRAM_SCRIPT, dir, '--count'], { encoding: 'utf8' });
+  assert.notEqual(out.status, 0);
+});
+
+test('CLI rejects an unknown flag', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'silotek-diagram-'));
+  const out = spawnSync('node', [NEXT_DIAGRAM_SCRIPT, dir, '--bogus'], { encoding: 'utf8' });
+  assert.notEqual(out.status, 0);
+});

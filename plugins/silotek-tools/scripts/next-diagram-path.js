@@ -47,7 +47,17 @@ function main() {
   for (let i = 0; i < args.length; i += 1) {
     const arg = args[i];
     if (arg === '--json') continue;
-    if (arg === '--count') { count = args[i + 1]; i += 1; continue; }
+    if (arg === '--count') {
+      const next = args[i + 1];
+      if (next === undefined || next.startsWith('--')) {
+        throw new Error('--count requires a value');
+      }
+      count = next;
+      i += 1;
+      continue;
+    }
+    if (arg.startsWith('--count=')) { count = arg.slice('--count='.length); continue; }
+    if (arg.startsWith('--')) { throw new Error(`unknown flag: ${arg}`); }
     positional.push(arg);
   }
   const dir = positional[0] || '.silotek-diagrams';
