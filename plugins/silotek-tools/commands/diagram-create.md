@@ -27,12 +27,12 @@ Windows PowerShell:
 
 ```powershell
 $scriptName = "next-diagram-path.js"
-$pluginRoot = $env:CLAUDE_PLUGIN_ROOT
-if (-not $pluginRoot) {
-  $localRoot = Join-Path (Get-Location) "plugins\silotek-tools"
-  if (Test-Path (Join-Path $localRoot "scripts\$scriptName")) { $pluginRoot = $localRoot }
-}
-if (-not $pluginRoot) { throw "Cannot locate silotek-tools plugin root." }
+$pluginRoot = @(
+  "${CLAUDE_PLUGIN_ROOT}",
+  (Get-Location).Path,
+  (Join-Path (Get-Location) "plugins\silotek-tools")
+) | Where-Object { $_ -and (Test-Path (Join-Path $_ "scripts\$scriptName")) } | Select-Object -First 1
+if (-not $pluginRoot) { throw "Cannot locate silotek-tools: scripts\$scriptName not found via CLAUDE_PLUGIN_ROOT or current directory." }
 $alloc = node (Join-Path $pluginRoot "scripts\$scriptName") ".silotek-diagrams" --json | ConvertFrom-Json
 # Write the diagram HTML to $alloc.htmlPath, then rasterize:
 node (Join-Path $pluginRoot "scripts\rasterize-svg.js") $alloc.htmlPath $alloc.pngPath
@@ -42,12 +42,12 @@ macOS/Linux shell:
 
 ```bash
 script_name="next-diagram-path.js"
-plugin_root="${CLAUDE_PLUGIN_ROOT:-}"
-if [ -z "$plugin_root" ] && [ -f "plugins/silotek-tools/scripts/$script_name" ]; then
-  plugin_root="$PWD/plugins/silotek-tools"
-fi
+plugin_root=""
+for base in "${CLAUDE_PLUGIN_ROOT}" "$PWD" "$PWD/plugins/silotek-tools"; do
+  if [ -n "$base" ] && [ -f "$base/scripts/$script_name" ]; then plugin_root="$base"; break; fi
+done
 if [ -z "$plugin_root" ]; then
-  echo "Cannot locate silotek-tools plugin root." >&2
+  echo "Cannot locate silotek-tools: scripts/$script_name not found via CLAUDE_PLUGIN_ROOT or current directory." >&2
   exit 1
 fi
 node "$plugin_root/scripts/$script_name" ".silotek-diagrams" --json
