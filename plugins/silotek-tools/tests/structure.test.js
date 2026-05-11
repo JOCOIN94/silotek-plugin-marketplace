@@ -71,9 +71,21 @@ test('command and skill docs do not rely on a bare CLAUDE_PLUGIN_ROOT script pat
   }
 });
 
-test('legacy agents directory is not part of silotek-tools runtime surface', () => {
+test('agents directory contains exactly the silotek-diagrammer agent with valid frontmatter', () => {
   const agentsDir = path.join(PLUGIN_ROOT, 'agents');
-  assert.equal(fs.existsSync(agentsDir), false);
+  assert.equal(fs.existsSync(agentsDir), true);
+  const agentFiles = fs.readdirSync(agentsDir).filter(name => name.endsWith('.md')).sort();
+  assert.deepEqual(agentFiles, ['silotek-diagrammer.md']);
+
+  const text = fs.readFileSync(path.join(agentsDir, 'silotek-diagrammer.md'), 'utf8');
+  const fm = text.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  assert.ok(fm, 'silotek-diagrammer.md must start with a YAML frontmatter block');
+  assert.match(fm[1], /name:\s*silotek-diagrammer\b/);
+  assert.match(fm[1], /description:\s*\S/);
+  assert.match(fm[1], /tools:\s*\S/);
+  // 본문이 다이어그램 스킬과 래스터라이저를 가리키는지
+  assert.match(text, /silotek-diagram-design/);
+  assert.match(text, /rasterize-svg\.js/);
 });
 
 test('command and skill docs include Windows and macOS shell guidance', () => {
