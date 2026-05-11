@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Silotek Diagram</title>
+  <style>
+    :root {
+      --navy: #1e3a5f;
+      --teal: #2c8d8a;
+      --gray: #6b7280;
+      --paper: #f8fafc;
+      --ink: #0f172a;
+      --line: #cbd5e1;
+      --muted: #e5e7eb;
+      --white: #ffffff;
+    }
+    html, body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: Pretendard, Arial, sans-serif;
+    }
+    main {
+      width: min(1120px, calc(100vw - 48px));
+      margin: 32px auto;
+    }
+    svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-labelledby="title desc">
+      <title id="title">Silotek Diagram</title>
+      <desc id="desc">A restrained editorial diagram template.</desc>
+      <rect width="960" height="540" fill="#f8fafc"/>
+      <text x="48" y="64" fill="#0f172a" font-size="28" font-weight="700" font-family="Pretendard, Arial, sans-serif">Diagram Title</text>
+      <rect x="48" y="132" width="216" height="96" rx="8" fill="#ffffff" stroke="#1e3a5f" stroke-width="2"/>
+      <text x="156" y="186" fill="#1e3a5f" font-size="18" font-weight="700" text-anchor="middle" font-family="Pretendard, Arial, sans-serif">Source</text>
+      <path d="M280 180 H420" fill="none" stroke="#2c8d8a" stroke-width="2" marker-end="url(#arrow)"/>
+      <rect x="436" y="132" width="216" height="96" rx="8" fill="#ffffff" stroke="#2c8d8a" stroke-width="2"/>
+      <text x="544" y="186" fill="#0f172a" font-size="18" font-weight="700" text-anchor="middle" font-family="Pretendard, Arial, sans-serif">Transform</text>
+      <path d="M668 180 H808" fill="none" stroke="#6b7280" stroke-width="2" marker-end="url(#arrow-muted)"/>
+      <rect x="824" y="132" width="88" height="96" rx="8" fill="#ffffff" stroke="#6b7280" stroke-width="2"/>
+      <text x="868" y="186" fill="#0f172a" font-size="18" font-weight="700" text-anchor="middle" font-family="Pretendard, Arial, sans-serif">Result</text>
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+          <path d="M0 0 L8 4 L0 8 Z" fill="#2c8d8a"/>
+        </marker>
+        <marker id="arrow-muted" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+          <path d="M0 0 L8 4 L0 8 Z" fill="#6b7280"/>
+        </marker>
+      </defs>
+    </svg>
+  </main>
+</body>
+</html>

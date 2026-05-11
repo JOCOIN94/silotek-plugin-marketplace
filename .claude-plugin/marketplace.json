@@ -6,10 +6,10 @@
   "description": "Internal Claude Code plugins for Silotek workflows.",
   "plugins": [
     {
-      "name": "silotek-research-log",
-      "source": "./plugins/silotek-research-log",
-      "description": "사일로텍 연구일지 YAML/DOCX 생성기 — 연구일지 성격(구축/분석/검증) 선택, visual_brief + research-diagrammer 서브에이전트로 다이어그램 생성, save-draft 직후 research-critic이 100점 채점.",
-      "version": "0.2.0",
+      "name": "silotek-tools",
+      "source": "./plugins/silotek-tools",
+      "description": "Silotek research-log YAML/DOCX commands and an independent diagram creation skill.",
+      "version": "0.3.0",
       "author": {
         "name": "Silotek"
       },
@@ -17,7 +17,8 @@
       "tags": [
         "research-log",
         "docx",
-        "yaml"
+        "yaml",
+        "diagram"
       ]
     }
   ]
