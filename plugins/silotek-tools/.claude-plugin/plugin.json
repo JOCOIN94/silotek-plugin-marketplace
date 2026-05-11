@@ -1,7 +1,7 @@
 {
   "name": "silotek-tools",
   "description": "Create Silotek research-log YAML/DOCX artifacts and standalone editorial diagrams from Claude Code.",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "author": {
     "name": "Silotek"
   },

@@ -71,9 +71,21 @@ test('command and skill docs do not rely on a bare CLAUDE_PLUGIN_ROOT script pat
   }
 });
 
-test('legacy agents directory is not part of silotek-tools runtime surface', () => {
+test('agents directory contains exactly the silotek-diagrammer agent with valid frontmatter', () => {
   const agentsDir = path.join(PLUGIN_ROOT, 'agents');
-  assert.equal(fs.existsSync(agentsDir), false);
+  assert.equal(fs.existsSync(agentsDir), true);
+  const agentFiles = fs.readdirSync(agentsDir).filter(name => name.endsWith('.md')).sort();
+  assert.deepEqual(agentFiles, ['silotek-diagrammer.md']);
+
+  const text = fs.readFileSync(path.join(agentsDir, 'silotek-diagrammer.md'), 'utf8');
+  const fm = text.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  assert.ok(fm, 'silotek-diagrammer.md must start with a YAML frontmatter block');
+  assert.match(fm[1], /name:\s*silotek-diagrammer\b/);
+  assert.match(fm[1], /description:\s*\S/);
+  assert.match(fm[1], /tools:\s*\S/);
+  // 본문이 다이어그램 스킬과 래스터라이저를 가리키는지
+  assert.match(text, /silotek-diagram-design/);
+  assert.match(text, /rasterize-svg\.js/);
 });
 
 test('command and skill docs include Windows and macOS shell guidance', () => {
@@ -127,5 +139,46 @@ test('active docs do not expose stale draft, old namespace, or quality-scoring l
     for (const pattern of forbidden) {
       assert.doesNotMatch(text, pattern, file);
     }
+  }
+});
+
+test('project docs mention the silotek-diagrammer agent and the --count flag', () => {
+  const repoClaude = fs.readFileSync(path.join(REPO_ROOT, 'CLAUDE.md'), 'utf8');
+  const pluginReadme = fs.readFileSync(path.join(PLUGIN_ROOT, 'README.md'), 'utf8');
+  for (const text of [repoClaude, pluginReadme]) {
+    assert.match(text, /silotek-diagrammer/);
+  }
+  assert.match(repoClaude, /--count/);
+});
+
+test('plugin version fields are all 0.4.0', () => {
+  const marketplace = readJson(path.join(REPO_ROOT, '.claude-plugin', 'marketplace.json'));
+  const plugin = readJson(path.join(PLUGIN_ROOT, '.claude-plugin', 'plugin.json'));
+  const pkg = readJson(path.join(PLUGIN_ROOT, 'package.json'));
+  const lock = readJson(path.join(PLUGIN_ROOT, 'package-lock.json'));
+  assert.equal(marketplace.plugins[0].version, '0.4.0');
+  assert.equal(plugin.version, '0.4.0');
+  assert.equal(pkg.version, '0.4.0');
+  assert.equal(lock.version, '0.4.0');
+  assert.equal(lock.packages[''].version, '0.4.0');
+});
+
+test('research-log-yaml-create docs restore source/nature selection and describe parallel diagram generation', () => {
+  const skill = fs.readFileSync(path.join(PLUGIN_ROOT, 'skills', 'research-log-yaml-create', 'SKILL.md'), 'utf8');
+  const cmd = fs.readFileSync(path.join(PLUGIN_ROOT, 'commands', 'research-log-yaml-create.md'), 'utf8');
+  for (const text of [skill, cmd]) {
+    // 소스 모드 3종
+    assert.match(text, /conversation/);
+    assert.match(text, /folder/);
+    assert.match(text, /mixed/);
+    // 연구 성격 3종
+    assert.match(text, /구축/);
+    assert.match(text, /분석/);
+    assert.match(text, /검증/);
+    // 다중 다이어그램 흐름
+    assert.match(text, /silotek-diagrammer/);
+    assert.match(text, /--count/);
+    assert.match(text, /병렬|parallel/i);
+    assert.match(text, /confirm/i);
   }
 });

@@ -29,6 +29,7 @@ Claude-facing layer:
 - `skills/research-log-yaml-retouch/`: AI rewrite and revised-copy workflow.
 - `skills/research-log-docx-create/`: DOCX build workflow.
 - `skills/silotek-diagram-design/`: independent diagram authoring skill imported from the `JOCOIN94/diagram-design` fork.
+- `agents/silotek-diagrammer.md`: per-diagram subagent; the research-log creation skill dispatches one instance per `visual_brief` in parallel.
 
 Node layer:
 
@@ -36,7 +37,7 @@ Node layer:
 - `scripts/resolve-yaml.js`: resolves a saved YAML by number, basename, or path for skill use.
 - `scripts/save-draft.js`: validates a draft, auto-rasterizes missing PNGs from sibling HTML, copies figures, and saves YAML/manifests.
 - `scripts/build-docx.js`: selects saved YAML and calls `build.js`.
-- `scripts/next-diagram-path.js`: allocates the next available diagram HTML/PNG path.
+- `scripts/next-diagram-path.js`: allocates the next available diagram HTML/PNG path; `--count N` returns N consecutive free paths for batch (parallel) allocation.
 - `scripts/rasterize-svg.js`: extracts one inline SVG from HTML and renders PNG with `@resvg/resvg-js`.
 - `scripts/setup-check.js`: read-only diagnostics.
 - `build.js`: DOCX renderer.
@@ -78,6 +79,8 @@ Research-log diagrams default to:
 ```
 
 `visual_brief` remains a planning element inside the research-log YAML. The diagram skill is separate and reusable; the research-log creation skill consumes it when a figure is needed.
+
+`research-log-yaml-create` writes `visual_brief` placeholders while drafting, confirms with the user before generating, allocates paths with `next-diagram-path.js --count`, dispatches one `silotek-diagrammer` subagent per brief in parallel, and pairs each returned PNG as an immediate `image`. Skipped or failed briefs stay unpaired and render as the gray fallback box.
 
 DOCX consumes PNG only. HTML sidecars are kept for editing and browser preview. If `visual_brief` is immediately followed by an existing `image`, `build.js` renders the image and suppresses the fallback gray brief box. If the image is missing, the fallback box is rendered.
 
@@ -121,4 +124,4 @@ Keep these in sync:
 - `plugins/silotek-tools/package.json`
 - `plugins/silotek-tools/package-lock.json`
 
-Current breaking rename: v0.3.0, from `silotek-research-log` package to `silotek-tools`.
+Current breaking rename: v0.3.0, from `silotek-research-log` package to `silotek-tools`. v0.4.0 adds source/nature selection and parallel diagram generation (non-breaking).
