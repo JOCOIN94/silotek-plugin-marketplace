@@ -142,6 +142,15 @@ test('active docs do not expose stale draft, old namespace, or quality-scoring l
   }
 });
 
+test('project docs mention the silotek-diagrammer agent and the --count flag', () => {
+  const repoClaude = fs.readFileSync(path.join(REPO_ROOT, 'CLAUDE.md'), 'utf8');
+  const pluginReadme = fs.readFileSync(path.join(PLUGIN_ROOT, 'README.md'), 'utf8');
+  for (const text of [repoClaude, pluginReadme]) {
+    assert.match(text, /silotek-diagrammer/);
+  }
+  assert.match(repoClaude, /--count/);
+});
+
 test('research-log-yaml-create docs restore source/nature selection and describe parallel diagram generation', () => {
   const skill = fs.readFileSync(path.join(PLUGIN_ROOT, 'skills', 'research-log-yaml-create', 'SKILL.md'), 'utf8');
   const cmd = fs.readFileSync(path.join(PLUGIN_ROOT, 'commands', 'research-log-yaml-create.md'), 'utf8');
