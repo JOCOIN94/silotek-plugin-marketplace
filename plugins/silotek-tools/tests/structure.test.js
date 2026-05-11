@@ -141,3 +141,23 @@ test('active docs do not expose stale draft, old namespace, or quality-scoring l
     }
   }
 });
+
+test('research-log-yaml-create docs restore source/nature selection and describe parallel diagram generation', () => {
+  const skill = fs.readFileSync(path.join(PLUGIN_ROOT, 'skills', 'research-log-yaml-create', 'SKILL.md'), 'utf8');
+  const cmd = fs.readFileSync(path.join(PLUGIN_ROOT, 'commands', 'research-log-yaml-create.md'), 'utf8');
+  for (const text of [skill, cmd]) {
+    // 소스 모드 3종
+    assert.match(text, /conversation/);
+    assert.match(text, /folder/);
+    assert.match(text, /mixed/);
+    // 연구 성격 3종
+    assert.match(text, /구축/);
+    assert.match(text, /분석/);
+    assert.match(text, /검증/);
+    // 다중 다이어그램 흐름
+    assert.match(text, /silotek-diagrammer/);
+    assert.match(text, /--count/);
+    assert.match(text, /병렬|parallel/i);
+    assert.match(text, /confirm/i);
+  }
+});
