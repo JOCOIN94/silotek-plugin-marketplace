@@ -151,16 +151,16 @@ test('project docs mention the silotek-diagrammer agent and the --count flag', (
   assert.match(repoClaude, /--count/);
 });
 
-test('plugin version fields are all 0.4.1', () => {
+test('plugin version fields are all 0.4.2', () => {
   const marketplace = readJson(path.join(REPO_ROOT, '.claude-plugin', 'marketplace.json'));
   const plugin = readJson(path.join(PLUGIN_ROOT, '.claude-plugin', 'plugin.json'));
   const pkg = readJson(path.join(PLUGIN_ROOT, 'package.json'));
   const lock = readJson(path.join(PLUGIN_ROOT, 'package-lock.json'));
-  assert.equal(marketplace.plugins[0].version, '0.4.1');
-  assert.equal(plugin.version, '0.4.1');
-  assert.equal(pkg.version, '0.4.1');
-  assert.equal(lock.version, '0.4.1');
-  assert.equal(lock.packages[''].version, '0.4.1');
+  assert.equal(marketplace.plugins[0].version, '0.4.2');
+  assert.equal(plugin.version, '0.4.2');
+  assert.equal(pkg.version, '0.4.2');
+  assert.equal(lock.version, '0.4.2');
+  assert.equal(lock.packages[''].version, '0.4.2');
 });
 
 test('research-log-yaml-create docs restore source/nature selection and describe parallel diagram generation', () => {
