@@ -1,6 +1,6 @@
-﻿# CLAUDE.md
+﻿# AGENTS.md
 
-This repository is a local Claude Code plugin marketplace named `silotek-tools`.
+This repository is a local Codex plugin marketplace named `silotek-tools`.
 
 ## Current Plugin
 
@@ -22,7 +22,7 @@ Visible commands:
 
 ## Architecture
 
-Claude-facing layer:
+Codex-facing layer:
 
 - `commands/*.md`: slash command prompts.
 - `skills/research-log-yaml-create/`: research-log YAML creation rules.
@@ -42,7 +42,7 @@ Node layer:
 - `scripts/setup-check.js`: read-only diagnostics.
 - `build.js`: DOCX renderer.
 
-Node scripts must not rewrite research logs or decide whether the research argument is strong enough. That judgment belongs to the Claude-facing skill instructions.
+Node scripts must not rewrite research logs or decide whether the research argument is strong enough. That judgment belongs to the Codex-facing skill instructions.
 
 ## Data Flow
 
@@ -112,15 +112,15 @@ node --check plugins/silotek-tools/scripts/resolve-yaml.js
 node --check plugins/silotek-tools/scripts/next-diagram-path.js
 node --check plugins/silotek-tools/build.js
 npm.cmd test --prefix plugins/silotek-tools
-claude plugin validate .
+Codex plugin validate .
 ```
 
 ## Versioning
 
 Keep these in sync:
 
-- `.claude-plugin/marketplace.json`
-- `plugins/silotek-tools/.claude-plugin/plugin.json`
+- `.Codex-plugin/marketplace.json`
+- `plugins/silotek-tools/.Codex-plugin/plugin.json`
 - `plugins/silotek-tools/package.json`
 - `plugins/silotek-tools/package-lock.json`
 

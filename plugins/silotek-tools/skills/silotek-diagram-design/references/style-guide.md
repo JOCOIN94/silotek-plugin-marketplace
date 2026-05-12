@@ -1,8 +1,14 @@
-# Silotek Diagram Style Guide
+# 사일로텍 다이어그램 스타일 가이드
 
-Use this style guide for every diagram created by `silotek-diagram-design`.
+`silotek-diagram-design`이 만드는 모든 다이어그램에 이 스타일 가이드를 적용한다. 단일 룩은 Silotek light다.
 
-## Palette
+## 브리프 우선 원칙
+
+`visual_brief`와 함께 호출되면, 브리프의 `claim`과 `evidence`가 그림이 반드시 표현해야 할 것을 정의한다. `evidence`의 각 항목은 최소 하나의 라벨 붙은 요소(노드, 엣지, 레인, 레이어, 영역, 행 등)로 매핑한다. 숫자 가이드는 편집형 기본값일 뿐이며, 브리프나 사용자 요청문이 더 많은 근거를 요구하면 그 근거가 이긴다.
+
+한 장에 안 들어갈 때는 계층, 그룹, 타일, 서브박스로 압축한다. 그래도 1152px 기본 래스터 폭에서 읽히지 않으면 보고에 분할 필요를 적고 첫 장을 만든다. 근거를 임의로 버리지 않는다.
+
+## 팔레트
 
 ```css
 :root {
@@ -17,32 +23,60 @@ Use this style guide for every diagram created by `silotek-diagram-design`.
 }
 ```
 
-Use `--navy` for the focal structure, `--teal` for one active path or highlight, and `--gray` for secondary evidence. Avoid extra accents unless the user asks.
+`--navy`는 기본 구조와 focal node, `--teal`은 활성 경로와 강조, `--gray`는 보조 근거, `--paper`는 배경, `--ink`는 본문 라벨에 쓴다.
 
-## Typography
+## 색 규칙
 
-Use this font stack in SVG text:
+색은 구분(범주, 상태, 경로)을 인코딩하거나, 아니면 등장하지 않는다. 범주 구분에는 범주 수만큼 명확히 구별되는 색을 써도 된다. 단 각 색이 작은 크기, 흰 배경, PNG 래스터화 후에도 구별되어야 한다.
+
+범주 구분이 없는 그림은 navy, teal, gray와 강조 1개로 절제한다. 이유 없이 박스마다 다른 색을 쓰면 위계가 무너진다.
+
+권장 범주 팔레트:
+
+| 범주 색 | Hex | 쓰임 |
+|---|---:|---|
+| Blue | `#2563eb` | 제품, 채널, 외부 입력 |
+| Green | `#16a34a` | 성공, 승인, 정상 경로 |
+| Amber | `#d97706` | 주의, 대기, 비용 |
+| Red | `#dc2626` | 오류, 차단, 위험 |
+| Violet | `#7c3aed` | 모델, 자동화, 추론 |
+| Cyan | `#0891b2` | 데이터, 센서, 스트림 |
+| Rose | `#be123c` | 사용자 영향, 민감 영역 |
+| Slate | `#475569` | 기타, 보류, 레거시 |
+
+navy, teal, gray는 구조용이고, 범주 색은 인코딩용이다.
+
+## 타이포그래피
+
+SVG 텍스트에 이 폰트 스택을 쓴다:
 
 ```css
 font-family: Pretendard, Arial, sans-serif;
 ```
 
-Use one title size, one label size, and one note size. Keep labels short enough to fit their containers.
+래스터라이저는 번들 Pretendard Regular/Bold만 안정적으로 로드한다. 이탤릭, 세리프, monospace 전용 폰트를 가정하지 않는다. 코드 라벨도 Pretendard로 짧게 쓴다.
 
-## Geometry
+제목 크기 하나, 라벨 크기 하나, 노트 크기 하나만 쓴다. 라벨은 담는 컨테이너에 들어갈 만큼 짧게 유지한다.
 
-- 4px grid.
-- 8px corner radius maximum.
-- 1.5px to 2px strokes.
-- No shadows.
-- No gradient-only meaning.
-- Keep major boxes to 9 or fewer by default.
+## 기하
 
-## HTML/SVG Contract
+- 4px 그리드.
+- 모서리 반경은 보통 6~8px.
+- 선 두께 1.5px~2px.
+- 그림자 없음.
+- 그라데이션 없음.
+- 편집형 기본값은 주요 박스 9개 안팎. 브리프 근거가 더 많으면 그룹핑, 계층, 타일, 서브박스로 읽히게 한다.
+- focal node 1~2개는 유지한다. 이것은 신호 규칙이다.
 
-- Self-contained HTML.
-- Exactly one inline SVG.
-- No JavaScript.
-- No remote assets.
-- No `foreignObject`.
-- The SVG must rasterize cleanly at 1152px width.
+## HTML/SVG 계약
+
+`scripts/rasterize-svg.js`의 안전 제약과 맞춰 작성한다:
+
+- 자체 완결형 HTML.
+- 인라인 SVG 정확히 하나.
+- JavaScript 없음.
+- 원격 `href`, `src`, `xlink:href`, 원격 `url()` 없음.
+- `iframe`, `object`, `embed` 없음.
+- 인라인 이벤트 핸들러 없음.
+- `foreignObject` 없음.
+- SVG는 기본 1152px 폭에서 깨끗하게 래스터화되어야 한다.

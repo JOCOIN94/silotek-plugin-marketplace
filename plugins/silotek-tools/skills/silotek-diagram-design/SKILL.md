@@ -1,19 +1,19 @@
 ---
 name: silotek-diagram-design
-description: Create standalone Silotek editorial diagrams as self-contained HTML with one inline SVG, plus a PNG sidecar through rasterization.
+description: 인라인 SVG 하나를 담은 자체 완결형 HTML로 독립 실행 가능한 사일로텍 편집형 다이어그램을 만들고, 래스터화로 PNG 사이드카를 함께 생성한다.
 ---
 
-# Silotek Diagram Design
+# 사일로텍 다이어그램 디자인 (Silotek Diagram Design)
 
-Use this skill when the user asks for a diagram, architecture figure, process map, sequence diagram, state diagram, ER diagram, timeline, swimlane, quadrant, nested structure, tree, layers view, venn diagram, or pyramid.
+사용자가 다이어그램, 아키텍처 그림, 프로세스 맵, 시퀀스 다이어그램, 상태 다이어그램, ER 다이어그램, 타임라인, 스윔레인, 사분면(quadrant), 중첩 구조, 트리, 레이어 뷰, 벤 다이어그램, 피라미드를 요청할 때 이 스킬을 쓴다.
 
-This skill is independent. Research-log commands may call it, but it must also work on its own through `/silotek-tools:diagram-create`.
+이 스킬은 독립적이다. 연구일지 명령이 이 스킬을 호출할 수 있지만, `/silotek-tools:diagram-create`를 통해 단독으로도 동작해야 한다.
 
-## Output Contract
+## 출력 계약
 
-Create an editable HTML sidecar containing exactly one inline SVG. The rasterizer will convert that SVG to PNG.
+인라인 SVG를 정확히 하나 담은, 편집 가능한 HTML 사이드카를 만든다. 래스터라이저가 그 SVG를 PNG로 변환한다.
 
-Default standalone output:
+기본 독립 실행 출력:
 
 ```text
 .silotek-diagrams/
@@ -21,7 +21,7 @@ Default standalone output:
   diagram-N.png
 ```
 
-Research-log consumers may instead request:
+연구일지 소비자는 대신 다음을 요청할 수 있다:
 
 ```text
 .silotek-research-log-figures/
@@ -29,7 +29,19 @@ Research-log consumers may instead request:
   diagram-N.png
 ```
 
-Allocate filenames with `scripts/next-diagram-path.js` before writing the HTML so existing files are never overwritten.
+HTML을 쓰기 전에 `scripts/next-diagram-path.js`로 파일명을 할당해, 기존 파일을 절대 덮어쓰지 않는다.
+
+## 브리프 우선 원칙
+
+`visual_brief`와 함께 호출되면, 브리프의 `claim`과 `evidence`가 그림이 반드시 표현해야 할 것을 정의한다. `evidence`의 각 항목은 최소 하나의 라벨 붙은 요소(노드, 엣지, 레인, 레이어, 영역, 행 등)로 매핑한다. 크기 취향을 맞추려고 근거 항목을 빼거나, 합치거나, 요약하지 않는다.
+
+아래 숫자 가이드는 편집형 그림의 편안한 기본값일 뿐이다. 브리프가 더 요구하면 브리프가 이긴다. 표준 명령(`/silotek-tools:diagram-create`, 브리프 없음)에서는 사용자 요청문이 같은 역할을 한다.
+
+한 장에 안 들어갈 때는 다음 순서로 처리한다:
+
+1. 계층, 그룹, 타일, 서브박스로 압축해 한 장에 담는다.
+2. 그래도 기본 래스터 폭(1152px)에서 안 읽히면, 보고에 "이 브리프는 N장으로 나눠야 함"을 적고 첫 장을 그린다.
+3. 임의로 근거를 버리지 않는다. 읽을 수 없는 덩어리를 출고하지 않는다.
 
 ## Windows PowerShell
 
@@ -59,20 +71,22 @@ fi
 node "$plugin_root/scripts/$script_name" ".silotek-diagrams" --json
 ```
 
-## Design Rules
+## 디자인 규칙
 
-- Use the Silotek palette from `references/style-guide.md`.
-- Prefer navy, teal, gray, paper, and ink. Use at most two accent colors.
-- Keep diagrams editorial, restrained, and readable.
-- Keep major boxes to 9 or fewer unless the user explicitly asks for a dense technical reference.
-- Use a 4px grid and simple lines.
-- Avoid shadows, gradients, decorative blobs, emojis, and unnecessary illustration.
-- Use Korean labels safely with a font stack beginning with Pretendard.
-- Do not load remote fonts, scripts, remote images, iframes, or `foreignObject`.
+- `references/style-guide.md`의 사일로텍 팔레트를 쓴다.
+- 단일 룩은 Silotek light다. 별도 테마, 갤러리형, 손그림 변형을 만들지 않는다.
+- 산문은 한국어로 쓰되, `viewBox`, `marker-end`, `swimlane`, `lifeline`, `activation bar`, `callout`, `eyebrow`, `happy path`, `focal node`처럼 자연스러운 기술 용어는 영어로 둔다.
+- 색은 범주, 상태, 경로, 초점 같은 구분을 인코딩할 때만 쓴다. 구분이 없으면 navy, teal, gray와 강조 1개만 쓴다.
+- 편집형 기본값은 주요 박스 9개 안팎이다. 브리프 근거가 더 많으면 더 그리고, 가독성은 그룹핑, 계층, 타일, 서브박스로 확보한다.
+- focal node는 1~2개만 둔다. 이것은 요소 수 제한이 아니라 독자의 시선을 위한 신호 규칙이다.
+- 4px 그리드와 단순한 선을 쓴다.
+- 그림자, 그라데이션, 장식용 블롭, 이모지, 불필요한 일러스트를 피한다.
+- Pretendard로 시작하는 폰트 스택으로 한국어 라벨을 안전하게 쓴다. monospace 전용 폰트를 가정하지 않는다.
+- 원격 폰트, 스크립트, 원격 이미지, iframe, `foreignObject`를 로드하지 않는다.
 
-## Type Selection
+## 타입 선택
 
-Use the closest reference file in `references/`:
+`references/`에서 가장 가까운 레퍼런스 파일을 쓴다:
 
 - `type-architecture.md`
 - `type-flowchart.md`
@@ -88,16 +102,17 @@ Use the closest reference file in `references/`:
 - `type-venn.md`
 - `type-pyramid.md`
 
-Use `primitive-annotation.md` and `primitive-sketchy.md` only when they improve clarity without making the figure look playful.
+`primitive-annotation.md`는 주 다이어그램과 경쟁하지 않는 곁말이 필요할 때만 쓴다.
 
-## Taste Gate
+## 안목 게이트 (Taste Gate)
 
-Before saving, check:
+저장하기 전에 점검한다:
 
-- Can a reader understand the main claim in 5 seconds?
-- Is the evidence encoded as labeled nodes, relationships, order, grouping, or contrast?
-- Is there a visible focal point?
-- Are captions and labels shorter than the shapes that contain them?
-- Does the diagram still work when rasterized to roughly 1152px wide?
+- 1152px 기본 래스터 폭에서 라벨, 엣지, 범례가 읽히는가?
+- 브리프 또는 사용자 요청문의 근거가 라벨 붙은 요소로 인코딩되어 있는가?
+- 독자가 핵심 주장을 5초 안에 이해할 수 있는가?
+- focal node 1~2개가 보이는가?
+- 캡션과 라벨이 그것을 담는 도형보다 짧은가?
+- 색이 실제 구분을 만들고 있는가, 아니면 장식으로만 쓰였는가?
 
-If not, simplify the structure before writing the file.
+아니라면, 파일을 쓰기 전에 구조를 그룹화하거나 분할한다. 근거를 버려서 단순화하지 않는다.

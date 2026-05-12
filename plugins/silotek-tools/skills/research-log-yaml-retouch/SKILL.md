@@ -1,27 +1,27 @@
 ---
 name: research-log-yaml-retouch
-description: Revise an existing Silotek research-log YAML with AI judgment while preserving the original file.
+description: 기존 사일로텍 연구일지 YAML을 AI 판단으로 다시 다듬되, 원본 파일은 그대로 보존한다.
 ---
 
-# Research Log YAML Retouch
+# 연구일지 YAML 리터치 (Research Log YAML Retouch)
 
-Use this skill for `/silotek-tools:research-log-yaml-retouch`.
+이 스킬은 `/silotek-tools:research-log-yaml-retouch`에 쓴다.
 
-## Flow
+## 절차
 
-1. Resolve the YAML by number, basename, or path with `scripts/resolve-yaml.js`.
-2. Read the resolved YAML directly.
-3. Rewrite the YAML into a stronger research-log revision.
-4. Save the revised version through `scripts/save-draft.js`.
-5. Leave the original unchanged.
+1. `scripts/resolve-yaml.js`로 번호, basename, 경로 중 하나를 통해 YAML을 찾는다.
+2. 찾은 YAML을 직접 읽는다.
+3. 더 강한 연구일지 개정판으로 YAML을 다시 쓴다.
+4. 개정판을 `scripts/save-draft.js`로 저장한다.
+5. 원본은 건드리지 않는다.
 
-## Boundary
+## 경계
 
-- Do not call a Node rewrite engine.
-- Do not append an artificial revision-notes section.
-- Do not treat Node diagnostics as research-quality judgment.
-- Preserve the original YAML.
-- Save the rewritten revision through `save-draft.js`.
+- Node 재작성 엔진을 호출하지 않는다.
+- 인위적인 "개정 노트" 섹션을 덧붙이지 않는다.
+- Node 진단을 연구 품질 판단으로 취급하지 않는다.
+- 원본 YAML을 보존한다.
+- 다시 쓴 개정판을 `save-draft.js`로 저장한다.
 
 ## Windows PowerShell
 

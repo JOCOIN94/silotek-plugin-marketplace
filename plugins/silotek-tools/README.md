@@ -28,11 +28,13 @@ The independent diagram capability lives at:
 skills/silotek-diagram-design/
 ```
 
-It was imported from the local fork of `JOCOIN94/diagram-design` and adapted as an internal skill. It keeps the type reference model and HTML plus inline SVG output convention, but removes website onboarding and standalone marketplace packaging.
+It is an internal Silotek light diagram skill with type reference rules and an HTML plus inline SVG output convention. It does not use remote assets, theme variants, or gallery examples.
 
 For research logs, the `silotek-diagrammer` subagent (`agents/silotek-diagrammer.md`) wraps this skill so the main session can generate several diagrams in parallel — one dispatch per `visual_brief`.
 
 The skill outputs editable HTML sidecars and rasterized PNG files. DOCX generation embeds PNG only; HTML is never embedded into Word.
+
+Output quality is managed by the diagram taste gate, `npm test`, build/rasterize checks, and real-use feedback. The tool does not keep frozen example outputs as a quality target, because the expected output should keep improving.
 
 ## Research Log Flow
 
@@ -99,3 +101,5 @@ v0.3.0 is a breaking rename. Old command aliases are intentionally not kept.
 /plugin marketplace update silotek-tools
 /plugin install silotek-tools@silotek-tools --scope user
 ```
+
+After local source changes, reinstall or update the plugin cache so Claude Code loads the current version (`0.4.1`).

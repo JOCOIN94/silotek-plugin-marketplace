@@ -74,14 +74,16 @@ function extractSvgFromHtml(html) {
 
 function applyFontFallbacks(svg) {
   let result = svg;
-  result = result.replace(/font-family:\s*(['"]?)Geist\1\s*,\s*sans-serif/gi, "font-family: 'Pretendard', 'Geist', sans-serif");
-  result = result.replace(/font-family:\s*(['"]?)Geist Mono\1\s*,\s*monospace/gi, "font-family: 'Pretendard Mono', 'Geist Mono', monospace");
-  result = result.replace(/font-family:\s*(['"]?)Instrument Serif\1\s*,\s*serif/gi, "font-family: 'Pretendard', 'Instrument Serif', serif");
-  result = result.replace(/font-family=(["'])Geist,\s*sans-serif\1/gi, "font-family=\"Pretendard, Geist, sans-serif\"");
-  result = result.replace(/font-family=(["'])Instrument Serif,\s*serif\1/gi, "font-family=\"Pretendard, Instrument Serif, serif\"");
+  const bundledStack = 'Pretendard, Arial, sans-serif';
+  result = result.replace(/font-family:\s*(['"]?)Geist\1\s*,\s*sans-serif/gi, `font-family: ${bundledStack}`);
+  result = result.replace(/font-family:\s*(['"]?)Geist Mono\1\s*,\s*monospace/gi, `font-family: ${bundledStack}`);
+  result = result.replace(/font-family:\s*(['"]?)Instrument Serif\1\s*,\s*serif/gi, `font-family: ${bundledStack}`);
+  result = result.replace(/font-family=(["'])Geist,\s*sans-serif\1/gi, `font-family="${bundledStack}"`);
+  result = result.replace(/font-family=(["'])Geist Mono,\s*monospace\1/gi, `font-family="${bundledStack}"`);
+  result = result.replace(/font-family=(["'])Instrument Serif,\s*serif\1/gi, `font-family="${bundledStack}"`);
 
   if (!/Pretendard/i.test(result)) {
-    result = result.replace(/(<svg\b[^>]*>)/i, `$1<style>text { font-family: Pretendard, Arial, sans-serif; }</style>`);
+    result = result.replace(/(<svg\b[^>]*>)/i, `$1<style>text { font-family: ${bundledStack}; }</style>`);
   }
   return result;
 }

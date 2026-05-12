@@ -1,33 +1,35 @@
 ---
 name: research-log-yaml-create
-description: Create a Silotek research-log YAML record from conversation or workspace evidence, with source-mode and research-nature selection, and optional parallel diagram generation through the silotek-diagrammer subagent.
+description: 대화 또는 작업 폴더의 근거로 사일로텍 연구일지 YAML 기록을 만든다. 소스 모드와 연구 성격을 선택하고, 필요하면 silotek-diagrammer 서브에이전트로 다이어그램을 병렬 생성한다.
 ---
 
-# Research Log YAML Create
+# 연구일지 YAML 생성 (Research Log YAML Create)
 
-Use this skill to create a Korean Silotek research-log YAML file. The output is a research artifact, not a folder exploration summary.
+이 스킬로 한국어 사일로텍 연구일지 YAML 파일을 만든다. 결과물은 "연구 산출물"이지 "폴더 탐색 요약"이 아니다.
 
-## Required Flow
+## 필수 절차
 
-1. Decide the source mode (see "Source Mode Selection").
-2. Decide the research nature `meta.연구 성격` (see "Research Nature Selection").
-3. Write `.silotek-research-log-draft.yaml` in the current workspace using the flat `sections` schema from `templates/research-log.yaml`, following the 8-section arc and the nature's emphasis.
-4. While drafting, insert a `visual_brief` element wherever a figure makes the document clearer (see "Visuals"). Do not force figures — zero `visual_brief` elements is fine.
-5. If there is at least one `visual_brief`, **confirm with the user**, then generate the diagrams in parallel and pair each as an `image` (see "Visuals").
-6. Save with `scripts/save-draft.js` (see "Scripts").
-7. Do not build DOCX. Tell the user to run `/silotek-tools:research-log-docx-create` for Word output.
+1. 소스 모드를 정한다 ("소스 모드 선택" 참조).
+2. 연구 성격 `meta.연구 성격`을 정한다 ("연구 성격 선택" 참조).
+3. 현재 작업 폴더에 `.silotek-research-log-draft.yaml`을 작성한다 — `templates/research-log.yaml`의 평탄한 `sections` 스키마, 8섹션 흐름, 성격별 강조를 따른다.
+4. 초안을 쓰는 동안, 그림이 문서를 더 명확하게 만드는 자리마다 `visual_brief` 요소를 넣는다 ("그림(Visuals)" 참조). 그림을 억지로 넣지 않는다 — `visual_brief`가 0개여도 괜찮다.
+5. `visual_brief`가 1개 이상이면 **사용자에게 확인(confirm)** 을 받은 뒤, 다이어그램을 병렬로 생성하고 각각을 `image`로 짝짓는다 ("그림(Visuals)" 참조).
+6. `scripts/save-draft.js`로 저장한다 ("스크립트" 참조).
+7. DOCX는 만들지 않는다. 워드 출력은 `/silotek-tools:research-log-docx-create`를 실행하라고 사용자에게 안내한다.
 
-## Source Mode Selection
+## 소스 모드 선택
 
-- `conversation`: the current conversation and its decisions are the source.
-- `folder`: inspect the current working folder — code, docs, config, tests, artifacts.
-- `mixed`: use both.
+- `conversation`: 현재 대화와 그 결정들이 근거다.
+- `folder`: 현재 작업 폴더를 살펴본다 — 코드, 문서, 설정, 테스트, 산출물.
+- `mixed`: 둘 다 사용한다.
 
-If the source is obvious from context, confirm in one line — *"폴더 기반으로 작성합니다 (다르면 알려주세요)."* — and proceed. If it is ambiguous, present the three options and wait for the user's answer (use `AskUserQuestion` or print a short numbered menu — either is fine).
+근거가 맥락상 명백하면 한 줄로 확인하고 — *"폴더 기반으로 작성합니다 (다르면 알려주세요)."* — 진행한다. 모호하면 세 가지 옵션을 제시하고 사용자 답을 기다린다 (`AskUserQuestion`을 쓰거나 짧은 번호 메뉴를 출력하거나 — 둘 다 괜찮다).
 
-## Research Nature Selection
+> git 히스토리·커밋 메시지는 "있었던 일"이지 "현재 상태"가 아니다. 리팩터로 죽은 코드·orphan 파일은 히스토리에 그대로 남는다. 본문에 쓰는 비자명한 사실 주장은 모두 현재 코드·테스트·설정에 직접 대조해 확인한 뒤 적는다 — 커밋 메시지의 표현을 현재 사실로 옮겨 적지 않는다.
 
-You MUST record `meta.연구 성격` as one of `구축` / `분석` / `검증`. Any other value triggers a `META_INVALID_VALUE` warning from `save-draft.js`.
+## 연구 성격 선택
+
+`meta.연구 성격`은 반드시 `구축` / `분석` / `검증` 중 하나로 적는다. 그 밖의 값은 `save-draft.js`의 `META_INVALID_VALUE` 경고를 띄운다.
 
 | 성격 | 핵심 질문 | 본문 형태 |
 |---|---|---|
@@ -35,9 +37,9 @@ You MUST record `meta.연구 성격` as one of `구축` / `분석` / `검증`. A
 | 분석 | "X의 현재 구조와 문제는?" | 대상 정의 + 현재 구조 + 원인 분석 + 권장 방향 |
 | 검증 | "가설 X가 참인가?" | 가설 + 실험 설계 + 정량 데이터 + 결론 |
 
-Signals — "구축/만든/구현/프로토타입" → 구축; "분석/현황/구조/체계 정비" → 분석; "검증/실험/비교/측정/가설" → 검증.
+신호 — "구축/만든/구현/프로토타입" → 구축; "분석/현황/구조/체계 정비" → 분석; "검증/실험/비교/측정/가설" → 검증.
 
-If the nature is obvious, confirm in one line and proceed. If ambiguous, present the menu and wait:
+성격이 명백하면 한 줄로 확인하고 진행한다. 모호하면 메뉴를 제시하고 기다린다:
 
 ```
 어떤 성격의 연구일지일까요?
@@ -46,13 +48,13 @@ If the nature is obvious, confirm in one line and proceed. If ambiguous, present
 3) 검증 — 검증 실험
 ```
 
-### Nature-specific emphasis (within the 8-section arc)
+### 성격별 강조 (8섹션 흐름 안에서)
 
 - 구축: 시도/시행착오를 시간순으로 자세히, 각 단계 결과, 최종 동작 확인, 다음 빌드 단계.
 - 분석: 분석 대상 명시, 현재 구조(스키마/호출 그래프/디렉터리 트리), 발견 문제의 원인, 코드/문서로 가설 확인, 권장 방향(Refactor/Replace/Keep).
 - 검증: 연구 질문을 가설 한 줄로, 실험 설계 변경 이력, 정량 데이터, 결과 해석, 가설 결론(성립/부분 성립/기각).
 
-## 8-Section Arc
+## 8섹션 흐름
 
 본문은 다음 흐름을 따른다 (헤딩은 실제 작업에 맞게 조정하되 흐름은 드러나야 한다):
 
@@ -65,21 +67,22 @@ If the nature is obvious, confirm in one line and proceed. If ambiguous, present
 7. 교훈 / 판단 기록
 8. 향후 과제 / 남은 불확실성
 
-## Anti-patterns to Reject Yourself
+## 스스로 걸러야 할 안티패턴
 
 - 성격 미선택 상태로 본문 작성 시작.
 - 파일 경로/디렉터리만 나열하는 본문.
 - 검증 없는 단정 ("그래서 X가 맞다").
+- 커밋 메시지·과거 히스토리를 현재 상태로 옮겨 적은 단정 (현재 코드로 확인 안 함).
 - 시행착오 없이 "이렇게 했더니 잘 됐다"형 단편 서술.
-- "단순히 ~을 정리한다", "구조를 살펴본다" 같은 폴더 탐구형 문장 — 코드가 자동 경고함.
+- "단순히 ~을 정리한다", "구조를 살펴본다" 같은 폴더 탐구형 문장 — 코드가 자동으로 경고함.
 
-## Visuals
+## 그림 (Visuals)
 
-`visual_brief` is a planning element — the figure's spec, not the diagram itself.
+`visual_brief`는 계획 요소다 — 그림 자체가 아니라 그림의 규격이다.
 
-### 1. Author briefs while drafting
+### 1. 초안을 쓰면서 brief를 작성
 
-Wherever a figure raises understanding, insert a complete `visual_brief` and decide a recommended diagram type from `silotek-diagram-design`: `flowchart`, `er`, `state`, `timeline`, `quadrant`, `architecture`, `sequence`, `swimlane`, `nested`, `tree`, `layers`, `venn`, `pyramid`. Keep the recommended type with the brief (you will pass it to the subagent in step 3).
+그림이 이해도를 높이는 자리마다 완전한 `visual_brief`를 넣고, `silotek-diagram-design`의 다이어그램 타입 중 하나를 추천 타입으로 정한다: `flowchart`, `er`, `state`, `timeline`, `quadrant`, `architecture`, `sequence`, `swimlane`, `nested`, `tree`, `layers`, `venn`, `pyramid`. 추천 타입을 brief와 함께 들고 있는다 (3단계에서 서브에이전트에 전달한다).
 
 ```yaml
 - visual_brief:
@@ -91,9 +94,9 @@ Wherever a figure raises understanding, insert a complete `visual_brief` and dec
     caption: "[그림 N] ..."
 ```
 
-### 2. Confirm before generating
+### 2. 생성 전 확인
 
-After the draft is written, list the briefs and ask the user whether to generate them:
+초안을 다 쓴 뒤, brief 목록을 보여주고 생성 여부를 물어본다 (confirm):
 
 ```
 다음 N개 그림을 만들까요?
@@ -103,41 +106,41 @@ After the draft is written, list the briefs and ask the user whether to generate
 [예 / 일부만(번호) / 아니오]
 ```
 
-- 아니오 → leave the `visual_brief` elements without paired images and go straight to Save. `build.js` renders a gray spec box for each unpaired brief.
-- 일부만 → generate only the selected briefs; leave the rest unpaired.
+- 아니오 → `visual_brief` 요소를 짝지어진 그림 없이 그대로 두고 바로 저장으로 간다. `build.js`가 짝 없는 brief마다 회색 규격 박스를 렌더한다.
+- 일부만 → 선택된 brief만 생성하고 나머지는 짝 없이 둔다.
 
-### 3. Allocate paths and dispatch in parallel
+### 3. 경로 할당 후 병렬 dispatch
 
-Allocate one HTML/PNG pair per selected brief in a single call (see "Scripts" for `$pluginRoot`):
+선택된 brief마다 HTML/PNG 한 쌍을 한 번의 호출로 할당한다 (`$pluginRoot`는 "스크립트" 참조):
 
 ```
 node <plugin-root>/scripts/next-diagram-path.js .silotek-research-log-figures --count <N> --json
 ```
 
-This prints a JSON array of `{ index, htmlPath, pngPath }`. Then dispatch the `silotek-diagrammer` subagent **once per brief — all in one message so they run in parallel**. Pass each subagent exactly one brief plus:
+이 명령은 `{ index, htmlPath, pngPath }`의 JSON 배열을 출력한다. 그다음 `silotek-diagrammer` 서브에이전트를 **brief당 1개씩 — 모두 한 메시지에 담아 병렬로 실행** 한다. 각 서브에이전트에 정확히 하나의 brief와 함께 다음을 전달한다:
 
-- the `visual_brief` block,
-- the recommended diagram type,
-- its allocated `htmlPath` and `pngPath`,
-- the plugin root absolute path (so it can read `skills/silotek-diagram-design/`).
+- 해당 `visual_brief` 블록,
+- 추천 다이어그램 타입,
+- 할당된 `htmlPath`와 `pngPath`,
+- 플러그인 루트 절대 경로 (서브에이전트가 `skills/silotek-diagram-design/`을 읽을 수 있도록).
 
-Each subagent writes its HTML, rasterizes it via `scripts/rasterize-svg.js`, and reports `{ htmlPath, pngPath, altText, usedEvidence, forbiddenViolations, rasterizeOk }`.
+각 서브에이전트는 자기 HTML을 쓰고, `scripts/rasterize-svg.js`로 래스터화한 뒤, `{ htmlPath, pngPath, altText, usedEvidence, forbiddenViolations, rasterizeOk }`를 보고한다.
 
-### 4. Pair each result as an `image`
+### 4. 결과를 `image`로 짝짓기
 
-For each successfully generated diagram, insert an `image` element immediately after its `visual_brief`:
+성공적으로 생성된 다이어그램마다, 그 `visual_brief` 바로 다음에 `image` 요소를 넣는다:
 
 ```yaml
 - image:
     path: ".silotek-research-log-figures/diagram-N.png"
-    caption: "<the brief's caption>"
+    caption: "<해당 brief의 caption>"
 ```
 
-`save-draft.js` rewrites this to `../figures/<basename>/diagram-N.png` and copies the file. Leave any failed or skipped brief without an `image` — `build.js` renders its gray spec box. `save-draft.js` can also recover a missing PNG by rasterizing a sibling HTML sidecar unless `--no-rasterize` is used.
+`save-draft.js`가 이 경로를 `../figures/<basename>/diagram-N.png`로 다시 쓰고 파일을 복사한다. 실패했거나 건너뛴 brief는 `image` 없이 그대로 둔다 — `build.js`가 회색 규격 박스를 렌더한다. `--no-rasterize`를 쓰지 않는 한 `save-draft.js`는 형제 HTML 사이드카를 래스터화해 누락된 PNG를 복구할 수도 있다.
 
-## Scripts
+## 스크립트
 
-Resolve the plugin root, optionally allocate diagram paths, then save.
+플러그인 루트를 찾고, 필요하면 다이어그램 경로를 할당한 뒤, 저장한다.
 
 ### Windows PowerShell
 
@@ -149,9 +152,9 @@ $pluginRoot = @(
   (Join-Path (Get-Location) "plugins\silotek-tools")
 ) | Where-Object { $_ -and (Test-Path (Join-Path $_ "scripts\$scriptName")) } | Select-Object -First 1
 if (-not $pluginRoot) { throw "Cannot locate silotek-tools: scripts\$scriptName not found via CLAUDE_PLUGIN_ROOT or current directory." }
-# Only when generating diagrams:
+# 다이어그램을 생성할 때만:
 node (Join-Path $pluginRoot "scripts\next-diagram-path.js") ".silotek-research-log-figures" --count <N> --json
-# Always:
+# 항상:
 node (Join-Path $pluginRoot "scripts\$scriptName") .silotek-research-log-draft.yaml --mode <conversation|folder|mixed> --source-root (Get-Location).Path
 ```
 
@@ -167,10 +170,10 @@ if [ -z "$plugin_root" ]; then
   echo "Cannot locate silotek-tools: scripts/$script_name not found via CLAUDE_PLUGIN_ROOT or current directory." >&2
   exit 1
 fi
-# Only when generating diagrams:
+# 다이어그램을 생성할 때만:
 node "$plugin_root/scripts/next-diagram-path.js" ".silotek-research-log-figures" --count "<N>" --json
-# Always:
+# 항상:
 node "$plugin_root/scripts/$script_name" .silotek-research-log-draft.yaml --mode "<conversation|folder|mixed>" --source-root "$PWD"
 ```
 
-Report the source mode, research nature, saved YAML path, manifest path, copied/rasterized figure counts, the list of generated diagrams (type + corresponding section + key message), any failed or skipped brief, and the validator diagnostics.
+소스 모드, 연구 성격, 저장된 YAML 경로, manifest 경로, 복사/래스터화된 그림 수, 생성된 다이어그램 목록(타입 + 해당 섹션 + 핵심 메시지), 실패하거나 건너뛴 brief, 그리고 검증 진단 결과를 보고한다.

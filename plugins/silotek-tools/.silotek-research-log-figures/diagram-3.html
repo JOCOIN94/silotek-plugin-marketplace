@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>research-log-yaml-create 워크플로우</title>
+  <style>
+    html, body {
+      margin: 0;
+      background: #f8fafc;
+      color: #0f172a;
+      font-family: Pretendard, Arial, sans-serif;
+    }
+    main {
+      width: min(1120px, calc(100vw - 48px));
+      margin: 32px auto;
+    }
+    svg { display: block; width: 100%; height: auto; }
+  </style>
+</head>
+<body>
+  <main>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 1180" role="img" aria-labelledby="title desc">
+      <title id="title">research-log-yaml-create 워크플로우</title>
+      <desc id="desc">소스/성격 선택, 초안 작성, visual_brief 삽입, 사용자 확인 후 경로 배치 할당과 서브에이전트 병렬 dispatch, 반환 PNG를 image로 짝지어 저장하는 6단계 흐름.</desc>
+      <rect width="980" height="1180" fill="#f8fafc"/>
+
+      <defs>
+        <marker id="arrow" markerWidth="9" markerHeight="9" refX="7.5" refY="4" orient="auto">
+          <path d="M0 0 L8 4 L0 8 Z" fill="#1e3a5f"/>
+        </marker>
+        <marker id="arrowTeal" markerWidth="9" markerHeight="9" refX="7.5" refY="4" orient="auto">
+          <path d="M0 0 L8 4 L0 8 Z" fill="#2c8d8a"/>
+        </marker>
+        <marker id="arrowGray" markerWidth="9" markerHeight="9" refX="7.5" refY="4" orient="auto">
+          <path d="M0 0 L8 4 L0 8 Z" fill="#6b7280"/>
+        </marker>
+      </defs>
+
+      <text x="48" y="56" fill="#0f172a" font-size="27" font-weight="700">research-log-yaml-create 워크플로우</text>
+      <text x="48" y="86" fill="#6b7280" font-size="16">소스/성격 선택 → 초안 → 그림 확인 → 병렬 생성 → 저장</text>
+
+      <!-- 1단계 -->
+      <rect x="290" y="120" width="400" height="92" rx="6" fill="#ffffff" stroke="#1e3a5f" stroke-width="2"/>
+      <text x="310" y="148" fill="#2c8d8a" font-size="14" font-weight="700">1단계</text>
+      <text x="310" y="172" fill="#0f172a" font-size="17" font-weight="700">소스 모드 결정 — conversation / folder / mixed</text>
+      <text x="310" y="196" fill="#6b7280" font-size="14">명백하면 한 줄 확인 · 모호하면 메뉴 제시 후 대기</text>
+
+      <path d="M490 212 V248" fill="none" stroke="#1e3a5f" stroke-width="2" marker-end="url(#arrow)"/>
+
+      <!-- 2단계 -->
+      <rect x="290" y="248" width="400" height="84" rx="6" fill="#ffffff" stroke="#1e3a5f" stroke-width="2"/>
+      <text x="310" y="276" fill="#2c8d8a" font-size="14" font-weight="700">2단계</text>
+      <text x="310" y="300" fill="#0f172a" font-size="17" font-weight="700">meta.연구 성격 결정</text>
+      <text x="310" y="322" fill="#6b7280" font-size="14">구축 / 분석 / 검증</text>
+
+      <path d="M490 332 V368" fill="none" stroke="#1e3a5f" stroke-width="2" marker-end="url(#arrow)"/>
+
+      <!-- 3단계 -->
+      <rect x="290" y="368" width="400" height="92" rx="6" fill="#ffffff" stroke="#1e3a5f" stroke-width="2"/>
+      <text x="310" y="396" fill="#2c8d8a" font-size="14" font-weight="700">3단계</text>
+      <text x="310" y="420" fill="#0f172a" font-size="17" font-weight="700">.silotek-research-log-draft.yaml 작성</text>
+      <text x="310" y="444" fill="#6b7280" font-size="14">평탄한 sections 스키마 · 8섹션 아크 · 성격별 강조</text>
+
+      <path d="M490 460 V496" fill="none" stroke="#1e3a5f" stroke-width="2" marker-end="url(#arrow)"/>
+
+      <!-- 4단계 -->
+      <rect x="290" y="496" width="400" height="92" rx="6" fill="#ffffff" stroke="#1e3a5f" stroke-width="2"/>
+      <text x="310" y="524" fill="#2c8d8a" font-size="14" font-weight="700">4단계</text>
+      <text x="310" y="548" fill="#0f172a" font-size="17" font-weight="700">visual_brief + 추천 다이어그램 타입 삽입</text>
+      <text x="310" y="572" fill="#6b7280" font-size="14">그림이 명확성을 높이는 곳에만 · 강제 아님</text>
+
+      <path d="M490 588 V624" fill="none" stroke="#1e3a5f" stroke-width="2" marker-end="url(#arrow)"/>
+
+      <!-- 5단계 결정 다이아몬드 -->
+      <text x="310" y="618" fill="#2c8d8a" font-size="14" font-weight="700">5단계</text>
+      <polygon points="490,624 690,716 490,808 290,716" fill="#ffffff" stroke="#1e3a5f" stroke-width="2.5"/>
+      <text x="490" y="704" fill="#0f172a" font-size="16" font-weight="700" text-anchor="middle">visual_brief 1개 이상?</text>
+      <text x="490" y="726" fill="#0f172a" font-size="16" font-weight="700" text-anchor="middle">목록 제시 후 확인</text>
+      <text x="490" y="748" fill="#6b7280" font-size="14" text-anchor="middle">[예 / 일부만 / 아니오]</text>
+
+      <!-- 아니오 분기: 왼쪽 컬럼으로 -->
+      <path d="M290 716 H100 V944" fill="none" stroke="#6b7280" stroke-width="2" marker-end="url(#arrowGray)"/>
+      <text x="112" y="708" fill="#6b7280" font-size="14" font-weight="700">아니오 / 건너뜀</text>
+      <rect x="40" y="944" width="160" height="84" rx="6" fill="#ffffff" stroke="#6b7280" stroke-width="2"/>
+      <text x="120" y="978" fill="#6b7280" font-size="15" font-weight="700" text-anchor="middle">짝 없는 brief</text>
+      <text x="120" y="1000" fill="#6b7280" font-size="14" text-anchor="middle">→ 회색 박스</text>
+      <!-- 회색 박스 → 6단계 -->
+      <path d="M120 1028 V1110 H290" fill="none" stroke="#6b7280" stroke-width="2" marker-end="url(#arrowGray)"/>
+
+      <!-- 예 / 일부만 분기: 아래로 -->
+      <path d="M490 808 V840" fill="none" stroke="#2c8d8a" stroke-width="2.5" marker-end="url(#arrowTeal)"/>
+      <text x="504" y="830" fill="#2c8d8a" font-size="14" font-weight="700">예 / 일부만</text>
+
+      <!-- 경로 배치 할당 -->
+      <rect x="310" y="840" width="360" height="72" rx="6" fill="#ffffff" stroke="#2c8d8a" stroke-width="2.5"/>
+      <text x="490" y="870" fill="#0f172a" font-size="16" font-weight="700" text-anchor="middle">next-diagram-path --count N</text>
+      <text x="490" y="892" fill="#6b7280" font-size="14" text-anchor="middle">N개 HTML/PNG 경로 배치 할당</text>
+
+      <path d="M490 912 V940" fill="none" stroke="#2c8d8a" stroke-width="2.5" marker-end="url(#arrowTeal)"/>
+
+      <!-- 병렬 dispatch 영역 -->
+      <rect x="248" y="940" width="690" height="98" rx="6" fill="#f1f5f9" stroke="#2c8d8a" stroke-width="2" stroke-dasharray="6 4"/>
+      <text x="268" y="964" fill="#2c8d8a" font-size="14" font-weight="700">한 메시지에서 brief당 1개씩 병렬 dispatch — silotek-diagrammer</text>
+      <rect x="268" y="976" width="190" height="48" rx="6" fill="#ffffff" stroke="#1e3a5f" stroke-width="2"/>
+      <text x="363" y="1005" fill="#1e3a5f" font-size="15" font-weight="700" text-anchor="middle">diagrammer #1</text>
+      <rect x="498" y="976" width="190" height="48" rx="6" fill="#ffffff" stroke="#1e3a5f" stroke-width="2"/>
+      <text x="593" y="1005" fill="#1e3a5f" font-size="15" font-weight="700" text-anchor="middle">diagrammer #2</text>
+      <rect x="728" y="976" width="190" height="48" rx="6" fill="#ffffff" stroke="#1e3a5f" stroke-width="2"/>
+      <text x="823" y="1005" fill="#1e3a5f" font-size="15" font-weight="700" text-anchor="middle">diagrammer #N</text>
+
+      <!-- 병렬 분기선 -->
+      <path d="M490 940 V952 H363 V976" fill="none" stroke="#2c8d8a" stroke-width="2" marker-end="url(#arrowTeal)"/>
+      <path d="M490 952 V976" fill="none" stroke="#2c8d8a" stroke-width="2" marker-end="url(#arrowTeal)"/>
+      <path d="M490 952 H823 V976" fill="none" stroke="#2c8d8a" stroke-width="2" marker-end="url(#arrowTeal)"/>
+
+      <!-- 합류점 -->
+      <path d="M363 1024 V1056 H482" fill="none" stroke="#2c8d8a" stroke-width="2"/>
+      <path d="M823 1024 V1056 H498" fill="none" stroke="#2c8d8a" stroke-width="2"/>
+      <path d="M490 1024 V1066" fill="none" stroke="#2c8d8a" stroke-width="2"/>
+      <circle cx="490" cy="1066" r="4" fill="#0f172a"/>
+      <path d="M490 1066 V1098" fill="none" stroke="#1e3a5f" stroke-width="2" marker-end="url(#arrow)"/>
+      <text x="506" y="1086" fill="#6b7280" font-size="13">반환 PNG를 visual_brief 직후 image로 짝지음</text>
+
+      <!-- 6단계 -->
+      <rect x="290" y="1098" width="400" height="56" rx="20" fill="#ffffff" stroke="#1e3a5f" stroke-width="2.5"/>
+      <text x="490" y="1123" fill="#0f172a" font-size="16" font-weight="700" text-anchor="middle">6단계 · save-draft.js 로 저장</text>
+      <text x="490" y="1143" fill="#6b7280" font-size="13" text-anchor="middle">YAML / 매니페스트 / 그림 저장</text>
+    </svg>
+  </main>
+</body>
+</html>

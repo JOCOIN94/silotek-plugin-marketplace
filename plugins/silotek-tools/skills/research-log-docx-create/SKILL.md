@@ -1,20 +1,20 @@
 ---
 name: research-log-docx-create
-description: Convert a saved Silotek research-log YAML entry into a formatted DOCX report.
+description: 저장된 사일로텍 연구일지 YAML 항목을 서식이 적용된 DOCX 보고서로 변환한다.
 ---
 
-# Research Log DOCX Create
+# 연구일지 DOCX 생성 (Research Log DOCX Create)
 
-Use this skill for `/silotek-tools:research-log-docx-create`.
+이 스킬은 `/silotek-tools:research-log-docx-create`에 쓴다.
 
-Do not invent or rewrite a research log here. This skill consumes an existing YAML entry.
+여기서 연구일지를 새로 지어내거나 다시 쓰지 않는다. 이 스킬은 이미 존재하는 YAML 항목을 소비한다.
 
-## Flow
+## 절차
 
-1. List YAML entries if the target is unclear.
-2. Select by number, basename, or path.
-3. Run `scripts/build-docx.js`.
-4. Report the generated DOCX path.
+1. 대상이 불분명하면 YAML 항목 목록을 보여준다.
+2. 번호, basename, 경로 중 하나로 선택한다.
+3. `scripts/build-docx.js`를 실행한다.
+4. 생성된 DOCX 경로를 보고한다.
 
 ## Windows PowerShell
 
@@ -46,4 +46,4 @@ node "$plugin_root/scripts/list-yaml.js"
 node "$plugin_root/scripts/$script_name" "<number|basename|path>"
 ```
 
-DOCX consumes PNG images. If a `visual_brief` is followed by an existing PNG `image`, the rendered DOCX shows the image and suppresses the gray fallback box.
+DOCX는 PNG 이미지를 소비한다. `visual_brief` 뒤에 실제 PNG `image`가 따라오면, 렌더된 DOCX는 그 이미지를 보여주고 회색 폴백 박스를 숨긴다.

@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(npm.cmd test --prefix plugins/silotek-tools 2>&1 | Select-Object -Last 25)",
+      "PowerShell(npm.cmd test 2>&1 | Select-Object -Last 20)",
+      "PowerShell(claude plugin *)",
+      "Bash(npm.cmd test *)",
+      "Bash(claude plugin *)"
+    ]
+  }
+}
