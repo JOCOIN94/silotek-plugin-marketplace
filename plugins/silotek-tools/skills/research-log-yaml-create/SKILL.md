@@ -11,7 +11,7 @@ description: 대화 또는 작업 폴더의 근거로 사일로텍 연구일지 
 
 1. 소스 모드를 정한다 ("소스 모드 선택" 참조).
 2. 연구 성격 `meta.연구 성격`을 정한다 ("연구 성격 선택" 참조).
-3. 현재 작업 폴더에 `.silotek-research-log-draft.yaml`을 작성한다 — `templates/research-log.yaml`의 평탄한 `sections` 스키마, 8섹션 흐름, 성격별 강조를 따른다.
+3. 현재 작업 폴더에 `.silotek-research-log-draft.yaml`을 작성한다 — `templates/research-log.yaml`의 평탄한 `sections` 스키마, 8섹션 흐름, 성격별 강조, 본문 문체(`references/writing-style.md`)를 따른다.
 4. 초안을 쓰는 동안, 그림이 문서를 더 명확하게 만드는 자리마다 `visual_brief` 요소를 넣는다 ("그림(Visuals)" 참조). 그림을 억지로 넣지 않는다 — `visual_brief`가 0개여도 괜찮다.
 5. `visual_brief`가 1개 이상이면 **사용자에게 확인(confirm)** 을 받은 뒤, 다이어그램을 병렬로 생성하고 각각을 `image`로 짝짓는다 ("그림(Visuals)" 참조).
 6. `scripts/save-draft.js`로 저장한다 ("스크립트" 참조).
@@ -67,6 +67,10 @@ description: 대화 또는 작업 폴더의 근거로 사일로텍 연구일지 
 7. 교훈 / 판단 기록
 8. 향후 과제 / 남은 불확실성
 
+## 본문 문체 (Writing Style)
+
+본문 산문(YAML `sections`의 텍스트)은 공식 보고서 행정체로 쓴다. 산문을 쓰기 전에 플러그인 루트의 `references/writing-style.md`를 읽어 적용한다 — 플러그인 루트 해석은 "스크립트" 절의 `$pluginRoot` 로직을 그대로 쓰고, 경로는 `Join-Path $pluginRoot "references\writing-style.md"` (POSIX: `"$plugin_root/references/writing-style.md"`)다. 회고체 종결어미("~했다"), em dash(—), "그래서" 연결, 1인칭·결정 주체 노출, 구어적 동사를 쓴 초안은 작성 단계에서 거부하고 재작성한다.
+
 ## 스스로 걸러야 할 안티패턴
 
 - 성격 미선택 상태로 본문 작성 시작.
@@ -75,6 +79,7 @@ description: 대화 또는 작업 폴더의 근거로 사일로텍 연구일지 
 - 커밋 메시지·과거 히스토리를 현재 상태로 옮겨 적은 단정 (현재 코드로 확인 안 함).
 - 시행착오 없이 "이렇게 했더니 잘 됐다"형 단편 서술.
 - "단순히 ~을 정리한다", "구조를 살펴본다" 같은 폴더 탐구형 문장 — 코드가 자동으로 경고함.
+- 회고체 종결어미·em dash·"그래서" 연결·1인칭 결정 주체 노출 — `references/writing-style.md` 위반.
 
 ## 그림 (Visuals)
 

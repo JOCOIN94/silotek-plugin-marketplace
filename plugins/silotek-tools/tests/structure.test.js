@@ -182,3 +182,15 @@ test('research-log-yaml-create docs restore source/nature selection and describe
     assert.match(text, /confirm/i);
   }
 });
+
+test('research-log-yaml-create references the body writing-style guide, and the guide exists', () => {
+  const guidePath = path.join(PLUGIN_ROOT, 'references', 'writing-style.md');
+  assert.equal(fs.existsSync(guidePath), true, 'references/writing-style.md must exist');
+  const guide = fs.readFileSync(guidePath, 'utf8');
+  assert.match(guide, /행정체/, 'writing-style.md must name the formal (행정체) register');
+  assert.match(guide, /종결어미/, 'writing-style.md must cover sentence endings');
+  assert.match(guide, /sections/, 'writing-style.md must scope itself to YAML sections prose');
+
+  const skill = fs.readFileSync(path.join(PLUGIN_ROOT, 'skills', 'research-log-yaml-create', 'SKILL.md'), 'utf8');
+  assert.match(skill, /references\/writing-style\.md/, 'yaml-create SKILL.md must point at references/writing-style.md');
+});
