@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const { makeTmpStorage, cleanTmpStorage } = require('./helpers/tmpStorage');
-const { runSaveDraft, runResolveYaml } = require('./helpers/runScript');
+const { runResolveYaml } = require('./helpers/runScript');
 
 const FIXTURES = path.join(__dirname, 'fixtures');
 
@@ -12,11 +12,12 @@ before(() => { storage = makeTmpStorage(); });
 after(() => { cleanTmpStorage(storage); });
 
 test('resolve-yaml resolves a saved YAML by list number as JSON', () => {
-  const draft = path.join(storage, 'baseline-draft.yaml');
-  fs.copyFileSync(path.join(FIXTURES, 'baseline.yaml'), draft);
-
-  const saved = runSaveDraft(draft, { storage });
-  assert.equal(saved.status, 0, `save stderr: ${saved.stderr}`);
+  const inputsDir = path.join(storage, 'inputs');
+  fs.mkdirSync(inputsDir, { recursive: true });
+  fs.copyFileSync(
+    path.join(FIXTURES, 'baseline.yaml'),
+    path.join(inputsDir, '2026-05-10-baseline.yaml')
+  );
 
   const resolved = runResolveYaml(1, { storage });
   assert.equal(resolved.status, 0, `stderr: ${resolved.stderr}`);

@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const AdmZip = require('adm-zip');
 const { makeTmpStorage, cleanTmpStorage } = require('./helpers/tmpStorage');
-const { runSaveDraft, runBuildDocx } = require('./helpers/runScript');
+const { runBuildDocx } = require('./helpers/runScript');
 
 const FIXTURES = path.join(__dirname, 'fixtures');
 
@@ -13,12 +13,14 @@ before(() => { storage = makeTmpStorage(); });
 after(() => { cleanTmpStorage(storage); });
 
 test('build-docx does not print writing-quality warnings for non-critical missing-meta yaml', () => {
-  const draft = path.join(storage, 'mm-draft.yaml');
-  fs.copyFileSync(path.join(FIXTURES, 'missing-meta-non-critical.yaml'), draft);
-  const saved = runSaveDraft(draft, { storage });
-  assert.equal(saved.status, 0, `save stderr: ${saved.stderr}`);
+  const inputsDir = path.join(storage, 'inputs');
+  fs.mkdirSync(inputsDir, { recursive: true });
+  fs.copyFileSync(
+    path.join(FIXTURES, 'missing-meta-non-critical.yaml'),
+    path.join(inputsDir, '2026-05-10-mm-non-critical.yaml')
+  );
 
-  const built = runBuildDocx(1, { storage });
+  const built = runBuildDocx('2026-05-10-mm-non-critical', { storage });
   assert.equal(built.status, 0, `build stderr: ${built.stderr}`);
   assert.doesNotMatch(built.stdout, /META_MISSING_KEY/);
   assert.doesNotMatch(built.stdout, /TEXT_TOO_SHORT/);

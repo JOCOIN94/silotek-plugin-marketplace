@@ -12,7 +12,7 @@ tools: Read, Write, Bash, Glob, Grep
 
 - `visual_brief` 블록: `purpose`, `claim`, `evidence`(목록), `forbidden`(목록), `palette`, `caption`.
 - `recommendedType`: `flowchart` / `er` / `state` / `timeline` / `quadrant` / `architecture` / `sequence` / `swimlane` / `nested` / `tree` / `layers` / `venn` / `pyramid` 중 하나.
-- `htmlPath`: 작성할 HTML 절대경로 (예: `<workspace>/.silotek-research-log-figures/diagram-N.html`).
+- `htmlPath`: 작성할 HTML 절대경로 (메인 세션이 넘겨준 값을 그대로 쓴다 — 연구일지 흐름에선 중앙 `figures/<basename>/diagram-N.html`, 독립 다이어그램 흐름에선 `<workspace>/.silotek-diagrams/diagram-N.html`).
 - `pngPath`: 래스터 PNG 절대경로 (같은 디렉터리, 같은 인덱스).
 - `pluginRoot`: silotek-tools 플러그인 루트 절대경로.
 

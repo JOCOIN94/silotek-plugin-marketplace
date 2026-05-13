@@ -277,12 +277,10 @@ function inspectResearchLogArtifacts(doc, options = {}) {
   if (options.draftDir) {
     for (const element of (doc.sections || [])) {
       if (!isPlainObject(element) || !element.image || !element.image.path) continue;
-      const resolved = resolveImagePath(
-        String(element.image.path),
-        options.draftDir,
-        options.sourceRoot || null
-      );
-      if (!resolved) {
+      const candidate = path.isAbsolute(element.image.path)
+        ? element.image.path
+        : path.resolve(options.draftDir, element.image.path);
+      if (!fs.existsSync(candidate)) {
         warnings.push({
           code: 'IMAGE_FILE_MISSING',
           message: `image element가 가리키는 파일을 찾을 수 없습니다: ${element.image.path}`,
@@ -376,52 +374,6 @@ function listYaml(storage = ensureStorage()) {
     });
 }
 
-function uniqueFilePath(dir, originalName) {
-  const ext = path.extname(originalName);
-  const base = slugify(path.basename(originalName, ext));
-  let candidate = `${base}${ext.toLowerCase()}`;
-  let index = 2;
-  while (fs.existsSync(path.join(dir, candidate))) {
-    candidate = `${base}-${index}${ext.toLowerCase()}`;
-    index += 1;
-  }
-  return path.join(dir, candidate);
-}
-
-function resolveImagePath(imagePath, draftDir, sourceRoot) {
-  if (!imagePath) return null;
-  const candidates = [];
-  if (path.isAbsolute(imagePath)) candidates.push(imagePath);
-  candidates.push(path.resolve(draftDir, imagePath));
-  if (sourceRoot) candidates.push(path.resolve(sourceRoot, imagePath));
-  return candidates.find(candidate => fs.existsSync(candidate)) || null;
-}
-
-function rewriteImages(doc, options) {
-  const { draftDir, sourceRoot, storage, basename } = options;
-  const targetDir = path.join(storage.figures, basename);
-  ensureDir(targetDir);
-  const copied = [];
-
-  for (const element of doc.sections || []) {
-    if (!element || typeof element !== 'object' || !element.image || !element.image.path) continue;
-    const sourcePath = resolveImagePath(String(element.image.path), draftDir, sourceRoot);
-    if (!sourcePath) continue;
-    const targetPath = uniqueFilePath(targetDir, path.basename(sourcePath));
-    fs.copyFileSync(sourcePath, targetPath);
-    const sourceSidecar = sourcePath.replace(/\.[^.]+$/, '.html');
-    let storedSidecarPath = null;
-    if (fs.existsSync(sourceSidecar)) {
-      storedSidecarPath = path.join(targetDir, `${path.basename(targetPath, path.extname(targetPath))}.html`);
-      fs.copyFileSync(sourceSidecar, storedSidecarPath);
-    }
-    element.image.path = path.join('..', 'figures', basename, path.basename(targetPath)).replace(/\\/g, '/');
-    copied.push({ sourcePath, storedPath: targetPath, sidecarHtmlPath: storedSidecarPath, caption: element.image.caption || '' });
-  }
-
-  return copied;
-}
-
 module.exports = {
   basenameFromDoc,
   dateStamp,
@@ -435,8 +387,6 @@ module.exports = {
   readJsonIfExists,
   researchRoot,
   RESEARCH_NATURES,
-  resolveImagePath,
-  rewriteImages,
   uniqueBasename,
   validateResearchLog,
   formatValidationErrors,

@@ -7,15 +7,18 @@ description: 대화 또는 작업 폴더의 근거로 사일로텍 연구일지 
 
 이 스킬로 한국어 사일로텍 연구일지 YAML 파일을 만든다. 결과물은 "연구 산출물"이지 "폴더 탐색 요약"이 아니다.
 
+draft YAML과 다이어그램 figures는 **중앙 보관소에 직접** 쓴다. 작업 폴더(사용자 레포)에는 어떤 파일도 만들지 않는다.
+
 ## 필수 절차
 
 1. 소스 모드를 정한다 ("소스 모드 선택" 참조).
 2. 연구 성격 `meta.연구 성격`을 정한다 ("연구 성격 선택" 참조).
-3. 현재 작업 폴더에 `.silotek-research-log-draft.yaml`을 작성한다 — `templates/research-log.yaml`의 평탄한 `sections` 스키마, 8섹션 흐름, 성격별 강조, 본문 문체(`references/writing-style.md`)를 따른다.
-4. 초안을 쓰는 동안, 그림이 문서를 더 명확하게 만드는 자리마다 `visual_brief` 요소를 넣는다 ("그림(Visuals)" 참조). 그림을 억지로 넣지 않는다 — `visual_brief`가 0개여도 괜찮다.
-5. `visual_brief`가 1개 이상이면 **사용자에게 확인(confirm)** 을 받은 뒤, 다이어그램을 병렬로 생성하고 각각을 `image`로 짝짓는다 ("그림(Visuals)" 참조).
-6. `scripts/save-draft.js`로 저장한다 ("스크립트" 참조).
-7. DOCX는 만들지 않는다. 워드 출력은 `/silotek-tools:research-log-docx-create`를 실행하라고 사용자에게 안내한다.
+3. 중앙 경로를 확보한다 — `scripts/next-basename.js --title "<연구 주제>" --date <오늘> --json` 실행. 반환된 `yamlPath`(중앙 `inputs/<basename>.yaml`)와 `figuresDir`(중앙 `figures/<basename>/`)를 이후 단계에서 그대로 쓴다. **레포 안 어디에도 쓰지 않는다.**
+4. 3단계에서 받은 `yamlPath`에 YAML을 작성한다 — `templates/research-log.yaml`의 평탄한 `sections` 스키마, 8섹션 흐름, 성격별 강조, 본문 문체(`references/writing-style.md`)를 따른다.
+5. 초안을 쓰는 동안, 그림이 문서를 더 명확하게 만드는 자리마다 `visual_brief` 요소를 넣는다 ("그림(Visuals)" 참조). 그림을 억지로 넣지 않는다 — `visual_brief`가 0개여도 괜찮다.
+6. `visual_brief`가 1개 이상이면 **사용자에게 확인(confirm)** 을 받은 뒤, 다이어그램을 병렬로 생성하고 각각을 `image`로 짝짓는다 ("그림(Visuals)" 참조).
+7. `scripts/save-draft.js`로 검증·manifest 기록한다 ("스크립트" 참조). 복사 단계는 없다 — 이미 중앙에 있다.
+8. DOCX는 만들지 않는다. 워드 출력은 `/silotek-tools:research-log-docx-create`를 실행하라고 사용자에게 안내한다.
 
 ## 소스 모드 선택
 
@@ -29,7 +32,7 @@ description: 대화 또는 작업 폴더의 근거로 사일로텍 연구일지 
 
 ## 연구 성격 선택
 
-`meta.연구 성격`은 반드시 `구축` / `분석` / `검증` 중 하나로 적는다. 그 밖의 값은 `save-draft.js`의 `META_INVALID_VALUE` 경고를 띄운다.
+`meta.연구 성격`은 반드시 `구축` / `분석` / `검증` 중 하나로 적는다. 그 밖의 값은 `save-draft.js`가 거부한다.
 
 | 성격 | 핵심 질문 | 본문 형태 |
 |---|---|---|
@@ -80,6 +83,7 @@ description: 대화 또는 작업 폴더의 근거로 사일로텍 연구일지 
 - 시행착오 없이 "이렇게 했더니 잘 됐다"형 단편 서술.
 - "단순히 ~을 정리한다", "구조를 살펴본다" 같은 폴더 탐구형 문장 — 코드가 자동으로 경고함.
 - 회고체 종결어미·em dash·"그래서" 연결·1인칭 결정 주체 노출 — `references/writing-style.md` 위반.
+- 레포(작업 폴더) 안에 draft YAML이나 figures 파일을 만드는 행위. 항상 3단계에서 받은 중앙 경로에 쓴다.
 
 ## 그림 (Visuals)
 
@@ -116,36 +120,36 @@ description: 대화 또는 작업 폴더의 근거로 사일로텍 연구일지 
 
 ### 3. 경로 할당 후 병렬 dispatch
 
-선택된 brief마다 HTML/PNG 한 쌍을 한 번의 호출로 할당한다 (`$pluginRoot`는 "스크립트" 참조):
+선택된 brief마다 HTML/PNG 한 쌍을 한 번의 호출로 할당한다. `figuresDir`은 3단계에서 받은 중앙 경로다 (`$pluginRoot`는 "스크립트" 참조):
 
 ```
-node <plugin-root>/scripts/next-diagram-path.js .silotek-research-log-figures --count <N> --json
+node <plugin-root>/scripts/next-diagram-path.js "<figuresDir>" --count <N> --json
 ```
 
-이 명령은 `{ index, htmlPath, pngPath }`의 JSON 배열을 출력한다. 그다음 `silotek-diagrammer` 서브에이전트를 **brief당 1개씩 — 모두 한 메시지에 담아 병렬로 실행** 한다. 각 서브에이전트에 정확히 하나의 brief와 함께 다음을 전달한다:
+이 명령은 `{ index, htmlPath, pngPath }`의 JSON 배열을 출력한다 — 경로는 모두 중앙 `figures/<basename>/` 안 절대 경로다. 그다음 `silotek-diagrammer` 서브에이전트를 **brief당 1개씩 — 모두 한 메시지에 담아 병렬로 실행** 한다. 각 서브에이전트에 정확히 하나의 brief와 함께 다음을 전달한다:
 
 - 해당 `visual_brief` 블록,
 - 추천 다이어그램 타입,
-- 할당된 `htmlPath`와 `pngPath`,
+- 할당된 `htmlPath`와 `pngPath` (둘 다 중앙 절대 경로),
 - 플러그인 루트 절대 경로 (서브에이전트가 `skills/silotek-diagram-design/`을 읽을 수 있도록).
 
 각 서브에이전트는 자기 HTML을 쓰고, `scripts/rasterize-svg.js`로 래스터화한 뒤, `{ htmlPath, pngPath, altText, usedEvidence, forbiddenViolations, rasterizeOk }`를 보고한다.
 
 ### 4. 결과를 `image`로 짝짓기
 
-성공적으로 생성된 다이어그램마다, 그 `visual_brief` 바로 다음에 `image` 요소를 넣는다:
+성공적으로 생성된 다이어그램마다, 그 `visual_brief` 바로 다음에 `image` 요소를 넣는다. 경로는 `inputs/<basename>.yaml` 기준 상대 경로로 적는다 (`build-docx.js`가 이 기준으로 해석함):
 
 ```yaml
 - image:
-    path: ".silotek-research-log-figures/diagram-N.png"
+    path: "../figures/<basename>/diagram-N.png"
     caption: "<해당 brief의 caption>"
 ```
 
-`save-draft.js`가 이 경로를 `../figures/<basename>/diagram-N.png`로 다시 쓰고 파일을 복사한다. 실패했거나 건너뛴 brief는 `image` 없이 그대로 둔다 — `build.js`가 회색 규격 박스를 렌더한다. `--no-rasterize`를 쓰지 않는 한 `save-draft.js`는 형제 HTML 사이드카를 래스터화해 누락된 PNG를 복구할 수도 있다.
+실패했거나 건너뛴 brief는 `image` 없이 그대로 둔다 — `build.js`가 회색 규격 박스를 렌더한다. `--no-rasterize`를 쓰지 않는 한 `save-draft.js`는 형제 HTML 사이드카를 자동으로 래스터화해 누락된 PNG를 복구할 수 있다.
 
 ## 스크립트
 
-플러그인 루트를 찾고, 필요하면 다이어그램 경로를 할당한 뒤, 저장한다.
+플러그인 루트를 찾고, 중앙 경로를 확보하고, 필요하면 다이어그램 경로를 할당한 뒤, 저장(검증+manifest)한다.
 
 ### Windows PowerShell
 
@@ -157,10 +161,12 @@ $pluginRoot = @(
   (Join-Path (Get-Location) "plugins\silotek-tools")
 ) | Where-Object { $_ -and (Test-Path (Join-Path $_ "scripts\$scriptName")) } | Select-Object -First 1
 if (-not $pluginRoot) { throw "Cannot locate silotek-tools: scripts\$scriptName not found via CLAUDE_PLUGIN_ROOT or current directory." }
-# 다이어그램을 생성할 때만:
-node (Join-Path $pluginRoot "scripts\next-diagram-path.js") ".silotek-research-log-figures" --count <N> --json
-# 항상:
-node (Join-Path $pluginRoot "scripts\$scriptName") .silotek-research-log-draft.yaml --mode <conversation|folder|mixed> --source-root (Get-Location).Path
+# 1) 중앙 경로 확보:
+node (Join-Path $pluginRoot "scripts\next-basename.js") --title "<연구 주제>" --date <YYYY-MM-DD> --json
+# 2) 다이어그램이 있을 때만 (figuresDir = 위 결과의 figuresDir):
+node (Join-Path $pluginRoot "scripts\next-diagram-path.js") "<figuresDir>" --count <N> --json
+# 3) 항상 (yamlPath = 위 결과의 yamlPath, 그 자리에 YAML이 이미 쓰여 있어야 함):
+node (Join-Path $pluginRoot "scripts\$scriptName") "<yamlPath>" --mode <conversation|folder|mixed>
 ```
 
 ### macOS/Linux shell
@@ -175,10 +181,12 @@ if [ -z "$plugin_root" ]; then
   echo "Cannot locate silotek-tools: scripts/$script_name not found via CLAUDE_PLUGIN_ROOT or current directory." >&2
   exit 1
 fi
-# 다이어그램을 생성할 때만:
-node "$plugin_root/scripts/next-diagram-path.js" ".silotek-research-log-figures" --count "<N>" --json
-# 항상:
-node "$plugin_root/scripts/$script_name" .silotek-research-log-draft.yaml --mode "<conversation|folder|mixed>" --source-root "$PWD"
+# 1) 중앙 경로 확보:
+node "$plugin_root/scripts/next-basename.js" --title "<연구 주제>" --date <YYYY-MM-DD> --json
+# 2) 다이어그램이 있을 때만:
+node "$plugin_root/scripts/next-diagram-path.js" "<figuresDir>" --count "<N>" --json
+# 3) 항상:
+node "$plugin_root/scripts/$script_name" "<yamlPath>" --mode "<conversation|folder|mixed>"
 ```
 
-소스 모드, 연구 성격, 저장된 YAML 경로, manifest 경로, 복사/래스터화된 그림 수, 생성된 다이어그램 목록(타입 + 해당 섹션 + 핵심 메시지), 실패하거나 건너뛴 brief, 그리고 검증 진단 결과를 보고한다.
+소스 모드, 연구 성격, basename, 중앙 YAML 경로, manifest 경로, 생성된 다이어그램 목록(타입 + 해당 섹션 + 핵심 메시지), 실패하거나 건너뛴 brief, 그리고 검증 진단 결과를 보고한다.

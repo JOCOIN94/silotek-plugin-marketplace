@@ -41,6 +41,7 @@ Node 계층:
 - `scripts/rasterize-svg.js`: HTML에서 인라인 SVG 한 개를 추출해 `@resvg/resvg-js`로 PNG로 렌더링.
 - `scripts/setup-check.js`: 읽기 전용 진단. `manifest` 체크가 `package.json`/`plugin.json`/`marketplace.json` 버전이 어긋나면 알림.
 - `scripts/sync-version.js`: `package.json`의 version을 `plugin.json`과 루트 `marketplace.json`에 동기화. npm `version` 라이프사이클 훅에서 호출됨.
+- `scripts/next-basename.js`: 제목·날짜로부터 중앙 보관소의 충돌 없는 basename과 대응하는 `inputs/<basename>.yaml`·`figures/<basename>/` 절대 경로를 발급. 연구일지 작성 스킬이 작업 폴더 경유 없이 곧장 중앙에 쓰기 위해 시작 시 호출.
 - `build.js`: DOCX 렌더러.
 
 Node 스크립트는 연구 로그를 재작성하거나 연구 논거가 충분히 강한지 판단해서는 안 됩니다. 그 판단은 Claude 쪽 스킬 지시 영역입니다.
@@ -63,7 +64,7 @@ manifests/
 figures/
 ```
 
-독립 다이어그램의 기본 경로:
+독립 다이어그램의 기본 경로(사용자 작업 폴더 안):
 
 ```text
 .silotek-diagrams/
@@ -71,17 +72,17 @@ figures/
   diagram-N.png
 ```
 
-연구 로그용 다이어그램의 기본 경로:
+연구 로그용 다이어그램의 경로는 중앙 보관소 직행입니다 — 작업 폴더에는 만들지 않습니다:
 
 ```text
-.silotek-research-log-figures/
+<중앙>/figures/<basename>/
   diagram-N.html
   diagram-N.png
 ```
 
 `visual_brief`는 연구 로그 YAML 안에 남아 있는 기획 요소입니다. 다이어그램 스킬은 독립적이고 재사용 가능하며, 연구 로그 생성 스킬이 그림이 필요할 때 이를 소비합니다.
 
-`research-log-yaml-create`는 작성 중 `visual_brief` 자리표시자를 기록하고, 생성 전 사용자에게 확인을 받으며, `next-diagram-path.js --count`로 경로를 할당하고, 각 브리프마다 `silotek-diagrammer` 서브에이전트를 한 개씩 병렬로 디스패치한 뒤 반환된 PNG를 즉시 뒤따르는 `image`로 짝지웁니다. 건너뛰거나 실패한 브리프는 짝이 맞지 않은 채로 남으며 회색 폴백 박스로 렌더링됩니다.
+`research-log-yaml-create`는 시작 직후 `next-basename.js`로 중앙 `yamlPath`·`figuresDir`를 확보하고, `visual_brief` 자리표시자를 그 중앙 YAML에 기록하며, 생성 전 사용자에게 확인을 받고, `next-diagram-path.js <figuresDir> --count`로 경로를 할당한 뒤 각 브리프마다 `silotek-diagrammer` 서브에이전트를 한 개씩 병렬로 디스패치합니다. 반환된 PNG는 즉시 뒤따르는 `image`(경로 `../figures/<basename>/diagram-N.png`)로 짝지웁니다. 건너뛰거나 실패한 브리프는 짝이 맞지 않은 채로 남으며 회색 폴백 박스로 렌더링됩니다. `save-draft.js`는 검증과 manifest 기록만 합니다 — YAML과 figures는 이미 중앙에 있으니 복사하지 않습니다.
 
 DOCX는 PNG만 소비합니다. HTML 사이드카는 편집과 브라우저 미리보기를 위해 유지됩니다. `visual_brief` 바로 뒤에 기존 `image`가 있으면 `build.js`가 이미지를 렌더링하고 회색 폴백 브리프 박스를 억제합니다. 이미지가 없으면 폴백 박스가 렌더링됩니다.
 
@@ -113,6 +114,7 @@ node --check plugins/silotek-tools/scripts/rasterize-svg.js
 node --check plugins/silotek-tools/scripts/setup-check.js
 node --check plugins/silotek-tools/scripts/resolve-yaml.js
 node --check plugins/silotek-tools/scripts/next-diagram-path.js
+node --check plugins/silotek-tools/scripts/next-basename.js
 node --check plugins/silotek-tools/scripts/sync-version.js
 node --check plugins/silotek-tools/build.js
 npm.cmd test --prefix plugins/silotek-tools
@@ -127,4 +129,4 @@ claude plugin validate .
 
 버전 범프는 `plugins/silotek-tools`에서 `npm version <patch|minor|major>` 한 번으로 한다 — `package.json`이 갱신되면 `version` 스크립트 훅(`scripts/sync-version.js`)이 `.claude-plugin/plugin.json`과 루트 `.claude-plugin/marketplace.json`의 버전 문자열을 맞춰 쓰고, `package-lock.json`은 npm이 자동 갱신한다. 네 파일을 손으로 동기화하지 않는다. `setup-check.js`의 `manifest` 체크가 세 매니페스트 버전이 어긋나면 알린다. (CI 등에서 커밋·태그를 자동으로 만들고 싶지 않으면 `npm version <bump> --no-git-tag-version` 후 직접 커밋한다.)
 
-버전 이력: v0.3.0에서 `silotek-research-log` → `silotek-tools` 이름 변경(브레이킹). v0.4.1은 소스/유형 선택과 병렬 다이어그램 생성을 유지하면서 다이어그램 스킬을 단일 Silotek 라이트 규칙 세트로 정리(비-브레이킹). v0.4.3은 DOCX `code` 블록 멀티라인 줄바꿈 복구 및 버전 동기화 흐름 간소화(비-브레이킹).
+버전 이력: v0.3.0에서 `silotek-research-log` → `silotek-tools` 이름 변경(브레이킹). v0.4.1은 소스/유형 선택과 병렬 다이어그램 생성을 유지하면서 다이어그램 스킬을 단일 Silotek 라이트 규칙 세트로 정리(비-브레이킹). v0.4.3은 DOCX `code` 블록 멀티라인 줄바꿈 복구 및 버전 동기화 흐름 간소화(비-브레이킹). v0.5.0은 연구 로그 파이프라인을 중앙 보관소 직행으로 단순화 — 작업 폴더 잔여물 제거, `save-draft`의 복사·경로 재작성 단계 폐지, `next-basename.js` 도입(비-브레이킹: 사용자 명령 표면과 산출물 경로 동일).

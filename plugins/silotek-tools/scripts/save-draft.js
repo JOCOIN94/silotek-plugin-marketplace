@@ -3,43 +3,39 @@
 const fs = require('fs');
 const path = require('path');
 const {
-  basenameFromDoc,
   ensureStorage,
   formatValidationErrors,
   inspectResearchLogArtifacts,
   loadYaml,
   pluginRoot,
-  resolveImagePath,
-  rewriteImages,
-  uniqueBasename,
   validateResearchLog,
-  writeJson,
-  writeYaml
+  writeJson
 } = require('./common');
 
 function usage() {
   console.log(`사일로텍 연구일지 YAML 저장기
 
 사용법:
-  node scripts/save-draft.js <draft.yaml> [options]
+  node scripts/save-draft.js <중앙 inputs/<basename>.yaml> [options]
 
 옵션:
-  --mode <conversation|folder|mixed>   생성 모드
-  --source-root <path>                 참고한 작업 폴더 경로
-  --slug <text>                        파일명 주제 slug
+  --mode <conversation|folder|mixed>   생성 모드 (manifest 기록용)
   --source-file <path>                 참고 파일 경로 (여러 번 지정 가능)
+  --no-rasterize                       누락 PNG의 형제 HTML 자동 래스터화 비활성화
+
+동작:
+  중앙 보관소의 YAML(이미 자리에 있음)을 검증하고, 누락된 PNG가 있으면
+  같은 폴더의 HTML 사이드카로부터 복구하고, manifest를 기록합니다.
+  YAML이나 figures를 복사하지 않습니다 — 이미 중앙에 있어야 합니다.
 
 출력:
-  중앙 저장소 inputs/<basename>.yaml
-  중앙 저장소 manifests/<basename>.json
-  중앙 저장소 figures/<basename>/...
+  <중앙>/manifests/<basename>.json
 `);
 }
 
 function parseArgs(argv) {
   const parsed = {
     mode: 'conversation',
-    sourceRoot: process.cwd(),
     sourceFiles: [],
     rasterize: true
   };
@@ -48,8 +44,6 @@ function parseArgs(argv) {
     const arg = argv[i];
     if (arg === '--help' || arg === '-h') parsed.help = true;
     else if (arg === '--mode') parsed.mode = argv[++i];
-    else if (arg === '--source-root') parsed.sourceRoot = argv[++i];
-    else if (arg === '--slug') parsed.slug = argv[++i];
     else if (arg === '--source-file') parsed.sourceFiles.push(argv[++i]);
     else if (arg === '--no-rasterize') parsed.rasterize = false;
     else if (!parsed.draftPath) parsed.draftPath = arg;
@@ -59,8 +53,7 @@ function parseArgs(argv) {
   return parsed;
 }
 
-function autoRasterizeImageSidecars(doc, options) {
-  const { draftDir, sourceRoot } = options;
+function autoRasterizeImageSidecars(doc, draftDir) {
   const converted = [];
   let rasterizeHtmlFile = null;
 
@@ -68,16 +61,14 @@ function autoRasterizeImageSidecars(doc, options) {
     if (!element || typeof element !== 'object' || !element.image || !element.image.path) continue;
     const imagePath = String(element.image.path);
     if (path.extname(imagePath).toLowerCase() !== '.png') continue;
-    if (resolveImagePath(imagePath, draftDir, sourceRoot)) continue;
 
     const targetPath = path.isAbsolute(imagePath)
       ? imagePath
       : path.resolve(draftDir, imagePath);
-    const htmlPath = targetPath.replace(/\.png$/i, '.html');
-    const sourceHtml = fs.existsSync(htmlPath)
-      ? htmlPath
-      : resolveImagePath(imagePath.replace(/\.png$/i, '.html'), draftDir, sourceRoot);
-    if (!sourceHtml) continue;
+    if (fs.existsSync(targetPath)) continue;
+
+    const sourceHtml = targetPath.replace(/\.png$/i, '.html');
+    if (!fs.existsSync(sourceHtml)) continue;
 
     try {
       if (!rasterizeHtmlFile) {
@@ -102,7 +93,7 @@ function main() {
 
   const draftPath = path.resolve(args.draftPath);
   if (!fs.existsSync(draftPath)) {
-    throw new Error(`초안 YAML을 찾을 수 없음: ${draftPath}`);
+    throw new Error(`YAML 파일을 찾을 수 없음: ${draftPath}`);
   }
 
   const doc = loadYaml(draftPath);
@@ -111,56 +102,39 @@ function main() {
     throw new Error(formatValidationErrors(schemaErrors));
   }
 
-  const draftDirForDiagnostics = path.dirname(draftPath);
+  const draftDir = path.dirname(draftPath);
+  const basename = path.basename(draftPath, path.extname(draftPath));
+
   const rasterizedFigures = args.rasterize
-    ? autoRasterizeImageSidecars(doc, {
-        draftDir: draftDirForDiagnostics,
-        sourceRoot: args.sourceRoot ? path.resolve(args.sourceRoot) : null
-      })
+    ? autoRasterizeImageSidecars(doc, draftDir)
     : [];
   if (rasterizedFigures.length) {
     console.log(`diagram rasterized: ${rasterizedFigures.length}`);
   }
-  const diagnostics = inspectResearchLogArtifacts(doc, {
-    draftDir: draftDirForDiagnostics,
-    sourceRoot: args.sourceRoot ? path.resolve(args.sourceRoot) : null
-  });
+
+  const diagnostics = inspectResearchLogArtifacts(doc, { draftDir });
 
   const storage = ensureStorage();
-  const base = uniqueBasename(storage, basenameFromDoc(doc, args.slug));
-  const draftDir = path.dirname(draftPath);
-  const copiedFigures = rewriteImages(doc, {
-    draftDir,
-    sourceRoot: args.sourceRoot ? path.resolve(args.sourceRoot) : null,
-    storage,
-    basename: base
-  });
+  const manifestPath = path.join(storage.manifests, `${basename}.json`);
 
-  const inputPath = path.join(storage.inputs, `${base}.yaml`);
-  const manifestPath = path.join(storage.manifests, `${base}.json`);
-
-  writeYaml(inputPath, doc);
   writeJson(manifestPath, {
     schemaVersion: 1,
     plugin: 'silotek-tools',
     pluginRoot: pluginRoot(),
     mode: args.mode,
-    basename: base,
+    basename,
     createdAt: new Date().toISOString(),
-    sourceRoot: args.sourceRoot ? path.resolve(args.sourceRoot) : null,
     sourceFiles: args.sourceFiles.map(file => path.resolve(file)),
-    copiedFigures,
     rasterizedFigures,
     diagnostics,
-    inputPath,
+    inputPath: draftPath,
     outputPath: null,
     build: null
   });
 
   console.log('✓ 연구일지 YAML 저장 완료');
-  console.log(`  입력: ${inputPath}`);
+  console.log(`  입력: ${draftPath}`);
   console.log(`  manifest: ${manifestPath}`);
-  console.log(`  figures: ${copiedFigures.length}개 복사`);
 }
 
 try {

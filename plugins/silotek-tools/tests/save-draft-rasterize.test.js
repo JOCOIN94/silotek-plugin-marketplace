@@ -12,8 +12,14 @@ let storage;
 before(() => { storage = makeTmpStorage(); });
 after(() => { cleanTmpStorage(storage); });
 
-function writeDiagramDraft(filePath, imagePath) {
-  fs.writeFileSync(filePath, yaml.dump({
+// 새 직행 모델에서는 draft YAML이 처음부터 <storage>/inputs/<basename>.yaml에 있고,
+// 다이어그램 HTML/PNG는 <storage>/figures/<basename>/에 있다. YAML 안의 image.path는
+// inputs/ 기준 상대경로 ../figures/<basename>/diagram-N.png 다.
+function placeCentralDraft(basename, imageRelativePath) {
+  const inputsDir = path.join(storage, 'inputs');
+  fs.mkdirSync(inputsDir, { recursive: true });
+  const inputPath = path.join(inputsDir, `${basename}.yaml`);
+  fs.writeFileSync(inputPath, yaml.dump({
     title: '연구 일지',
     subtitle: '자동 래스터 테스트',
     meta: {
@@ -39,40 +45,46 @@ function writeDiagramDraft(filePath, imagePath) {
       },
       {
         image: {
-          path: imagePath,
+          path: imageRelativePath,
           caption: '[그림 1] 자동 래스터 테스트'
         }
       }
     ]
   }), 'utf8');
+  return inputPath;
 }
 
-test('save-draft auto-rasterizes sibling diagram HTML when PNG is missing', () => {
-  const draftFigures = path.join(storage, 'draft-figures-auto');
-  fs.mkdirSync(draftFigures, { recursive: true });
-  fs.copyFileSync(path.join(FIXTURES, 'diagram-korean.html'), path.join(draftFigures, 'diagram-1.html'));
-  const draft = path.join(storage, 'auto-raster-draft.yaml');
-  writeDiagramDraft(draft, 'draft-figures-auto/diagram-1.png');
+test('save-draft auto-rasterizes a sibling diagram HTML when the PNG is missing', () => {
+  const basename = '2026-05-11-auto-raster';
+  const figuresDir = path.join(storage, 'figures', basename);
+  fs.mkdirSync(figuresDir, { recursive: true });
+  fs.copyFileSync(path.join(FIXTURES, 'diagram-korean.html'), path.join(figuresDir, 'diagram-1.html'));
 
-  const result = runSaveDraft(draft, { storage, noCritique: true, slug: 'auto-raster' });
+  const inputPath = placeCentralDraft(basename, `../figures/${basename}/diagram-1.png`);
+
+  const result = runSaveDraft(inputPath, { storage });
   assert.equal(result.status, 0, `stderr: ${result.stderr}`);
   assert.match(result.stdout, /diagram rasterized: 1/);
-  assert.ok(fs.existsSync(path.join(draftFigures, 'diagram-1.png')));
 
-  const storedFigureDir = path.join(storage, 'figures', '2026-05-11-auto-raster');
-  assert.ok(fs.existsSync(path.join(storedFigureDir, 'diagram-1.png')));
-  assert.ok(fs.existsSync(path.join(storedFigureDir, 'diagram-1.html')));
+  // PNG was produced next to the HTML, in the central figures dir.
+  assert.ok(fs.existsSync(path.join(figuresDir, 'diagram-1.png')));
+  assert.ok(fs.existsSync(path.join(figuresDir, 'diagram-1.html')));
+
+  // Manifest records the rasterized entry.
+  const manifest = JSON.parse(fs.readFileSync(path.join(storage, 'manifests', `${basename}.json`), 'utf8'));
+  assert.equal(manifest.rasterizedFigures.length, 1);
 });
 
-test('save-draft --no-rasterize leaves missing PNG unresolved', () => {
-  const draftFigures = path.join(storage, 'draft-figures-no-raster');
-  fs.mkdirSync(draftFigures, { recursive: true });
-  fs.copyFileSync(path.join(FIXTURES, 'diagram-korean.html'), path.join(draftFigures, 'diagram-1.html'));
-  const draft = path.join(storage, 'no-raster-draft.yaml');
-  writeDiagramDraft(draft, 'draft-figures-no-raster/diagram-1.png');
+test('save-draft --no-rasterize leaves the missing PNG unresolved', () => {
+  const basename = '2026-05-11-no-raster';
+  const figuresDir = path.join(storage, 'figures', basename);
+  fs.mkdirSync(figuresDir, { recursive: true });
+  fs.copyFileSync(path.join(FIXTURES, 'diagram-korean.html'), path.join(figuresDir, 'diagram-1.html'));
 
-  const result = runSaveDraft(draft, { storage, noCritique: true, noRasterize: true, slug: 'no-raster' });
+  const inputPath = placeCentralDraft(basename, `../figures/${basename}/diagram-1.png`);
+
+  const result = runSaveDraft(inputPath, { storage, noRasterize: true });
   assert.equal(result.status, 0, `stderr: ${result.stderr}`);
   assert.doesNotMatch(result.stdout, /diagram rasterized/);
-  assert.equal(fs.existsSync(path.join(draftFigures, 'diagram-1.png')), false);
+  assert.equal(fs.existsSync(path.join(figuresDir, 'diagram-1.png')), false);
 });

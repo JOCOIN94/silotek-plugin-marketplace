@@ -39,11 +39,12 @@ skills/silotek-diagram-design/
 ## 연구 로그 흐름
 
 1. `/silotek-tools:research-log-yaml-create`는 소스 모드(`conversation`/`folder`/`mixed`)와 연구 성격(`구축`/`분석`/`검증`)을 결정하며, 모호한 경우 사용자에게 확인을 받습니다.
-2. 그림이 도움이 되는 자리마다 `visual_brief` 자리표시자를 포함한 `.silotek-research-log-draft.yaml`을 작성합니다.
-3. 브리프 목록을 보여주고 사용자에게 확인을 받은 뒤 `scripts/next-diagram-path.js --count`로 경로를 할당하고, 각 브리프마다 `silotek-diagrammer` 서브에이전트를 병렬로 디스패치합니다. 각 서브에이전트는 `silotek-diagram-design`을 실행해 `.silotek-research-log-figures/diagram-N.html`을 쓰고 `diagram-N.png`로 래스터화합니다.
-4. 반환된 각 PNG를 즉시 뒤따르는 `image` 요소로 짝짓습니다. 건너뛰거나 실패한 브리프는 짝이 맞지 않은 채로 남습니다.
-5. `scripts/save-draft.js`가 YAML을 저장하고, 그림을 `figures/<basename>/`로 복사하며, 참조된 PNG가 없을 때는 `--no-rasterize`가 지정되지 않은 한 형제 HTML을 자동 래스터화합니다.
-6. `/silotek-tools:research-log-docx-create`가 저장된 YAML로부터 DOCX를 빌드합니다.
+2. `scripts/next-basename.js`로 중앙 보관소 안에 `inputs/<basename>.yaml`과 `figures/<basename>/` 경로를 미리 확보합니다. 작업 폴더(레포)에는 어떤 파일도 만들지 않습니다.
+3. 그림이 도움이 되는 자리마다 `visual_brief` 자리표시자를 포함한 YAML을 2단계에서 받은 `yamlPath`(중앙 `inputs/`)에 곧장 작성합니다.
+4. 브리프 목록을 보여주고 사용자에게 확인을 받은 뒤 `scripts/next-diagram-path.js <figuresDir> --count`로 경로를 할당하고, 각 브리프마다 `silotek-diagrammer` 서브에이전트를 병렬로 디스패치합니다. 각 서브에이전트는 `silotek-diagram-design`을 실행해 중앙 `figures/<basename>/diagram-N.html`을 쓰고 `diagram-N.png`로 래스터화합니다.
+5. 반환된 각 PNG를 즉시 뒤따르는 `image` 요소(경로 `../figures/<basename>/diagram-N.png`)로 짝짓습니다. 건너뛰거나 실패한 브리프는 짝이 맞지 않은 채로 남습니다.
+6. `scripts/save-draft.js`가 중앙 YAML을 검증하고 manifest를 기록합니다. 복사 단계는 없습니다 — 모든 파일이 이미 중앙에 있습니다. 참조된 PNG가 없을 때는 `--no-rasterize`가 지정되지 않은 한 형제 HTML을 자동 래스터화합니다.
+7. `/silotek-tools:research-log-docx-create`가 저장된 YAML로부터 DOCX를 빌드합니다.
 
 짝지어진 이미지가 있으면 DOCX는 이미지를 렌더링하고 회색 `visual_brief` 폴백 박스를 억제합니다. 이미지가 없으면 폴백 박스가 그대로 보입니다.
 
@@ -72,7 +73,8 @@ Windows PowerShell:
 npm.cmd install --prefix .\plugins\silotek-tools
 node .\plugins\silotek-tools\scripts\setup-check.js
 node .\plugins\silotek-tools\scripts\list-yaml.js
-node .\plugins\silotek-tools\scripts\save-draft.js .silotek-research-log-draft.yaml --mode folder --source-root .
+node .\plugins\silotek-tools\scripts\next-basename.js --title "<연구 주제>" --date <YYYY-MM-DD> --json
+node .\plugins\silotek-tools\scripts\save-draft.js "<중앙 inputs/...yaml>" --mode folder
 node .\plugins\silotek-tools\scripts\resolve-yaml.js 1 --json
 node .\plugins\silotek-tools\scripts\build-docx.js 1
 node .\plugins\silotek-tools\scripts\next-diagram-path.js .silotek-diagrams --json
@@ -85,7 +87,8 @@ macOS/Linux 셸:
 npm install --prefix ./plugins/silotek-tools
 node ./plugins/silotek-tools/scripts/setup-check.js
 node ./plugins/silotek-tools/scripts/list-yaml.js
-node ./plugins/silotek-tools/scripts/save-draft.js .silotek-research-log-draft.yaml --mode folder --source-root "$PWD"
+node ./plugins/silotek-tools/scripts/next-basename.js --title "<연구 주제>" --date <YYYY-MM-DD> --json
+node ./plugins/silotek-tools/scripts/save-draft.js "<중앙 inputs/...yaml>" --mode folder
 node ./plugins/silotek-tools/scripts/resolve-yaml.js 1 --json
 node ./plugins/silotek-tools/scripts/build-docx.js 1
 node ./plugins/silotek-tools/scripts/next-diagram-path.js .silotek-diagrams --json
@@ -102,4 +105,4 @@ v0.3.0은 브레이킹 이름 변경입니다. 옛 명령 별칭은 의도적으
 /plugin install silotek-tools@silotek-tools --scope user
 ```
 
-로컬 소스를 변경한 뒤에는 Claude Code가 현재 버전(`0.4.1`)을 로드하도록 플러그인을 재설치하거나 캐시를 업데이트하세요.
+로컬 소스를 변경한 뒤에는 Claude Code가 현재 버전을 로드하도록 플러그인을 재설치하거나 캐시를 업데이트하세요. 현재 버전은 `package.json` / `.claude-plugin/plugin.json`을 참조하세요.
