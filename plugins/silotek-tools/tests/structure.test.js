@@ -151,16 +151,19 @@ test('project docs mention the silotek-diagrammer agent and the --count flag', (
   assert.match(repoClaude, /--count/);
 });
 
-test('plugin version fields are all 0.4.2', () => {
+test('plugin version fields are consistent across manifests', () => {
   const marketplace = readJson(path.join(REPO_ROOT, '.claude-plugin', 'marketplace.json'));
   const plugin = readJson(path.join(PLUGIN_ROOT, '.claude-plugin', 'plugin.json'));
   const pkg = readJson(path.join(PLUGIN_ROOT, 'package.json'));
   const lock = readJson(path.join(PLUGIN_ROOT, 'package-lock.json'));
-  assert.equal(marketplace.plugins[0].version, '0.4.2');
-  assert.equal(plugin.version, '0.4.2');
-  assert.equal(pkg.version, '0.4.2');
-  assert.equal(lock.version, '0.4.2');
-  assert.equal(lock.packages[''].version, '0.4.2');
+  const version = pkg.version;
+  assert.match(version, /^\d+\.\d+\.\d+$/, 'package.json version must be a semver string');
+  const entry = marketplace.plugins.find(p => p.name === 'silotek-tools');
+  assert.ok(entry, 'marketplace must list the silotek-tools plugin');
+  assert.equal(entry.version, version);
+  assert.equal(plugin.version, version);
+  assert.equal(lock.version, version);
+  assert.equal(lock.packages[''].version, version);
 });
 
 test('research-log-yaml-create docs restore source/nature selection and describe parallel diagram generation', () => {

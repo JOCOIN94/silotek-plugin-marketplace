@@ -124,10 +124,16 @@ function numItem(text, level = 0) {
   });
 }
 
-// 코드 블록
+// 코드 블록 (멀티라인 보존: 줄마다 TextRun + 첫 줄 뒤로는 <w:br/>)
 function code(text) {
+  const lines = String(text).replace(/\n$/, '').split('\n');
+  const children = lines.map((line, idx) => tr(line, {
+    font: "Consolas",
+    size: 20,
+    ...(idx === 0 ? {} : { break: 1 })
+  }));
   return new Paragraph({
-    children: [tr(text, { font: "Consolas", size: 20 })],
+    children: children.length ? children : [tr("", { font: "Consolas", size: 20 })],
     spacing: { after: 120 },
     shading: { fill: "F5F5F5", type: ShadingType.CLEAR }
   });

@@ -9,7 +9,7 @@
       "name": "silotek-tools",
       "source": "./plugins/silotek-tools",
       "description": "Silotek research-log YAML/DOCX commands and an independent diagram creation skill.",
-      "version": "0.4.2",
+      "version": "0.4.3",
       "author": {
         "name": "Silotek"
       },
