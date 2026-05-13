@@ -1,16 +1,16 @@
-﻿# CLAUDE.md
+# CLAUDE.md
 
-This repository is a local Claude Code plugin marketplace named `silotek-tools`.
+이 저장소는 `silotek-tools`라는 이름의 로컬 Claude Code 플러그인 마켓플레이스입니다.
 
-## Current Plugin
+## 현재 플러그인
 
-Source:
+소스 위치:
 
 ```text
 plugins/silotek-tools/
 ```
 
-Visible commands:
+노출되는 명령어:
 
 ```text
 /silotek-tools:setup-check
@@ -20,40 +20,40 @@ Visible commands:
 /silotek-tools:diagram-create
 ```
 
-## Architecture
+## 아키텍처
 
-Claude-facing layer:
+Claude 쪽 계층:
 
-- `commands/*.md`: slash command prompts.
-- `skills/research-log-yaml-create/`: research-log YAML creation rules.
-- `skills/research-log-yaml-retouch/`: AI rewrite and revised-copy workflow.
-- `skills/research-log-docx-create/`: DOCX build workflow.
-- `skills/silotek-diagram-design/`: independent Silotek light diagram authoring skill with self-contained HTML/SVG output rules.
-- `agents/silotek-diagrammer.md`: per-diagram subagent; the research-log creation skill dispatches one instance per `visual_brief` in parallel.
+- `commands/*.md`: 슬래시 명령 프롬프트.
+- `skills/research-log-yaml-create/`: 연구 로그 YAML 생성 규칙.
+- `skills/research-log-yaml-retouch/`: AI 재작성 및 수정본 사본 워크플로.
+- `skills/research-log-docx-create/`: DOCX 빌드 워크플로.
+- `skills/silotek-diagram-design/`: 자체 완결형 HTML/SVG 출력 규칙을 갖춘 독립 Silotek 라이트 다이어그램 작성 스킬.
+- `agents/silotek-diagrammer.md`: 다이어그램 단위 서브에이전트. 연구 로그 생성 스킬이 각 `visual_brief`마다 한 인스턴스씩 병렬로 디스패치함.
 
-Node layer:
+Node 계층:
 
-- `scripts/common.js`: storage paths, YAML schema validation, deterministic artifact diagnostics, and image path rewriting.
-- `scripts/resolve-yaml.js`: resolves a saved YAML by number, basename, or path for skill use.
-- `scripts/save-draft.js`: validates a draft, auto-rasterizes missing PNGs from sibling HTML, copies figures, and saves YAML/manifests.
-- `scripts/build-docx.js`: selects saved YAML and calls `build.js`.
-- `scripts/next-diagram-path.js`: allocates the next available diagram HTML/PNG path; `--count N` returns N consecutive free paths for batch (parallel) allocation.
-- `scripts/rasterize-svg.js`: extracts one inline SVG from HTML and renders PNG with `@resvg/resvg-js`.
-- `scripts/setup-check.js`: read-only diagnostics.
-- `build.js`: DOCX renderer.
+- `scripts/common.js`: 저장 경로, YAML 스키마 검증, 결정적 산출물 진단, 이미지 경로 재작성을 담당.
+- `scripts/resolve-yaml.js`: 저장된 YAML을 번호·베이스네임·경로로 해석해 스킬에서 사용할 수 있게 함.
+- `scripts/save-draft.js`: 초안을 검증하고, 형제 HTML에서 누락된 PNG를 자동 래스터화하며, 그림을 복사하고 YAML/매니페스트를 저장.
+- `scripts/build-docx.js`: 저장된 YAML을 선택해 `build.js`를 호출.
+- `scripts/next-diagram-path.js`: 다음 비어 있는 다이어그램 HTML/PNG 경로를 할당. `--count N`은 배치(병렬) 할당용으로 연속된 빈 경로 N개를 반환.
+- `scripts/rasterize-svg.js`: HTML에서 인라인 SVG 한 개를 추출해 `@resvg/resvg-js`로 PNG로 렌더링.
+- `scripts/setup-check.js`: 읽기 전용 진단.
+- `build.js`: DOCX 렌더러.
 
-Node scripts must not rewrite research logs or decide whether the research argument is strong enough. That judgment belongs to the Claude-facing skill instructions.
+Node 스크립트는 연구 로그를 재작성하거나 연구 논거가 충분히 강한지 판단해서는 안 됩니다. 그 판단은 Claude 쪽 스킬 지시 영역입니다.
 
-## Data Flow
+## 데이터 흐름
 
-Research logs use central storage outside the plugin directory:
+연구 로그는 플러그인 디렉터리 외부의 중앙 저장소를 사용합니다:
 
 ```text
 Windows: %USERPROFILE%\Documents\Silotek Research Logs\
 macOS:   $HOME/Documents/Silotek Research Logs/
 ```
 
-Storage directories:
+저장 디렉터리 구조:
 
 ```text
 inputs/
@@ -62,7 +62,7 @@ manifests/
 figures/
 ```
 
-Standalone diagrams default to:
+독립 다이어그램의 기본 경로:
 
 ```text
 .silotek-diagrams/
@@ -70,7 +70,7 @@ Standalone diagrams default to:
   diagram-N.png
 ```
 
-Research-log diagrams default to:
+연구 로그용 다이어그램의 기본 경로:
 
 ```text
 .silotek-research-log-figures/
@@ -78,29 +78,29 @@ Research-log diagrams default to:
   diagram-N.png
 ```
 
-`visual_brief` remains a planning element inside the research-log YAML. The diagram skill is separate and reusable; the research-log creation skill consumes it when a figure is needed.
+`visual_brief`는 연구 로그 YAML 안에 남아 있는 기획 요소입니다. 다이어그램 스킬은 독립적이고 재사용 가능하며, 연구 로그 생성 스킬이 그림이 필요할 때 이를 소비합니다.
 
-`research-log-yaml-create` writes `visual_brief` placeholders while drafting, confirms with the user before generating, allocates paths with `next-diagram-path.js --count`, dispatches one `silotek-diagrammer` subagent per brief in parallel, and pairs each returned PNG as an immediate `image`. Skipped or failed briefs stay unpaired and render as the gray fallback box.
+`research-log-yaml-create`는 작성 중 `visual_brief` 자리표시자를 기록하고, 생성 전 사용자에게 확인을 받으며, `next-diagram-path.js --count`로 경로를 할당하고, 각 브리프마다 `silotek-diagrammer` 서브에이전트를 한 개씩 병렬로 디스패치한 뒤 반환된 PNG를 즉시 뒤따르는 `image`로 짝지웁니다. 건너뛰거나 실패한 브리프는 짝이 맞지 않은 채로 남으며 회색 폴백 박스로 렌더링됩니다.
 
-DOCX consumes PNG only. HTML sidecars are kept for editing and browser preview. If `visual_brief` is immediately followed by an existing `image`, `build.js` renders the image and suppresses the fallback gray brief box. If the image is missing, the fallback box is rendered.
+DOCX는 PNG만 소비합니다. HTML 사이드카는 편집과 브라우저 미리보기를 위해 유지됩니다. `visual_brief` 바로 뒤에 기존 `image`가 있으면 `build.js`가 이미지를 렌더링하고 회색 폴백 브리프 박스를 억제합니다. 이미지가 없으면 폴백 박스가 렌더링됩니다.
 
-## YAML Schema Notes
+## YAML 스키마 참고
 
-`sections` is a flat command list. Supported element keys are defined in `scripts/common.js` and include:
+`sections`는 평탄한 명령 목록입니다. 지원되는 요소 키는 `scripts/common.js`에서 정의되며 다음을 포함합니다:
 
 ```text
 h1, h2, h3, p, text, bullets, numbers, ordered, code, image, table, note, callout, spacer, blank, visual_brief
 ```
 
-Do not introduce grouped section keys such as `heading`, `body`, `paragraph`, `list`, `items`, `content`, or `subsections`.
+`heading`, `body`, `paragraph`, `list`, `items`, `content`, `subsections` 같은 그룹화된 섹션 키는 도입하지 마세요.
 
-`visual_brief` requires:
+`visual_brief`에 필요한 필드:
 
 ```text
 purpose, claim, evidence, forbidden, palette, caption
 ```
 
-## Local Verification
+## 로컬 검증
 
 ```powershell
 node --check plugins/silotek-tools/scripts/common.js
@@ -115,14 +115,17 @@ npm.cmd test --prefix plugins/silotek-tools
 claude plugin validate .
 ```
 
-## Versioning
+## 커밋 메시지
 
-Keep these in sync:
+커밋 메시지는 한국어로 작성합니다. 고유명사·기술 용어·식별자(`silotek-tools`, YAML, DOCX, PNG 등)는 영어 그대로 둡니다. Conventional Commits 형식(`feat:`, `fix:`, `chore:` 등)의 접두사는 영어를 유지하고, 그 뒤 설명만 한국어로 씁니다. 예: `chore: 문서 한국어 번역 및 .gitignore 정리`.
+
+## 버전 관리
+
+다음 파일들은 항상 동기화 상태로 유지하세요:
 
 - `.claude-plugin/marketplace.json`
 - `plugins/silotek-tools/.claude-plugin/plugin.json`
 - `plugins/silotek-tools/package.json`
 - `plugins/silotek-tools/package-lock.json`
 
-Current breaking rename: v0.3.0, from `silotek-research-log` package to `silotek-tools`. v0.4.1 keeps source/nature selection and parallel diagram generation, and cleans the diagram skill into a single Silotek light rule set (non-breaking).
-
+현재 브레이킹 변경: v0.3.0에서 `silotek-research-log` 패키지를 `silotek-tools`로 이름 변경. v0.4.1은 소스/유형 선택과 병렬 다이어그램 생성을 유지하면서 다이어그램 스킬을 단일 Silotek 라이트 규칙 세트로 정리(비-브레이킹).

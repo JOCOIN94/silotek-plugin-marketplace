@@ -1,26 +1,26 @@
 # Silotek Claude Plugins
 
-Internal Claude Code plugin marketplace for Silotek workflows.
+Silotek 워크플로용 내부 Claude Code 플러그인 마켓플레이스입니다.
 
-## Plugin
+## 플러그인
 
-This repository currently exposes one plugin package:
+이 저장소는 현재 한 개의 플러그인 패키지를 노출합니다:
 
-- `silotek-tools`: research-log YAML creation, YAML retouching, DOCX export, setup diagnostics, and standalone diagram creation.
+- `silotek-tools`: 연구 로그 YAML 생성, YAML 재작성, DOCX 내보내기, 설치 진단, 독립 다이어그램 생성.
 
-Plugin source:
+플러그인 소스:
 
 ```text
 plugins/silotek-tools/
 ```
 
-Marketplace registry:
+마켓플레이스 레지스트리:
 
 ```text
 .claude-plugin/marketplace.json
 ```
 
-## Visible Commands
+## 노출되는 명령어
 
 ```text
 /silotek-tools:setup-check
@@ -30,16 +30,16 @@ Marketplace registry:
 /silotek-tools:diagram-create
 ```
 
-## Install
+## 설치
 
-From Claude Code:
+Claude Code에서:
 
 ```text
 /plugin marketplace add <this-repo-or-marketplace-url>
 /plugin install silotek-tools@silotek-tools --scope user
 ```
 
-For this v0.3.0 breaking rename, remove the old package first if it is already installed:
+v0.3.0 브레이킹 이름 변경의 경우, 이전 패키지가 이미 설치되어 있다면 먼저 제거하세요:
 
 ```text
 /plugin uninstall silotek-research-log@silotek-tools
@@ -47,7 +47,7 @@ For this v0.3.0 breaking rename, remove the old package first if it is already i
 /plugin install silotek-tools@silotek-tools --scope user
 ```
 
-## Local Development
+## 로컬 개발
 
 Windows PowerShell:
 
@@ -57,7 +57,7 @@ claude plugin validate .
 claude --plugin-dir .\plugins\silotek-tools
 ```
 
-Useful local checks:
+자주 쓰는 로컬 점검 명령:
 
 ```powershell
 node .\plugins\silotek-tools\scripts\setup-check.js
@@ -67,13 +67,13 @@ node .\plugins\silotek-tools\scripts\build-docx.js 1
 npm.cmd test --prefix .\plugins\silotek-tools
 ```
 
-## Storage
+## 저장소
 
-Research-log data is stored outside the plugin directory:
+연구 로그 데이터는 플러그인 디렉터리 외부에 저장됩니다:
 
 ```text
 Windows: %USERPROFILE%\Documents\Silotek Research Logs
 macOS:   $HOME/Documents/Silotek Research Logs
 ```
 
-The plugin keeps YAML, DOCX, manifests, and copied figures in that central store. Standalone diagrams default to `.silotek-diagrams/` in the current workspace.
+플러그인은 YAML, DOCX, 매니페스트, 복사된 그림을 이 중앙 저장소에 보관합니다. 독립 다이어그램은 기본적으로 현재 작업 공간의 `.silotek-diagrams/`에 저장됩니다.
