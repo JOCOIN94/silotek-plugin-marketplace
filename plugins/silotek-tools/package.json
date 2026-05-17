@@ -1,6 +1,6 @@
 {
   "name": "silotek-tools",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Silotek Claude Code tools for research logs, DOCX export, and diagrams.",
   "main": "build.js",
   "scripts": {

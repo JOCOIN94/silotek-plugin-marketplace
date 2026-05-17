@@ -1,6 +1,6 @@
 ---
 name: research-log-yaml-create
-description: 대화 또는 작업 폴더의 근거로 사일로텍 연구일지 YAML 기록을 만든다. 소스 모드와 연구 성격을 선택하고, 필요하면 silotek-diagrammer 서브에이전트로 다이어그램을 병렬 생성한다.
+description: 사용자가 사일로텍 연구일지 YAML을 새로 작성해 달라고 요청하거나, 진행한 연구·구축·분석·검증 작업을 기록으로 남기려 할 때 사용한다.
 ---
 
 # 연구일지 YAML 생성 (Research Log YAML Create)
@@ -16,9 +16,16 @@ draft YAML과 다이어그램 figures는 **중앙 보관소에 직접** 쓴다. 
 3. 중앙 경로를 확보한다 — `scripts/next-basename.js --title "<연구 주제>" --date <오늘> --json` 실행. 반환된 `yamlPath`(중앙 `inputs/<basename>.yaml`)와 `figuresDir`(중앙 `figures/<basename>/`)를 이후 단계에서 그대로 쓴다. **레포 안 어디에도 쓰지 않는다.**
 4. 3단계에서 받은 `yamlPath`에 YAML을 작성한다 — `templates/research-log.yaml`의 평탄한 `sections` 스키마, 8섹션 흐름, 성격별 강조, 본문 문체(`references/writing-style.md`)를 따른다.
 5. 초안을 쓰는 동안, 그림이 문서를 더 명확하게 만드는 자리마다 `visual_brief` 요소를 넣는다 ("그림(Visuals)" 참조). 그림을 억지로 넣지 않는다 — `visual_brief`가 0개여도 괜찮다.
-6. `visual_brief`가 1개 이상이면 **사용자에게 확인(confirm)** 을 받은 뒤, 다이어그램을 병렬로 생성하고 각각을 `image`로 짝짓는다 ("그림(Visuals)" 참조).
-7. `scripts/save-draft.js`로 검증·manifest 기록한다 ("스크립트" 참조). 복사 단계는 없다 — 이미 중앙에 있다.
-8. DOCX는 만들지 않는다. 워드 출력은 `/silotek-tools:research-log-docx-create`를 실행하라고 사용자에게 안내한다.
+6. `visual_brief`가 1개 이상이면 **사용자에게 확인(confirm)** 을 받은 뒤, 다이어그램을 병렬로 생성하고 각각을 `image`로 짝짓는다 ("시각자료와 구조" 참조).
+7. 본문 작성 직후 자가 검사 (저장 전):
+   1) **기계 검출** — 확정적 위반 문자만 grep.
+      PowerShell: `Select-String -Path <yamlPath> -Pattern '—|\\"'`
+      POSIX:      `grep -nE '—|\\"' <yamlPath>`
+      매치가 있으면 콜론·괄호·평문 `"..."` 로 재작성.
+   2) **정책 판독** — `references/writing-style.md` 항목별로 본문 통독: 자기 객체화·작성 메타·회고체·구어·인과 압축. 위반은 재작성.
+   3) **시각자료·구조 점검** — "시각자료와 구조" 절의 매핑에 비추어 본문 통독. 시스템 구조·정량 비교·분포 등이 본문에 등장하는데 해당 시각자료가 없으면 추가 검토. 한 H1 절이 여러 하위 항목으로 분기되어 있는데 H3 없이 평탄하면 위계 분할 검토.
+8. `scripts/save-draft.js`로 검증·manifest 기록한다 ("스크립트" 참조). 복사 단계는 없다 — 이미 중앙에 있다.
+9. DOCX는 만들지 않는다. 워드 출력은 `/silotek-tools:research-log-docx-create`를 실행하라고 사용자에게 안내한다.
 
 ## 소스 모드 선택
 
@@ -83,11 +90,33 @@ draft YAML과 다이어그램 figures는 **중앙 보관소에 직접** 쓴다. 
 - 시행착오 없이 "이렇게 했더니 잘 됐다"형 단편 서술.
 - "단순히 ~을 정리한다", "구조를 살펴본다" 같은 폴더 탐구형 문장 — 코드가 자동으로 경고함.
 - 회고체 종결어미·em dash·"그래서" 연결·1인칭 결정 주체 노출 — `references/writing-style.md` 위반.
+- 리터럴 `\"` 이스케이프(LLM이 따옴표를 이스케이프하려고 적은 백슬래시) — `references/writing-style.md` 위반.
+- 자기 객체화(작성자 본인이 운영자임에도 `사용자 보고가 접수되었다`, `사용자가 …를 입력하였다` 류로 3인칭화) — `references/writing-style.md` 위반.
+- 작성 도구 자기 노출(`별도 도구(예: codex CLI)로 진행 예정`, `Claude Code로 작성`, `이 작업을 GPT로` 등) — `references/writing-style.md` 위반.
 - 레포(작업 폴더) 안에 draft YAML이나 figures 파일을 만드는 행위. 항상 3단계에서 받은 중앙 경로에 쓴다.
 
-## 그림 (Visuals)
+## 시각자료와 구조 (Visuals and Structure)
 
-`visual_brief`는 계획 요소다 — 그림 자체가 아니라 그림의 규격이다.
+본문은 다이어그램·표·그래프·헤딩 위계로 정보 밀도를 분산한다. 어느 자료를 언제 쓰는지는 다음 매핑을 따른다. 절대 수치(예: "N자당 1개")가 아니라 **본문이 다루는 정보 형태**가 기준이다.
+
+- **시스템 구조·데이터 흐름·아키텍처 변경**: `visual_brief`로 다이어그램 (`architecture` / `sequence` / `flowchart` / `state` / `er` 중 추천).
+- **정량 측정·비교 수치가 여러 건**: `table` 요소. 베이스라인 대 변경 후, 가설별 측정, 항목별 점수 비교 등.
+- **분포·시계열·상관**: `visual_brief`의 `quadrant` 또는 `timeline` 다이어그램, 또는 수치를 `table`로 정리.
+- **한 H1 절 안에 분류·항목이 여러 갈래로 분기**: `h3` 요소로 위계를 명시한다. 8섹션 흐름(H1) 안에서 H2/H3는 자유롭게 활용한다.
+
+시각자료의 자리와 수는 본문 분량에 비례한다. 짧은 연구일지는 시각자료 0~1개도 자연스럽다. 본문이 길어지고 한 H1 절이 여러 하위 항목으로 분기될수록, 그 분기 자리에서 위 매핑에 해당하는 정보가 등장하면 시각자료를 둔다. 시각자료가 본문 말미(교훈·향후 과제)에만 몰린다면, 이전 절에서 시각자료로 표현할 정보를 텍스트로만 서술한 결과일 수 있다 (저장 전 자가 점검 단계에서 본다).
+
+`table` 요소 예시(`scripts/common.js`의 평탄한 스키마):
+
+```yaml
+- table:
+    headers: ["가설", "검증 방법", "결과"]
+    rows:
+      - ["메타 폭격", "쿼리 임베딩 분포 측정", "성립"]
+      - ["식별자 검색 부재", "패턴 빈도 grep", "성립"]
+```
+
+`visual_brief`는 계획 요소다(그림 자체가 아니라 그림의 규격). 다이어그램 생성·짝짓기 절차는 아래 1~4를 따른다.
 
 ### 1. 초안을 쓰면서 brief를 작성
 

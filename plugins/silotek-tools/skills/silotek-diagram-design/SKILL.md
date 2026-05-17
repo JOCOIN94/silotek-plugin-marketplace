@@ -1,6 +1,6 @@
 ---
 name: silotek-diagram-design
-description: 인라인 SVG 하나를 담은 자체 완결형 HTML로 독립 실행 가능한 사일로텍 편집형 다이어그램을 만들고, 래스터화로 PNG 사이드카를 함께 생성한다.
+description: 사용자가 다이어그램·아키텍처·프로세스 맵·시퀀스·상태·ER·타임라인·스윔레인·사분면·중첩·트리·레이어·벤·피라미드 그림을 요청할 때, 또는 연구일지 작성이 visual_brief 그림 생성을 디스패치할 때 사용한다.
 ---
 
 # 사일로텍 다이어그램 디자인 (Silotek Diagram Design)

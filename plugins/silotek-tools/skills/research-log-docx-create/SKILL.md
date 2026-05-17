@@ -1,6 +1,6 @@
 ---
 name: research-log-docx-create
-description: 저장된 사일로텍 연구일지 YAML 항목을 서식이 적용된 DOCX 보고서로 변환한다.
+description: 사용자가 이미 저장된 사일로텍 연구일지 YAML을 DOCX 보고서로 빌드해 달라고 요청할 때 사용한다.
 ---
 
 # 연구일지 DOCX 생성 (Research Log DOCX Create)

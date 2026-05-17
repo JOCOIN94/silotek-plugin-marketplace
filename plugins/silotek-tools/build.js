@@ -442,7 +442,7 @@ function buildDocx(inputPath, outputPath) {
   
   // Footer
   children.push(new Paragraph({
-    children: [tr("— 연구일지 끝 —", { italics: true, color: "888888" })],
+    children: [tr("· 연구일지 끝 ·", { italics: true, color: "888888" })],
     alignment: AlignmentType.CENTER,
     spacing: { before: 600 }
   }));
