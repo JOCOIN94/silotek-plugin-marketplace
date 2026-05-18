@@ -62,21 +62,23 @@ manifests/
 figures/
 ```
 
-독립 다이어그램의 기본 경로:
+독립 다이어그램의 기본 경로 (중앙 보관소 안):
 
 ```text
-.silotek-diagrams/
+<중앙>/diagrams/<YYYY-MM-DD>/
   diagram-N.html
   diagram-N.png
 ```
 
-연구 로그용 다이어그램의 기본 경로:
+연구 로그용 다이어그램의 기본 경로 (중앙 보관소 안):
 
 ```text
-.silotek-research-log-figures/
+<중앙>/figures/<basename>/
   diagram-N.html
   diagram-N.png
 ```
+
+두 흐름 모두 작업 폴더에는 어떤 산출물도 만들지 않습니다. `scripts/common.js`의 invariant 가드가 모든 쓰기 경로를 중앙 보관소 내부 절대 경로로 강제합니다.
 
 `visual_brief`는 연구 로그 YAML 안에 남아 있는 기획 요소입니다. 다이어그램 스킬은 독립적이고 재사용 가능하며, 연구 로그 생성 스킬이 그림이 필요할 때 이를 소비합니다.
 

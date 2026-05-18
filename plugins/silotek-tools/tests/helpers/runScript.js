@@ -60,4 +60,32 @@ function runSetupCheck(opts = {}) {
   });
 }
 
-module.exports = { runSaveDraft, runBuildDocx, runResolveYaml, runSetupCheck, runNextBasename };
+function runNextDiagramPath(opts = {}) {
+  const args = [path.join(SCRIPTS_DIR, 'next-diagram-path.js')];
+  if (opts.dir !== undefined && opts.dir !== null) args.push(String(opts.dir));
+  if (opts.standalone) args.push('--standalone');
+  if (opts.count !== undefined && opts.count !== null) {
+    if (opts.countForm === 'equals') {
+      args.push(`--count=${opts.count}`);
+    } else {
+      args.push('--count', String(opts.count));
+    }
+  } else if (opts.countNoValue) {
+    args.push('--count');
+  }
+  if (opts.json) args.push('--json');
+  if (Array.isArray(opts.extraArgs)) args.push(...opts.extraArgs);
+  return spawnSync('node', args, {
+    encoding: 'utf8',
+    env: buildEnv(opts)
+  });
+}
+
+module.exports = {
+  runSaveDraft,
+  runBuildDocx,
+  runResolveYaml,
+  runSetupCheck,
+  runNextBasename,
+  runNextDiagramPath
+};

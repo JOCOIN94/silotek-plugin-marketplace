@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const { Resvg } = require('@resvg/resvg-js');
+const { assertInsideStorage, ensureStorage } = require('./common');
 
 const UNSAFE_PATTERNS = [
   /<script\b/i,
@@ -101,6 +102,8 @@ function findBundledFonts(rootDir = path.resolve(__dirname, '..')) {
 
 function rasterizeSvgString(svg, outputPath, options = {}) {
   assertSupportedMarkup(svg);
+  const storage = options.storage || ensureStorage();
+  assertInsideStorage(outputPath, storage, 'outputPath');
   const width = options.width || 1152;
   const fontFiles = options.fontFiles || findBundledFonts(options.rootDir);
   const resvg = new Resvg(svg, {

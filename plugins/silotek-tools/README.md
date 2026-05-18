@@ -18,7 +18,7 @@
 - `research-log-yaml-create`: 연구 로그 YAML 초안을 작성하여 중앙 저장소에 저장.
 - `research-log-yaml-retouch`: 기존 YAML을 해석해 AI가 재작성하게 하고, 원본을 덮어쓰지 않으면서 수정본 사본을 저장.
 - `research-log-docx-create`: 저장된 YAML로부터 DOCX 빌드.
-- `diagram-create`: 독립 HTML 다이어그램과 PNG를 `.silotek-diagrams/` 아래에 생성.
+- `diagram-create`: 독립 HTML 다이어그램과 PNG를 중앙 `<central>/diagrams/<YYYY-MM-DD>/` 아래에 생성.
 
 ## 다이어그램 스킬
 
@@ -62,8 +62,11 @@ Silotek Research Logs/
   inputs/      YAML 원본 및 수정본 사본
   outputs/     DOCX 출력물
   manifests/   JSON 이력
-  figures/     연구 로그별 복사된 이미지 에셋
+  figures/     연구 로그별 다이어그램(HTML 사이드카 + PNG)
+  diagrams/    독립 다이어그램(YYYY-MM-DD/ 하위)
 ```
+
+플러그인은 모든 흐름에서 작업 폴더(현재 디렉터리)에 어떤 산출물도 만들지 않습니다. 모든 쓰기 경로는 중앙 보관소 내부의 절대 경로여야 하며, 코드 invariant 가드(`scripts/common.js`의 `assertInsideStorage`)가 이를 강제합니다.
 
 ## 로컬 명령
 
@@ -77,7 +80,7 @@ node .\plugins\silotek-tools\scripts\next-basename.js --title "<연구 주제>" 
 node .\plugins\silotek-tools\scripts\save-draft.js "<중앙 inputs/...yaml>" --mode folder
 node .\plugins\silotek-tools\scripts\resolve-yaml.js 1 --json
 node .\plugins\silotek-tools\scripts\build-docx.js 1
-node .\plugins\silotek-tools\scripts\next-diagram-path.js .silotek-diagrams --json
+node .\plugins\silotek-tools\scripts\next-diagram-path.js --standalone --json
 npm.cmd test --prefix .\plugins\silotek-tools
 ```
 
@@ -91,7 +94,7 @@ node ./plugins/silotek-tools/scripts/next-basename.js --title "<연구 주제>" 
 node ./plugins/silotek-tools/scripts/save-draft.js "<중앙 inputs/...yaml>" --mode folder
 node ./plugins/silotek-tools/scripts/resolve-yaml.js 1 --json
 node ./plugins/silotek-tools/scripts/build-docx.js 1
-node ./plugins/silotek-tools/scripts/next-diagram-path.js .silotek-diagrams --json
+node ./plugins/silotek-tools/scripts/next-diagram-path.js --standalone --json
 npm test --prefix ./plugins/silotek-tools
 ```
 

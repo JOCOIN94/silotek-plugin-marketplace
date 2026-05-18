@@ -64,21 +64,23 @@ manifests/
 figures/
 ```
 
-독립 다이어그램의 기본 경로(사용자 작업 폴더 안):
+독립 다이어그램의 기본 경로(중앙 보관소 안 — `/diagram-create`의 `--standalone` 플래그가 오늘 날짜 폴더에 자동 할당):
 
 ```text
-.silotek-diagrams/
+<중앙>/diagrams/<YYYY-MM-DD>/
   diagram-N.html
   diagram-N.png
 ```
 
-연구 로그용 다이어그램의 경로는 중앙 보관소 직행입니다 — 작업 폴더에는 만들지 않습니다:
+연구 로그용 다이어그램의 경로 — 두 흐름 모두 중앙 보관소 직행이며, 작업 폴더에는 어떤 산출물도 만들지 않습니다:
 
 ```text
 <중앙>/figures/<basename>/
   diagram-N.html
   diagram-N.png
 ```
+
+코드 invariant 가드: `scripts/common.js`의 `assertInsideStorage`/`assertInsideSubdir`가 모든 쓰기 경로를 중앙 보관소 내부 절대 경로로 강제합니다. 작업 폴더 기준 상대 경로나 중앙 외부 절대 경로는 `next-diagram-path.js`, `save-draft.js`, `resolve-yaml.js`, `build-docx.js`, `rasterize-svg.js` 모두에서 즉시 거부됩니다.
 
 `visual_brief`는 연구 로그 YAML 안에 남아 있는 기획 요소입니다. 다이어그램 스킬은 독립적이고 재사용 가능하며, 연구 로그 생성 스킬이 그림이 필요할 때 이를 소비합니다.
 
@@ -129,4 +131,4 @@ claude plugin validate .
 
 버전 범프는 `plugins/silotek-tools`에서 `npm version <patch|minor|major>` 한 번으로 한다 — `package.json`이 갱신되면 `version` 스크립트 훅(`scripts/sync-version.js`)이 `.claude-plugin/plugin.json`과 루트 `.claude-plugin/marketplace.json`의 버전 문자열을 맞춰 쓰고, `package-lock.json`은 npm이 자동 갱신한다. 네 파일을 손으로 동기화하지 않는다. `setup-check.js`의 `manifest` 체크가 세 매니페스트 버전이 어긋나면 알린다. (CI 등에서 커밋·태그를 자동으로 만들고 싶지 않으면 `npm version <bump> --no-git-tag-version` 후 직접 커밋한다.)
 
-버전 이력: v0.3.0에서 `silotek-research-log` → `silotek-tools` 이름 변경(브레이킹). v0.4.1은 소스/유형 선택과 병렬 다이어그램 생성을 유지하면서 다이어그램 스킬을 단일 Silotek 라이트 규칙 세트로 정리(비-브레이킹). v0.4.3은 DOCX `code` 블록 멀티라인 줄바꿈 복구 및 버전 동기화 흐름 간소화(비-브레이킹). v0.5.0은 연구 로그 파이프라인을 중앙 보관소 직행으로 단순화 — 작업 폴더 잔여물 제거, `save-draft`의 복사·경로 재작성 단계 폐지, `next-basename.js` 도입(비-브레이킹: 사용자 명령 표면과 산출물 경로 동일).
+버전 이력: v0.3.0에서 `silotek-research-log` → `silotek-tools` 이름 변경(브레이킹). v0.4.1은 소스/유형 선택과 병렬 다이어그램 생성을 유지하면서 다이어그램 스킬을 단일 Silotek 라이트 규칙 세트로 정리(비-브레이킹). v0.4.3은 DOCX `code` 블록 멀티라인 줄바꿈 복구 및 버전 동기화 흐름 간소화(비-브레이킹). v0.5.0은 연구 로그 파이프라인을 중앙 보관소 직행으로 단순화 — 작업 폴더 잔여물 제거, `save-draft`의 복사·경로 재작성 단계 폐지, `next-basename.js` 도입(비-브레이킹: 사용자 명령 표면과 산출물 경로 동일). v0.6.0은 작업 폴더 쓰기를 모든 흐름에서 차단 — `/diagram-create` 출력 경로를 중앙 `diagrams/<YYYY-MM-DD>/`로 이전, `next-diagram-path.js`의 작업 폴더 폴백 제거 및 `--standalone` 플래그 신설, `save-draft`/`resolve-yaml`/`build-docx`/`rasterize-svg`의 모든 쓰기 경로에 `assertInsideStorage`/`assertInsideSubdir` invariant 가드 추가(브레이킹: 독립 다이어그램 출력 경로 변경).

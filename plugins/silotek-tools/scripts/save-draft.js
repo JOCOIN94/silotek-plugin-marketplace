@@ -3,6 +3,7 @@
 const fs = require('fs');
 const path = require('path');
 const {
+  assertInsideSubdir,
   ensureStorage,
   formatValidationErrors,
   inspectResearchLogArtifacts,
@@ -96,6 +97,9 @@ function main() {
     throw new Error(`YAML 파일을 찾을 수 없음: ${draftPath}`);
   }
 
+  const storage = ensureStorage();
+  assertInsideSubdir(draftPath, storage, 'inputs', 'draftPath');
+
   const doc = loadYaml(draftPath);
   const schemaErrors = validateResearchLog(doc);
   if (schemaErrors.length) {
@@ -114,7 +118,6 @@ function main() {
 
   const diagnostics = inspectResearchLogArtifacts(doc, { draftDir });
 
-  const storage = ensureStorage();
   const manifestPath = path.join(storage.manifests, `${basename}.json`);
 
   writeJson(manifestPath, {

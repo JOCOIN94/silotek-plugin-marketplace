@@ -6,6 +6,8 @@ description: Resolve an existing research-log YAML, rewrite it with the AI skill
 
 Use this when an existing research-log YAML needs a stronger research-log revision.
 
+If the selector is a file path, it must point inside the central `inputs/` directory — `resolve-yaml.js` rejects paths under the current working directory. Prefer the list number or basename selector to avoid path ambiguity.
+
 Workflow:
 
 1. Resolve the existing YAML with `scripts/resolve-yaml.js`.

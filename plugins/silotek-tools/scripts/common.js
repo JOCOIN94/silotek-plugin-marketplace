@@ -3,7 +3,7 @@ const os = require('os');
 const path = require('path');
 const yaml = require('js-yaml');
 
-const STORAGE_DIRS = ['inputs', 'outputs', 'manifests', 'figures'];
+const STORAGE_DIRS = ['inputs', 'outputs', 'manifests', 'figures', 'diagrams'];
 const SECTION_ELEMENT_KEYS = new Set([
   'h1',
   'h2',
@@ -60,8 +60,42 @@ function ensureStorage(root = researchRoot()) {
     inputs: path.join(root, 'inputs'),
     outputs: path.join(root, 'outputs'),
     manifests: path.join(root, 'manifests'),
-    figures: path.join(root, 'figures')
+    figures: path.join(root, 'figures'),
+    diagrams: path.join(root, 'diagrams')
   };
+}
+
+function assertInsideStorage(candidate, storage = ensureStorage(), label = 'path') {
+  if (typeof candidate !== 'string' || candidate === '') {
+    throw new Error(`${label}는 비어있지 않은 문자열이어야 합니다.`);
+  }
+  if (!path.isAbsolute(candidate)) {
+    throw new Error(`${label}는 절대 경로여야 합니다 (받음: ${candidate}). 작업 폴더 기준 상대 경로는 거부됩니다.`);
+  }
+  const resolved = path.resolve(candidate);
+  const root = path.resolve(storage.root);
+  const rel = path.relative(root, resolved);
+  if (rel === '' || rel.startsWith('..') || path.isAbsolute(rel)) {
+    throw new Error(
+      `${label}는 중앙 보관소 (${root}) 내부여야 합니다. 현재: ${resolved}. ` +
+      `next-basename.js / next-diagram-path.js가 반환하는 절대 경로를 그대로 쓰세요.`
+    );
+  }
+  return resolved;
+}
+
+function assertInsideSubdir(candidate, storage, subdirKey, label = 'path') {
+  const resolved = assertInsideStorage(candidate, storage, label);
+  const subBase = storage[subdirKey];
+  if (typeof subBase !== 'string' || !subBase) {
+    throw new Error(`알 수 없는 storage subdir 키: ${subdirKey}`);
+  }
+  const sub = path.resolve(subBase);
+  const rel = path.relative(sub, resolved);
+  if (rel.startsWith('..') || path.isAbsolute(rel)) {
+    throw new Error(`${label}는 ${sub} 내부여야 합니다. 현재: ${resolved}.`);
+  }
+  return resolved;
 }
 
 function loadYaml(filePath) {
@@ -375,6 +409,8 @@ function listYaml(storage = ensureStorage()) {
 }
 
 module.exports = {
+  assertInsideStorage,
+  assertInsideSubdir,
   basenameFromDoc,
   dateStamp,
   ensureStorage,

@@ -131,7 +131,8 @@ test('active docs do not expose stale draft, old namespace, or quality-scoring l
     new RegExp('quality ' + 'score', 'i'),
     new RegExp('critique ' + 'score', 'i'),
     new RegExp('품질 ' + '경고'),
-    /diagram-1/
+    /diagram-1/,
+    /\.silotek-diagrams\b/
   ];
 
   for (const file of activeDocs) {

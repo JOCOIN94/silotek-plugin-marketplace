@@ -13,7 +13,7 @@ draft YAML과 다이어그램 figures는 **중앙 보관소에 직접** 쓴다. 
 
 1. 소스 모드를 정한다 ("소스 모드 선택" 참조).
 2. 연구 성격 `meta.연구 성격`을 정한다 ("연구 성격 선택" 참조).
-3. 중앙 경로를 확보한다 — `scripts/next-basename.js --title "<연구 주제>" --date <오늘> --json` 실행. 반환된 `yamlPath`(중앙 `inputs/<basename>.yaml`)와 `figuresDir`(중앙 `figures/<basename>/`)를 이후 단계에서 그대로 쓴다. **레포 안 어디에도 쓰지 않는다.**
+3. 중앙 경로를 확보한다 — `scripts/next-basename.js --title "<연구 주제>" --date <오늘> --json` 실행. 반환된 `yamlPath`(중앙 `inputs/<basename>.yaml`)와 `figuresDir`(중앙 `figures/<basename>/`)를 이후 단계에서 그대로 쓴다. **레포 안 어디에도 쓰지 않는다.** 후속 스크립트는 모두 작업 폴더 기준 상대 경로를 거부한다 — `figuresDir`을 `next-diagram-path.js`에 넘길 때도 단축형(`figures/<basename>` 등)으로 줄이지 말고 반환된 절대 경로 문자열을 따옴표로 감싸 그대로 전달한다.
 4. 3단계에서 받은 `yamlPath`에 YAML을 작성한다 — `templates/research-log.yaml`의 평탄한 `sections` 스키마, 8섹션 흐름, 성격별 강조, 본문 문체(`references/writing-style.md`)를 따른다.
 5. 초안을 쓰는 동안, 그림이 문서를 더 명확하게 만드는 자리마다 `visual_brief` 요소를 넣는다 ("그림(Visuals)" 참조). 그림을 억지로 넣지 않는다 — `visual_brief`가 0개여도 괜찮다.
 6. `visual_brief`가 1개 이상이면 **사용자에게 확인(confirm)** 을 받은 뒤, 다이어그램을 병렬로 생성하고 각각을 `image`로 짝짓는다 ("시각자료와 구조" 참조).
@@ -93,7 +93,7 @@ draft YAML과 다이어그램 figures는 **중앙 보관소에 직접** 쓴다. 
 - 리터럴 `\"` 이스케이프(LLM이 따옴표를 이스케이프하려고 적은 백슬래시) — `references/writing-style.md` 위반.
 - 자기 객체화(작성자 본인이 운영자임에도 `사용자 보고가 접수되었다`, `사용자가 …를 입력하였다` 류로 3인칭화) — `references/writing-style.md` 위반.
 - 작성 도구 자기 노출(`별도 도구(예: codex CLI)로 진행 예정`, `Claude Code로 작성`, `이 작업을 GPT로` 등) — `references/writing-style.md` 위반.
-- 레포(작업 폴더) 안에 draft YAML이나 figures 파일을 만드는 행위. 항상 3단계에서 받은 중앙 경로에 쓴다.
+- 레포(작업 폴더) 안에 draft YAML이나 figures 파일을 만드는 행위. 항상 3단계에서 받은 중앙 경로에 쓴다 — Node 스크립트들의 invariant 가드가 작업 폴더 경로를 즉시 거부해 실패시키므로, 발생한다면 절대 경로를 잃은 호출 흔적이 있다는 뜻이다.
 
 ## 시각자료와 구조 (Visuals and Structure)
 
@@ -149,7 +149,7 @@ draft YAML과 다이어그램 figures는 **중앙 보관소에 직접** 쓴다. 
 
 ### 3. 경로 할당 후 병렬 dispatch
 
-선택된 brief마다 HTML/PNG 한 쌍을 한 번의 호출로 할당한다. `figuresDir`은 3단계에서 받은 중앙 경로다 (`$pluginRoot`는 "스크립트" 참조):
+선택된 brief마다 HTML/PNG 한 쌍을 한 번의 호출로 할당한다. `figuresDir`은 3단계에서 받은 절대 경로다 — 단축형(예: `figures/<basename>`)이나 작업 폴더 기준 상대 경로로 줄여 호출하면 `next-diagram-path.js`의 invariant 검사가 즉시 실패시킨다. `$pluginRoot`는 "스크립트" 참조:
 
 ```
 node <plugin-root>/scripts/next-diagram-path.js "<figuresDir>" --count <N> --json

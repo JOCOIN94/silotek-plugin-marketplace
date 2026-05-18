@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const { buildDocx } = require('../build');
 const {
+  assertInsideSubdir,
   ensureStorage,
   formatValidationErrors,
   inspectResearchLogArtifacts,
@@ -39,6 +40,7 @@ function resolveInput(selector, entries, storage) {
 
   const asPath = path.resolve(selector);
   if (fs.existsSync(asPath)) {
+    assertInsideSubdir(asPath, storage, 'inputs', 'yaml path selector');
     const basename = path.basename(asPath, path.extname(asPath));
     return {
       basename,
@@ -99,6 +101,7 @@ async function main() {
     draftDir: path.dirname(target.inputPath)
   });
 
+  assertInsideSubdir(target.outputPath, storage, 'outputs', 'outputPath');
   fs.mkdirSync(path.dirname(target.outputPath), { recursive: true });
   await buildDocx(target.inputPath, target.outputPath);
 

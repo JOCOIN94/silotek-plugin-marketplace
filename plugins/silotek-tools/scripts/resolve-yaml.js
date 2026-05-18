@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { ensureStorage, listYaml } = require('./common');
+const { assertInsideSubdir, ensureStorage, listYaml } = require('./common');
 
 function usage() {
   console.log(`Resolve a saved research-log YAML.
@@ -25,6 +25,7 @@ function resolveYaml(selector, storage = ensureStorage()) {
 
   const direct = path.resolve(String(selector));
   if (fs.existsSync(direct)) {
+    assertInsideSubdir(direct, storage, 'inputs', 'yaml selector path');
     return {
       index: null,
       basename: path.basename(direct, path.extname(direct)),

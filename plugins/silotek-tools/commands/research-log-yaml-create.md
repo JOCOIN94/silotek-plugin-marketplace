@@ -4,7 +4,7 @@ description: Create and save a Silotek research-log YAML draft (with source-mode
 
 # Research Log YAML Create
 
-Create a Korean Silotek research-log YAML record directly in the central store, then validate via `scripts/save-draft.js`. Use the `research-log-yaml-create` skill for the full rules. The YAML and diagram figures are written straight to the central store — no working-dir intermediates.
+Create a Korean Silotek research-log YAML record directly in the central store, then validate via `scripts/save-draft.js`. Use the `research-log-yaml-create` skill for the full rules. The YAML and diagram figures are written straight to the central store — no working-dir intermediates. All scripts (`next-basename.js` / `next-diagram-path.js` / `save-draft.js`) reject relative or non-central paths and exit non-zero.
 
 Workflow:
 

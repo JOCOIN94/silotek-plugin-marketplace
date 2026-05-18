@@ -76,4 +76,4 @@ Windows: %USERPROFILE%\Documents\Silotek Research Logs
 macOS:   $HOME/Documents/Silotek Research Logs
 ```
 
-플러그인은 YAML, DOCX, 매니페스트, 복사된 그림을 이 중앙 저장소에 보관합니다. 독립 다이어그램은 기본적으로 현재 작업 공간의 `.silotek-diagrams/`에 저장됩니다.
+플러그인은 모든 산출물(YAML, DOCX, 매니페스트, 다이어그램)을 이 중앙 저장소에 보관합니다. 독립 다이어그램은 `<central>/diagrams/<YYYY-MM-DD>/` 아래에 자동 할당됩니다. 작업 폴더(현재 디렉터리)에는 어떤 파일도 만들지 않습니다.

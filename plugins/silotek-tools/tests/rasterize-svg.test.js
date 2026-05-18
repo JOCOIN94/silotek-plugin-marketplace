@@ -1,21 +1,48 @@
-const { test } = require('node:test');
+const { test, before, after } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
 const { applyFontFallbacks } = require('../scripts/rasterize-svg.js');
+const { makeTmpStorage, cleanTmpStorage } = require('./helpers/tmpStorage');
+const { ensureStorage } = require('../scripts/common');
 
 const SCRIPT = path.resolve(__dirname, '..', 'scripts', 'rasterize-svg.js');
 const FIXTURES = path.join(__dirname, 'fixtures');
 
+let storageRoot;
+let storage;
+let prevEnv;
+
+before(() => {
+  storageRoot = makeTmpStorage();
+  prevEnv = process.env.SILOTEK_RESEARCH_LOG_ROOT;
+  process.env.SILOTEK_RESEARCH_LOG_ROOT = storageRoot;
+  storage = ensureStorage();
+});
+
+after(() => {
+  if (prevEnv === undefined) delete process.env.SILOTEK_RESEARCH_LOG_ROOT;
+  else process.env.SILOTEK_RESEARCH_LOG_ROOT = prevEnv;
+  cleanTmpStorage(storageRoot);
+});
+
 function runRasterize(input, output) {
-  return spawnSync('node', [SCRIPT, input, output], { encoding: 'utf8' });
+  return spawnSync('node', [SCRIPT, input, output], {
+    encoding: 'utf8',
+    env: { ...process.env, SILOTEK_RESEARCH_LOG_ROOT: storageRoot }
+  });
+}
+
+function inFigures(name) {
+  const dir = path.join(storage.figures, 'rasterize-test');
+  fs.mkdirSync(dir, { recursive: true });
+  return path.join(dir, name);
 }
 
 test('rasterize-svg creates a PNG from a Korean inline SVG HTML file', () => {
-  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'silotek-raster-'));
-  const output = path.join(tmp, 'diagram.png');
+  const output = inFigures('diagram-korean.png');
   const result = runRasterize(path.join(FIXTURES, 'diagram-korean.html'), output);
 
   assert.equal(result.status, 0, `stderr: ${result.stderr}`);
@@ -25,10 +52,10 @@ test('rasterize-svg creates a PNG from a Korean inline SVG HTML file', () => {
 });
 
 test('rasterize-svg rejects HTML without exactly one inline SVG', () => {
-  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'silotek-raster-'));
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'silotek-raster-input-'));
   const input = path.join(tmp, 'no-svg.html');
-  const output = path.join(tmp, 'diagram.png');
   fs.writeFileSync(input, '<html><body><p>no svg</p></body></html>', 'utf8');
+  const output = inFigures('reject-no-svg.png');
 
   const result = runRasterize(input, output);
   assert.notEqual(result.status, 0);
@@ -36,9 +63,8 @@ test('rasterize-svg rejects HTML without exactly one inline SVG', () => {
 });
 
 test('rasterize-svg rejects script and remote asset content', () => {
-  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'silotek-raster-'));
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'silotek-raster-input-'));
   const input = path.join(tmp, 'unsafe.html');
-  const output = path.join(tmp, 'diagram.png');
   fs.writeFileSync(input, `
     <html><body>
       <script>alert('x')</script>
@@ -47,10 +73,20 @@ test('rasterize-svg rejects script and remote asset content', () => {
       </svg>
     </body></html>
   `, 'utf8');
+  const output = inFigures('reject-unsafe.png');
 
   const result = runRasterize(input, output);
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /unsupported/i);
+});
+
+test('rasterize-svg rejects an outputPath outside the central storage', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'silotek-raster-bad-'));
+  const output = path.join(tmp, 'diagram.png');
+  const result = runRasterize(path.join(FIXTURES, 'diagram-korean.html'), output);
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /outputPath/);
+  assert.equal(fs.existsSync(output), false);
 });
 
 test('font fallback maps legacy sans, mono, and serif names to bundled Pretendard stack', () => {

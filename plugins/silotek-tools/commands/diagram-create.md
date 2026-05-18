@@ -6,19 +6,21 @@ description: Create a standalone Silotek editorial diagram as HTML plus PNG.
 
 Create an independent diagram using the `silotek-diagram-design` skill. This command does not require a research log.
 
-Default output:
+Default output (inside the central Silotek Research Logs store):
 
 ```text
-.silotek-diagrams/
+<central>/diagrams/<YYYY-MM-DD>/
   diagram-N.html
   diagram-N.png
 ```
+
+This command writes nothing under the current working directory. `next-diagram-path.js` rejects relative or non-central paths and exits non-zero — use the `--standalone` flag to let it allocate today's central diagrams folder.
 
 Workflow:
 
 1. Clarify the diagram type only if the user's request is ambiguous.
 2. Use `skills/silotek-diagram-design/SKILL.md` and the matching `references/type-*.md`.
-3. Allocate the next available output with `scripts/next-diagram-path.js`.
+3. Allocate the next available output with `scripts/next-diagram-path.js --standalone`.
 4. Save one self-contained HTML file with exactly one inline SVG.
 5. Rasterize it to PNG with `scripts/rasterize-svg.js`.
 6. Report both paths.
@@ -33,7 +35,7 @@ $pluginRoot = @(
   (Join-Path (Get-Location) "plugins\silotek-tools")
 ) | Where-Object { $_ -and (Test-Path (Join-Path $_ "scripts\$scriptName")) } | Select-Object -First 1
 if (-not $pluginRoot) { throw "Cannot locate silotek-tools: scripts\$scriptName not found via CLAUDE_PLUGIN_ROOT or current directory." }
-$alloc = node (Join-Path $pluginRoot "scripts\$scriptName") ".silotek-diagrams" --json | ConvertFrom-Json
+$alloc = node (Join-Path $pluginRoot "scripts\$scriptName") --standalone --json | ConvertFrom-Json
 # Write the diagram HTML to $alloc.htmlPath, then rasterize:
 node (Join-Path $pluginRoot "scripts\rasterize-svg.js") $alloc.htmlPath $alloc.pngPath
 ```
@@ -50,7 +52,7 @@ if [ -z "$plugin_root" ]; then
   echo "Cannot locate silotek-tools: scripts/$script_name not found via CLAUDE_PLUGIN_ROOT or current directory." >&2
   exit 1
 fi
-node "$plugin_root/scripts/$script_name" ".silotek-diagrams" --json
+node "$plugin_root/scripts/$script_name" --standalone --json
 # Write the diagram HTML to the returned htmlPath, then rasterize:
 node "$plugin_root/scripts/rasterize-svg.js" "<htmlPath>" "<pngPath>"
 ```
