@@ -180,7 +180,69 @@ function checkManifest(root) {
   };
 }
 
-function buildReport() {
+const DEFAULT_UPDATE_URL = 'https://raw.githubusercontent.com/JOCOIN94/silotek-claude-plugins/main/.claude-plugin/marketplace.json';
+
+async function checkLatestVersion(root, options = {}) {
+  const skipEnv = options.skipEnv !== undefined
+    ? options.skipEnv
+    : process.env.SILOTEK_TOOLS_SKIP_UPDATE_CHECK;
+  if (skipEnv === '1') {
+    return {
+      id: 'update',
+      status: 'ok',
+      message: 'Update check skipped (SILOTEK_TOOLS_SKIP_UPDATE_CHECK=1).',
+      detail: { skipped: true }
+    };
+  }
+
+  const pkg = readJsonIfExists(path.join(root, 'package.json'));
+  const currentVersion = pkg.version;
+  const url = options.url || process.env.SILOTEK_TOOLS_UPDATE_URL || DEFAULT_UPDATE_URL;
+  const fetcher = options.fetcher || globalThis.fetch;
+  const timeoutMs = options.timeoutMs !== undefined ? options.timeoutMs : 3000;
+
+  try {
+    if (typeof fetcher !== 'function') {
+      throw new Error('fetch is not available in this Node runtime');
+    }
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+    let response;
+    try {
+      response = await fetcher(url, { signal: controller.signal });
+    } finally {
+      clearTimeout(timeoutId);
+    }
+    if (!response || !response.ok) {
+      throw new Error(`HTTP ${response ? response.status : 'no-response'}`);
+    }
+    const remote = await response.json();
+    const entries = Array.isArray(remote && remote.plugins) ? remote.plugins : [];
+    const entry = entries.find(p => p && p.name === 'silotek-tools');
+    if (!entry || !entry.version) {
+      throw new Error('silotek-tools entry not found in remote marketplace');
+    }
+    const remoteVersion = entry.version;
+    const upToDate = currentVersion === remoteVersion;
+    return {
+      id: 'update',
+      status: upToDate ? 'ok' : 'warn',
+      message: upToDate
+        ? `Plugin is up to date (${currentVersion}).`
+        : `New version available: ${currentVersion} → ${remoteVersion}. Run /plugin marketplace update silotek-tools then /plugin install silotek-tools@silotek-tools --scope user.`,
+      detail: { currentVersion, remoteVersion, source: url }
+    };
+  } catch (error) {
+    return {
+      id: 'update',
+      status: 'warn',
+      message: `Update check skipped: ${error.message}`,
+      detail: { currentVersion, source: url, error: error.message }
+    };
+  }
+}
+
+async function buildReport() {
   const root = pluginRoot();
   const storageRoot = researchRoot();
   const checks = [
@@ -189,7 +251,8 @@ function buildReport() {
     checkStorage(storageRoot),
     checkTemplate(root),
     ...checkAssets(root),
-    checkManifest(root)
+    checkManifest(root),
+    await checkLatestVersion(root)
   ];
   const failed = checks.filter(check => check.status === 'fail').length;
   const warned = checks.filter(check => check.status === 'warn').length;
@@ -214,9 +277,9 @@ function printText(report) {
   }
 }
 
-function main() {
+async function main() {
   const jsonMode = process.argv.slice(2).includes('--json');
-  const report = buildReport();
+  const report = await buildReport();
   if (jsonMode) {
     console.log(JSON.stringify(report, null, 2));
   } else {
@@ -225,12 +288,10 @@ function main() {
 }
 
 if (require.main === module) {
-  try {
-    main();
-  } catch (error) {
+  main().catch(error => {
     console.error(`setup-check failed: ${error.message}`);
     process.exit(1);
-  }
+  });
 }
 
-module.exports = { buildReport, checkManifest, marketplaceCandidates };
+module.exports = { buildReport, checkManifest, checkLatestVersion, marketplaceCandidates };

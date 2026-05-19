@@ -1,5 +1,5 @@
 ---
-description: Diagnose the Silotek tools plugin without mutating storage.
+description: 플러그인 상태 및 업데이트 체크
 ---
 
 # Silotek Tools Setup Check

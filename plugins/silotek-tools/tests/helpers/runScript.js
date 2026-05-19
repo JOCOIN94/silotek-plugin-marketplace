@@ -54,9 +54,14 @@ function runResolveYaml(selector, opts = {}) {
 function runSetupCheck(opts = {}) {
   const args = [path.join(SCRIPTS_DIR, 'setup-check.js')];
   if (opts.json) args.push('--json');
+  const env = buildEnv(opts);
+  // 테스트는 기본적으로 네트워크 호출을 안 하도록 업데이트 체크를 건너뜀.
+  if (opts.checkUpdate !== true) {
+    env.SILOTEK_TOOLS_SKIP_UPDATE_CHECK = '1';
+  }
   return spawnSync('node', args, {
     encoding: 'utf8',
-    env: buildEnv(opts)
+    env
   });
 }
 

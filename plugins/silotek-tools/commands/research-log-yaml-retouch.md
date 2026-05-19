@@ -1,5 +1,5 @@
 ---
-description: Resolve an existing research-log YAML, rewrite it with the AI skill, and save a revised copy without overwriting the original.
+description: YAML 파일 수정용 (개선필요)
 ---
 
 # Research Log YAML Retouch

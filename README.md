@@ -114,6 +114,7 @@ npm.cmd version <patch|minor|major>
 
 ## 버전 이력 요약
 
+- **v0.8.0**: 명령 5개 description 한국어화 + `setup-check`에 원격 버전 비교 체크 추가 (비-브레이킹 — `SILOTEK_TOOLS_SKIP_UPDATE_CHECK=1`로 옵트아웃 가능)
 - **v0.7.0**: 다이어그램 스킬 디렉터리 이름을 `silotek-diagram-design` → `diagram-create`로 통일 (비-브레이킹 — 명령·서브에이전트 동작 동일, 슬래시 자동완성 목록만 정리됨)
 - **v0.6.0**: 작업 폴더 쓰기를 모든 흐름에서 차단 (브레이킹 — 독립 다이어그램 출력 경로가 중앙 `diagrams/<YYYY-MM-DD>/`로 이동, `--standalone` 플래그 신설)
 - **v0.5.0**: 연구 로그 파이프라인을 중앙 보관소 직행으로 단순화 (`next-basename.js` 도입)

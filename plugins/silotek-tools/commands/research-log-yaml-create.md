@@ -1,5 +1,5 @@
 ---
-description: Create and save a Silotek research-log YAML draft (with source-mode/nature selection and optional parallel diagram generation).
+description: 연구일지 YAML 초안 생성
 ---
 
 # Research Log YAML Create

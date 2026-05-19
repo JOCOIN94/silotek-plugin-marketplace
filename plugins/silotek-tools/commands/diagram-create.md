@@ -1,5 +1,5 @@
 ---
-description: Create a standalone Silotek editorial diagram as HTML plus PNG.
+description: 다이어그램 시각자료 생성
 ---
 
 # Diagram Create

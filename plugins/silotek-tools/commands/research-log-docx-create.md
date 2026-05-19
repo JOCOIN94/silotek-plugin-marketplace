@@ -1,5 +1,5 @@
 ---
-description: Convert a saved Silotek research-log YAML entry into a DOCX report.
+description: 연구일지 YAML 초안을 DOCX 보고서로 변환
 ---
 
 # Research Log DOCX Create
