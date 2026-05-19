@@ -28,7 +28,7 @@ Claude 쪽 계층:
 - `skills/research-log-yaml-create/`: 연구 로그 YAML 생성 규칙.
 - `skills/research-log-yaml-retouch/`: AI 재작성 및 수정본 사본 워크플로.
 - `skills/research-log-docx-create/`: DOCX 빌드 워크플로.
-- `skills/silotek-diagram-design/`: 자체 완결형 HTML/SVG 출력 규칙을 갖춘 독립 Silotek 라이트 다이어그램 작성 스킬.
+- `skills/diagram-create/`: 자체 완결형 HTML/SVG 출력 규칙을 갖춘 독립 Silotek 라이트 다이어그램 작성 스킬.
 - `agents/silotek-diagrammer.md`: 다이어그램 단위 서브에이전트. 연구 로그 생성 스킬이 각 `visual_brief`마다 한 인스턴스씩 병렬로 디스패치함.
 
 Node 계층:
@@ -131,4 +131,4 @@ claude plugin validate .
 
 버전 범프는 `plugins/silotek-tools`에서 `npm version <patch|minor|major>` 한 번으로 한다 — `package.json`이 갱신되면 `version` 스크립트 훅(`scripts/sync-version.js`)이 `.claude-plugin/plugin.json`과 루트 `.claude-plugin/marketplace.json`의 버전 문자열을 맞춰 쓰고, `package-lock.json`은 npm이 자동 갱신한다. 네 파일을 손으로 동기화하지 않는다. `setup-check.js`의 `manifest` 체크가 세 매니페스트 버전이 어긋나면 알린다. (CI 등에서 커밋·태그를 자동으로 만들고 싶지 않으면 `npm version <bump> --no-git-tag-version` 후 직접 커밋한다.)
 
-버전 이력: v0.3.0에서 `silotek-research-log` → `silotek-tools` 이름 변경(브레이킹). v0.4.1은 소스/유형 선택과 병렬 다이어그램 생성을 유지하면서 다이어그램 스킬을 단일 Silotek 라이트 규칙 세트로 정리(비-브레이킹). v0.4.3은 DOCX `code` 블록 멀티라인 줄바꿈 복구 및 버전 동기화 흐름 간소화(비-브레이킹). v0.5.0은 연구 로그 파이프라인을 중앙 보관소 직행으로 단순화 — 작업 폴더 잔여물 제거, `save-draft`의 복사·경로 재작성 단계 폐지, `next-basename.js` 도입(비-브레이킹: 사용자 명령 표면과 산출물 경로 동일). v0.6.0은 작업 폴더 쓰기를 모든 흐름에서 차단 — `/diagram-create` 출력 경로를 중앙 `diagrams/<YYYY-MM-DD>/`로 이전, `next-diagram-path.js`의 작업 폴더 폴백 제거 및 `--standalone` 플래그 신설, `save-draft`/`resolve-yaml`/`build-docx`/`rasterize-svg`의 모든 쓰기 경로에 `assertInsideStorage`/`assertInsideSubdir` invariant 가드 추가(브레이킹: 독립 다이어그램 출력 경로 변경).
+버전 이력: v0.3.0에서 `silotek-research-log` → `silotek-tools` 이름 변경(브레이킹). v0.4.1은 소스/유형 선택과 병렬 다이어그램 생성을 유지하면서 다이어그램 스킬을 단일 Silotek 라이트 규칙 세트로 정리(비-브레이킹). v0.4.3은 DOCX `code` 블록 멀티라인 줄바꿈 복구 및 버전 동기화 흐름 간소화(비-브레이킹). v0.5.0은 연구 로그 파이프라인을 중앙 보관소 직행으로 단순화 — 작업 폴더 잔여물 제거, `save-draft`의 복사·경로 재작성 단계 폐지, `next-basename.js` 도입(비-브레이킹: 사용자 명령 표면과 산출물 경로 동일). v0.6.0은 작업 폴더 쓰기를 모든 흐름에서 차단 — `/diagram-create` 출력 경로를 중앙 `diagrams/<YYYY-MM-DD>/`로 이전, `next-diagram-path.js`의 작업 폴더 폴백 제거 및 `--standalone` 플래그 신설, `save-draft`/`resolve-yaml`/`build-docx`/`rasterize-svg`의 모든 쓰기 경로에 `assertInsideStorage`/`assertInsideSubdir` invariant 가드 추가(브레이킹: 독립 다이어그램 출력 경로 변경). v0.7.0은 다이어그램 스킬 디렉터리 이름을 `silotek-diagram-design` → `diagram-create`로 통일해 다른 짝(`research-log-*`)과 명령==스킬 이름 패턴을 맞춤(비-브레이킹: 명령·서브에이전트 동작 동일, 슬래시 자동완성 목록만 정리됨).

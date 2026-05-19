@@ -28,7 +28,7 @@ Codex 쪽 계층:
 - `skills/research-log-yaml-create/`: 연구 로그 YAML 생성 규칙.
 - `skills/research-log-yaml-retouch/`: AI 재작성 및 수정본 사본 워크플로.
 - `skills/research-log-docx-create/`: DOCX 빌드 워크플로.
-- `skills/silotek-diagram-design/`: 자체 완결형 HTML/SVG 출력 규칙을 갖춘 독립 Silotek 라이트 다이어그램 작성 스킬.
+- `skills/diagram-create/`: 자체 완결형 HTML/SVG 출력 규칙을 갖춘 독립 Silotek 라이트 다이어그램 작성 스킬.
 - `agents/silotek-diagrammer.md`: 다이어그램 단위 서브에이전트. 연구 로그 생성 스킬이 각 `visual_brief`마다 한 인스턴스씩 병렬로 디스패치함.
 
 Node 계층:

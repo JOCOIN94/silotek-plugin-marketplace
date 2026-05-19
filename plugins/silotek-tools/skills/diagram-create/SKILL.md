@@ -1,5 +1,5 @@
 ---
-name: silotek-diagram-design
+name: diagram-create
 description: 사용자가 다이어그램·아키텍처·프로세스 맵·시퀀스·상태·ER·타임라인·스윔레인·사분면·중첩·트리·레이어·벤·피라미드 그림을 요청할 때, 또는 연구일지 작성이 visual_brief 그림 생성을 디스패치할 때 사용한다.
 ---
 

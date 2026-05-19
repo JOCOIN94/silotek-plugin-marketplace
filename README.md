@@ -114,6 +114,7 @@ npm.cmd version <patch|minor|major>
 
 ## 버전 이력 요약
 
+- **v0.7.0**: 다이어그램 스킬 디렉터리 이름을 `silotek-diagram-design` → `diagram-create`로 통일 (비-브레이킹 — 명령·서브에이전트 동작 동일, 슬래시 자동완성 목록만 정리됨)
 - **v0.6.0**: 작업 폴더 쓰기를 모든 흐름에서 차단 (브레이킹 — 독립 다이어그램 출력 경로가 중앙 `diagrams/<YYYY-MM-DD>/`로 이동, `--standalone` 플래그 신설)
 - **v0.5.0**: 연구 로그 파이프라인을 중앙 보관소 직행으로 단순화 (`next-basename.js` 도입)
 - **v0.4.3**: DOCX 코드 블록 멀티라인 줄바꿈 복구, 버전 동기화 흐름 간소화

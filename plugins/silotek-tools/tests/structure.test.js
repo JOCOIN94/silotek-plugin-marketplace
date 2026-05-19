@@ -38,7 +38,7 @@ test('only the five final visible command files exist', () => {
   ]);
 });
 
-test('skill directories match the public command families plus diagram design', () => {
+test('skill directories match the public command families', () => {
   const skillsDir = path.join(PLUGIN_ROOT, 'skills');
   const skillDirs = fs.readdirSync(skillsDir, { withFileTypes: true })
     .filter(entry => entry.isDirectory())
@@ -46,10 +46,10 @@ test('skill directories match the public command families plus diagram design', 
     .sort();
 
   assert.deepEqual(skillDirs, [
+    'diagram-create',
     'research-log-docx-create',
     'research-log-yaml-create',
-    'research-log-yaml-retouch',
-    'silotek-diagram-design'
+    'research-log-yaml-retouch'
   ]);
 });
 
@@ -84,7 +84,7 @@ test('agents directory contains exactly the silotek-diagrammer agent with valid 
   assert.match(fm[1], /description:\s*\S/);
   assert.match(fm[1], /tools:\s*\S/);
   // 본문이 다이어그램 스킬과 래스터라이저를 가리키는지
-  assert.match(text, /silotek-diagram-design/);
+  assert.match(text, /diagram-create/);
   assert.match(text, /rasterize-svg\.js/);
 });
 

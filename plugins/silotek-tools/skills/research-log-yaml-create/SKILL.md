@@ -120,7 +120,7 @@ draft YAML과 다이어그램 figures는 **중앙 보관소에 직접** 쓴다. 
 
 ### 1. 초안을 쓰면서 brief를 작성
 
-그림이 이해도를 높이는 자리마다 완전한 `visual_brief`를 넣고, `silotek-diagram-design`의 다이어그램 타입 중 하나를 추천 타입으로 정한다: `flowchart`, `er`, `state`, `timeline`, `quadrant`, `architecture`, `sequence`, `swimlane`, `nested`, `tree`, `layers`, `venn`, `pyramid`. 추천 타입을 brief와 함께 들고 있는다 (3단계에서 서브에이전트에 전달한다).
+그림이 이해도를 높이는 자리마다 완전한 `visual_brief`를 넣고, `diagram-create`의 다이어그램 타입 중 하나를 추천 타입으로 정한다: `flowchart`, `er`, `state`, `timeline`, `quadrant`, `architecture`, `sequence`, `swimlane`, `nested`, `tree`, `layers`, `venn`, `pyramid`. 추천 타입을 brief와 함께 들고 있는다 (3단계에서 서브에이전트에 전달한다).
 
 ```yaml
 - visual_brief:
@@ -160,7 +160,7 @@ node <plugin-root>/scripts/next-diagram-path.js "<figuresDir>" --count <N> --jso
 - 해당 `visual_brief` 블록,
 - 추천 다이어그램 타입,
 - 할당된 `htmlPath`와 `pngPath` (둘 다 중앙 절대 경로),
-- 플러그인 루트 절대 경로 (서브에이전트가 `skills/silotek-diagram-design/`을 읽을 수 있도록).
+- 플러그인 루트 절대 경로 (서브에이전트가 `skills/diagram-create/`을 읽을 수 있도록).
 
 각 서브에이전트는 자기 HTML을 쓰고, `scripts/rasterize-svg.js`로 래스터화한 뒤, `{ htmlPath, pngPath, altText, usedEvidence, forbiddenViolations, rasterizeOk }`를 보고한다.
 

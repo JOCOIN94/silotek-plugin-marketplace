@@ -25,7 +25,7 @@
 독립 다이어그램 기능은 다음 위치에 있습니다:
 
 ```text
-skills/silotek-diagram-design/
+skills/diagram-create/
 ```
 
 이 스킬은 타입 참조 규칙과 HTML + 인라인 SVG 출력 컨벤션을 갖춘 내부 Silotek 라이트 다이어그램 스킬입니다. 원격 에셋, 테마 변형, 갤러리 예제는 사용하지 않습니다.
@@ -41,7 +41,7 @@ skills/silotek-diagram-design/
 1. `/silotek-tools:research-log-yaml-create`는 소스 모드(`conversation`/`folder`/`mixed`)와 연구 성격(`구축`/`분석`/`검증`)을 결정하며, 모호한 경우 사용자에게 확인을 받습니다.
 2. `scripts/next-basename.js`로 중앙 보관소 안에 `inputs/<basename>.yaml`과 `figures/<basename>/` 경로를 미리 확보합니다. 작업 폴더(레포)에는 어떤 파일도 만들지 않습니다.
 3. 그림이 도움이 되는 자리마다 `visual_brief` 자리표시자를 포함한 YAML을 2단계에서 받은 `yamlPath`(중앙 `inputs/`)에 곧장 작성합니다.
-4. 브리프 목록을 보여주고 사용자에게 확인을 받은 뒤 `scripts/next-diagram-path.js <figuresDir> --count`로 경로를 할당하고, 각 브리프마다 `silotek-diagrammer` 서브에이전트를 병렬로 디스패치합니다. 각 서브에이전트는 `silotek-diagram-design`을 실행해 중앙 `figures/<basename>/diagram-N.html`을 쓰고 `diagram-N.png`로 래스터화합니다.
+4. 브리프 목록을 보여주고 사용자에게 확인을 받은 뒤 `scripts/next-diagram-path.js <figuresDir> --count`로 경로를 할당하고, 각 브리프마다 `silotek-diagrammer` 서브에이전트를 병렬로 디스패치합니다. 각 서브에이전트는 `diagram-create`을 실행해 중앙 `figures/<basename>/diagram-N.html`을 쓰고 `diagram-N.png`로 래스터화합니다.
 5. 반환된 각 PNG를 즉시 뒤따르는 `image` 요소(경로 `../figures/<basename>/diagram-N.png`)로 짝짓습니다. 건너뛰거나 실패한 브리프는 짝이 맞지 않은 채로 남습니다.
 6. `scripts/save-draft.js`가 중앙 YAML을 검증하고 manifest를 기록합니다. 복사 단계는 없습니다 — 모든 파일이 이미 중앙에 있습니다. 참조된 PNG가 없을 때는 `--no-rasterize`가 지정되지 않은 한 형제 HTML을 자동 래스터화합니다.
 7. `/silotek-tools:research-log-docx-create`가 저장된 YAML로부터 DOCX를 빌드합니다.

@@ -1,6 +1,6 @@
 # 사일로텍 다이어그램 스타일 가이드
 
-`silotek-diagram-design`이 만드는 모든 다이어그램에 이 스타일 가이드를 적용한다. 단일 룩은 Silotek light다.
+`diagram-create`이 만드는 모든 다이어그램에 이 스타일 가이드를 적용한다. 단일 룩은 Silotek light다.
 
 ## 브리프 우선 원칙
 

@@ -4,7 +4,7 @@ description: Create a standalone Silotek editorial diagram as HTML plus PNG.
 
 # Diagram Create
 
-Create an independent diagram using the `silotek-diagram-design` skill. This command does not require a research log.
+Create an independent diagram using the `diagram-create` skill. This command does not require a research log.
 
 Default output (inside the central Silotek Research Logs store):
 
@@ -19,7 +19,7 @@ This command writes nothing under the current working directory. `next-diagram-p
 Workflow:
 
 1. Clarify the diagram type only if the user's request is ambiguous.
-2. Use `skills/silotek-diagram-design/SKILL.md` and the matching `references/type-*.md`.
+2. Use `skills/diagram-create/SKILL.md` and the matching `references/type-*.md`.
 3. Allocate the next available output with `scripts/next-diagram-path.js --standalone`.
 4. Save one self-contained HTML file with exactly one inline SVG.
 5. Rasterize it to PNG with `scripts/rasterize-svg.js`.

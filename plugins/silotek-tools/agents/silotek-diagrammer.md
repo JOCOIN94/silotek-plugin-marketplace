@@ -1,6 +1,6 @@
 ---
 name: silotek-diagrammer
-description: Generate exactly one Silotek editorial diagram from a single visual_brief. The main session passes one brief, a recommended diagram type, the allocated diagram-N HTML/PNG paths, and the plugin root absolute path. Follow the silotek-diagram-design rules, rasterize the result to PNG via scripts/rasterize-svg.js, and report the paths back. Stay strictly inside the brief's evidence and forbidden lists.
+description: Generate exactly one Silotek editorial diagram from a single visual_brief. The main session passes one brief, a recommended diagram type, the allocated diagram-N HTML/PNG paths, and the plugin root absolute path. Follow the diagram-create rules, rasterize the result to PNG via scripts/rasterize-svg.js, and report the paths back. Stay strictly inside the brief's evidence and forbidden lists.
 tools: Read, Write, Bash, Glob, Grep
 ---
 
@@ -18,9 +18,9 @@ tools: Read, Write, Bash, Glob, Grep
 
 ## 절차
 
-1. `<pluginRoot>/skills/silotek-diagram-design/SKILL.md` 를 Read.
-2. `<pluginRoot>/skills/silotek-diagram-design/references/type-<recommendedType>.md` 를 Read. 해당 파일이 없으면 SKILL.md의 type 목록을 보고 가장 가까운 reference를 골라 읽는다.
-3. 필요하면 `<pluginRoot>/skills/silotek-diagram-design/assets/template.html` 를 Read 해 출발점으로 쓴다.
+1. `<pluginRoot>/skills/diagram-create/SKILL.md` 를 Read.
+2. `<pluginRoot>/skills/diagram-create/references/type-<recommendedType>.md` 를 Read. 해당 파일이 없으면 SKILL.md의 type 목록을 보고 가장 가까운 reference를 골라 읽는다.
+3. 필요하면 `<pluginRoot>/skills/diagram-create/assets/template.html` 를 Read 해 출발점으로 쓴다.
 4. 디자인 규칙:
    - Silotek light 단일 룩을 쓴다.
    - 색은 범주, 상태, 경로, 초점 같은 구분을 인코딩할 때만 쓴다.
