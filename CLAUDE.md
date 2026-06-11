@@ -1,23 +1,24 @@
 # CLAUDE.md
 
-이 저장소는 `silotek-tools`라는 이름의 로컬 Claude Code 플러그인 마켓플레이스입니다.
+이 저장소는 `silotek`이라는 이름의 로컬 Claude Code/Codex 플러그인 마켓플레이스입니다. 개별 플러그인은 기능 단위로 나누며, 현재 `research-log`와 `serial-mcp`를 제공한다.
 
 ## 현재 플러그인
 
-소스 위치:
+주요 소스 위치:
 
 ```text
-plugins/silotek-tools/
+plugins/research-log/  # 연구 로그 / 다이어그램 플러그인
+plugins/serial-mcp/    # 시리얼 MCP wrapper + serial skill
 ```
 
 노출되는 명령어:
 
 ```text
-/silotek-tools:setup-check
-/silotek-tools:research-log-yaml-create
-/silotek-tools:research-log-yaml-retouch
-/silotek-tools:research-log-docx-create
-/silotek-tools:diagram-create
+/research-log:setup-check
+/research-log:research-log-yaml-create
+/research-log:research-log-yaml-retouch
+/research-log:research-log-docx-create
+/research-log:diagram-create
 ```
 
 ## 아키텍처
@@ -109,26 +110,26 @@ purpose, claim, evidence, forbidden, palette, caption
 ## 로컬 검증
 
 ```powershell
-node --check plugins/silotek-tools/scripts/common.js
-node --check plugins/silotek-tools/scripts/save-draft.js
-node --check plugins/silotek-tools/scripts/build-docx.js
-node --check plugins/silotek-tools/scripts/rasterize-svg.js
-node --check plugins/silotek-tools/scripts/setup-check.js
-node --check plugins/silotek-tools/scripts/resolve-yaml.js
-node --check plugins/silotek-tools/scripts/next-diagram-path.js
-node --check plugins/silotek-tools/scripts/next-basename.js
-node --check plugins/silotek-tools/scripts/sync-version.js
-node --check plugins/silotek-tools/build.js
-npm.cmd test --prefix plugins/silotek-tools
+node --check plugins/research-log/scripts/common.js
+node --check plugins/research-log/scripts/save-draft.js
+node --check plugins/research-log/scripts/build-docx.js
+node --check plugins/research-log/scripts/rasterize-svg.js
+node --check plugins/research-log/scripts/setup-check.js
+node --check plugins/research-log/scripts/resolve-yaml.js
+node --check plugins/research-log/scripts/next-diagram-path.js
+node --check plugins/research-log/scripts/next-basename.js
+node --check plugins/research-log/scripts/sync-version.js
+node --check plugins/research-log/build.js
+npm.cmd test --prefix plugins/research-log
 claude plugin validate .
 ```
 
 ## 커밋 메시지
 
-커밋 메시지는 한국어로 작성합니다. 고유명사·기술 용어·식별자(`silotek-tools`, YAML, DOCX, PNG 등)는 영어 그대로 둡니다. Conventional Commits 형식(`feat:`, `fix:`, `chore:` 등)의 접두사는 영어를 유지하고, 그 뒤 설명만 한국어로 씁니다. 예: `chore: 문서 한국어 번역 및 .gitignore 정리`.
+커밋 메시지는 한국어로 작성합니다. 고유명사·기술 용어·식별자(`research-log`, YAML, DOCX, PNG 등)는 영어 그대로 둡니다. Conventional Commits 형식(`feat:`, `fix:`, `chore:` 등)의 접두사는 영어를 유지하고, 그 뒤 설명만 한국어로 씁니다. 예: `chore: 문서 한국어 번역 및 .gitignore 정리`.
 
 ## 버전 관리
 
-버전 범프는 `plugins/silotek-tools`에서 `npm version <patch|minor|major>` 한 번으로 한다 — `package.json`이 갱신되면 `version` 스크립트 훅(`scripts/sync-version.js`)이 `.claude-plugin/plugin.json`과 루트 `.claude-plugin/marketplace.json`의 버전 문자열을 맞춰 쓰고, `package-lock.json`은 npm이 자동 갱신한다. 네 파일을 손으로 동기화하지 않는다. `setup-check.js`의 `manifest` 체크가 세 매니페스트 버전이 어긋나면 알린다. (CI 등에서 커밋·태그를 자동으로 만들고 싶지 않으면 `npm version <bump> --no-git-tag-version` 후 직접 커밋한다.)
+버전 범프는 `plugins/research-log`에서 `npm version <patch|minor|major>` 한 번으로 한다 — `package.json`이 갱신되면 `version` 스크립트 훅(`scripts/sync-version.js`)이 `.claude-plugin/plugin.json`과 루트 `.claude-plugin/marketplace.json`의 버전 문자열을 맞춰 쓰고, `package-lock.json`은 npm이 자동 갱신한다. 네 파일을 손으로 동기화하지 않는다. `setup-check.js`의 `manifest` 체크가 세 매니페스트 버전이 어긋나면 알린다. (CI 등에서 커밋·태그를 자동으로 만들고 싶지 않으면 `npm version <bump> --no-git-tag-version` 후 직접 커밋한다.)
 
-버전 이력: v0.3.0에서 `silotek-research-log` → `silotek-tools` 이름 변경(브레이킹). v0.4.1은 소스/유형 선택과 병렬 다이어그램 생성을 유지하면서 다이어그램 스킬을 단일 Silotek 라이트 규칙 세트로 정리(비-브레이킹). v0.4.3은 DOCX `code` 블록 멀티라인 줄바꿈 복구 및 버전 동기화 흐름 간소화(비-브레이킹). v0.5.0은 연구 로그 파이프라인을 중앙 보관소 직행으로 단순화 — 작업 폴더 잔여물 제거, `save-draft`의 복사·경로 재작성 단계 폐지, `next-basename.js` 도입(비-브레이킹: 사용자 명령 표면과 산출물 경로 동일). v0.6.0은 작업 폴더 쓰기를 모든 흐름에서 차단 — `/diagram-create` 출력 경로를 중앙 `diagrams/<YYYY-MM-DD>/`로 이전, `next-diagram-path.js`의 작업 폴더 폴백 제거 및 `--standalone` 플래그 신설, `save-draft`/`resolve-yaml`/`build-docx`/`rasterize-svg`의 모든 쓰기 경로에 `assertInsideStorage`/`assertInsideSubdir` invariant 가드 추가(브레이킹: 독립 다이어그램 출력 경로 변경). v0.7.0은 다이어그램 스킬 디렉터리 이름을 `silotek-diagram-design` → `diagram-create`로 통일해 다른 짝(`research-log-*`)과 명령==스킬 이름 패턴을 맞춤(비-브레이킹: 명령·서브에이전트 동작 동일, 슬래시 자동완성 목록만 정리됨). v0.8.0은 명령 5개의 description을 한국어로 정리하고, `setup-check`에 GitHub raw `marketplace.json` 비교 기반 원격 버전 체크(`update` 항목)를 추가 — 네트워크 실패 시 `warn` 한 줄로 끝나며, `SILOTEK_TOOLS_SKIP_UPDATE_CHECK=1`로 비활성 가능, `SILOTEK_TOOLS_UPDATE_URL`로 출처 override 가능(비-브레이킹).
+버전 이력: v1.0.0에서 marketplace ID를 `silotek`, 연구 로그 플러그인을 `research-log`, 시리얼 스킬을 `serial`, 서버 repo를 `serial-mcp-server`로 표준화(브레이킹). v0.3.0에서 `silotek-research-log` → `research-log` 이름 변경(브레이킹). v0.4.1은 소스/유형 선택과 병렬 다이어그램 생성을 유지하면서 다이어그램 스킬을 단일 Silotek 라이트 규칙 세트로 정리(비-브레이킹). v0.4.3은 DOCX `code` 블록 멀티라인 줄바꿈 복구 및 버전 동기화 흐름 간소화(비-브레이킹). v0.5.0은 연구 로그 파이프라인을 중앙 보관소 직행으로 단순화 — 작업 폴더 잔여물 제거, `save-draft`의 복사·경로 재작성 단계 폐지, `next-basename.js` 도입(비-브레이킹: 사용자 명령 표면과 산출물 경로 동일). v0.6.0은 작업 폴더 쓰기를 모든 흐름에서 차단 — `/diagram-create` 출력 경로를 중앙 `diagrams/<YYYY-MM-DD>/`로 이전, `next-diagram-path.js`의 작업 폴더 폴백 제거 및 `--standalone` 플래그 신설, `save-draft`/`resolve-yaml`/`build-docx`/`rasterize-svg`의 모든 쓰기 경로에 `assertInsideStorage`/`assertInsideSubdir` invariant 가드 추가(브레이킹: 독립 다이어그램 출력 경로 변경). v0.7.0은 다이어그램 스킬 디렉터리 이름을 `silotek-diagram-design` → `diagram-create`로 통일해 다른 짝(`research-log-*`)과 명령==스킬 이름 패턴을 맞춤(비-브레이킹: 명령·서브에이전트 동작 동일, 슬래시 자동완성 목록만 정리됨). v0.8.0은 명령 5개의 description을 한국어로 정리하고, `setup-check`에 GitHub raw `marketplace.json` 비교 기반 원격 버전 체크(`update` 항목)를 추가 — 네트워크 실패 시 `warn` 한 줄로 끝나며, `RESEARCH_LOG_SKIP_UPDATE_CHECK=1`로 비활성 가능, `RESEARCH_LOG_UPDATE_URL`로 출처 override 가능(비-브레이킹).

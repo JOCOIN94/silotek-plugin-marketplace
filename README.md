@@ -1,16 +1,16 @@
-# Silotek Claude Plugins
+# Silotek Plugin Marketplace
 
-Silotek 워크플로용 내부 Claude Code 플러그인 마켓플레이스입니다.
+Silotek 워크플로용 내부 AI 플러그인 마켓플레이스입니다. marketplace ID는 `silotek`이고, 설치 가능한 기능 단위는 개별 플러그인(`research-log`, `serial-mcp`)으로 분리합니다.
 
 ## 플러그인
 
 이 저장소는 같은 marketplace 안에서 서로 독립된 플러그인 두 개를 노출합니다.
 
-- `silotek-tools`: 연구 로그 YAML 작성·재작성, DOCX 내보내기, 독립 다이어그램 생성, 설치 진단.
+- `research-log`: 연구 로그 YAML 작성·재작성, DOCX 내보내기, 독립 다이어그램 생성, 설치 진단.
 - `serial-mcp`: 임베디드 보드 시리얼 로그를 AI가 읽는 MCP 서버 + 블랙박스 디버깅 스킬.
 
 ```text
-plugins/silotek-tools/          # 연구 로그 / 다이어그램 플러그인
+plugins/research-log/          # 연구 로그 / 다이어그램 플러그인
 plugins/serial-mcp/             # 시리얼 MCP 플러그인
 .claude-plugin/marketplace.json # 마켓플레이스 레지스트리
 ```
@@ -18,14 +18,14 @@ plugins/serial-mcp/             # 시리얼 MCP 플러그인
 ## 노출되는 명령어
 
 ```text
-/silotek-tools:setup-check
-/silotek-tools:research-log-yaml-create
-/silotek-tools:research-log-yaml-retouch
-/silotek-tools:research-log-docx-create
-/silotek-tools:diagram-create
+/research-log:setup-check
+/research-log:research-log-yaml-create
+/research-log:research-log-yaml-retouch
+/research-log:research-log-docx-create
+/research-log:diagram-create
 ```
 
-`serial-mcp`는 slash command가 아니라 MCP tools와 `serial-debugging` skill을 제공한다.
+`serial-mcp`는 slash command가 아니라 MCP tools와 `serial` skill을 제공한다.
 
 ## 사전 요구사항
 
@@ -36,21 +36,21 @@ plugins/serial-mcp/             # 시리얼 MCP 플러그인
 
 ```text
 /plugin marketplace add <이 저장소의 git URL 또는 로컬 경로>
-/plugin install silotek-tools@silotek-tools --scope user
+/plugin install research-log@silotek --scope user
 ```
 
 시리얼 디버깅이 필요하면 별도로 설치합니다:
 
 ```text
-/plugin install serial-mcp@silotek-tools --scope user
+/plugin install serial-mcp@silotek --scope user
 ```
 
-두 플러그인은 독립적입니다. 연구 로그/다이어그램만 쓰면 `serial-mcp`를 설치할 필요가 없고, 시리얼 디버깅만 쓰면 `silotek-tools`를 설치할 필요가 없습니다.
+두 플러그인은 독립적입니다. 연구 로그/다이어그램만 쓰면 `serial-mcp`를 설치할 필요가 없고, 시리얼 디버깅만 쓰면 `research-log`를 설치할 필요가 없습니다.
 
 설치 직후 진단을 한 번 돌려 의존성·저장소·매니페스트가 일치하는지 확인합니다:
 
 ```text
-/silotek-tools:setup-check
+/research-log:setup-check
 ```
 
 7개 체크가 전부 `ok`로 보고되면 사용 준비 완료입니다. `dependencies` 또는 `rasterizer` 체크가 실패하면 플러그인 디렉터리에서 `npm install`을 한 번 실행한 뒤 다시 진단합니다.
@@ -71,12 +71,19 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File .\plugins\serial-mcp\scripts\verif
 
 설치 뒤 새 Codex 세션을 열면 `list_serial_ports`, `get_serial_status`, `get_recent_logs` 등 MCP 도구가 주입됩니다.
 
-### v0.3.0 이전 이름(`silotek-research-log`)에서 옮겨오는 경우
+### v1.0.0 이전 이름에서 옮겨오는 경우
 
 ```text
-/plugin uninstall silotek-research-log@silotek-tools
-/plugin marketplace update silotek-tools
-/plugin install silotek-tools@silotek-tools --scope user
+/plugin uninstall silotek-tools@silotek-tools
+/plugin uninstall serial-mcp@silotek-tools
+/plugin marketplace add <silotek-plugin-marketplace git URL 또는 로컬 경로>
+/plugin install research-log@silotek --scope user
+```
+
+시리얼 디버깅도 사용하면 새 marketplace에서 다시 설치합니다:
+
+```text
+/plugin install serial-mcp@silotek --scope user
 ```
 
 ## 산출물 저장소
@@ -105,31 +112,31 @@ diagrams/    독립 다이어그램 (diagrams/<YYYY-MM-DD>/diagram-N.html|png)
 Windows PowerShell:
 
 ```powershell
-npm.cmd install --prefix .\plugins\silotek-tools
+npm.cmd install --prefix .\plugins\research-log
 claude plugin validate .
-npm.cmd test --prefix .\plugins\silotek-tools
+npm.cmd test --prefix .\plugins\research-log
 ```
 
 읽기 전용 진단·목록:
 
 ```powershell
-node .\plugins\silotek-tools\scripts\setup-check.js --json
-node .\plugins\silotek-tools\scripts\list-yaml.js
+node .\plugins\research-log\scripts\setup-check.js --json
+node .\plugins\research-log\scripts\list-yaml.js
 ```
 
 DOCX 빌드(저장된 YAML 한 건 선택):
 
 ```powershell
-node .\plugins\silotek-tools\scripts\build-docx.js --list
-node .\plugins\silotek-tools\scripts\build-docx.js 1
+node .\plugins\research-log\scripts\build-docx.js --list
+node .\plugins\research-log\scripts\build-docx.js 1
 ```
 
-연구일지 YAML 작성·저장은 슬래시 명령(`/silotek-tools:research-log-yaml-create`)으로 흐름 전체를 거쳐야 합니다. `save-draft.js`를 직접 호출할 일은 거의 없습니다 — 첫 인자는 중앙 `inputs/<basename>.yaml`의 절대 경로여야 하고, 작업 폴더 경로는 invariant 가드가 거부합니다.
+연구일지 YAML 작성·저장은 슬래시 명령(`/research-log:research-log-yaml-create`)으로 흐름 전체를 거쳐야 합니다. `save-draft.js`를 직접 호출할 일은 거의 없습니다 — 첫 인자는 중앙 `inputs/<basename>.yaml`의 절대 경로여야 하고, 작업 폴더 경로는 invariant 가드가 거부합니다.
 
-버전 범프는 `plugins/silotek-tools`에서 한 번에:
+버전 범프는 `plugins/research-log`에서 한 번에:
 
 ```powershell
-cd plugins\silotek-tools
+cd plugins\research-log
 npm.cmd version <patch|minor|major>
 ```
 
@@ -144,10 +151,11 @@ npm.cmd version <patch|minor|major>
 
 ## 버전 이력 요약
 
-- **v0.8.0**: 명령 5개 description 한국어화 + `setup-check`에 원격 버전 비교 체크 추가 (비-브레이킹 — `SILOTEK_TOOLS_SKIP_UPDATE_CHECK=1`로 옵트아웃 가능)
+- **v1.0.0**: marketplace ID를 `silotek`, 연구 로그 플러그인을 `research-log`, 시리얼 스킬을 `serial`로 표준화하고 repo 이름을 `silotek-plugin-marketplace` / `serial-mcp-server`로 정리 (브레이킹)
+- **v0.8.0**: 명령 5개 description 한국어화 + `setup-check`에 원격 버전 비교 체크 추가 (비-브레이킹 — `RESEARCH_LOG_SKIP_UPDATE_CHECK=1`로 옵트아웃 가능)
 - **v0.7.0**: 다이어그램 스킬 디렉터리 이름을 `silotek-diagram-design` → `diagram-create`로 통일 (비-브레이킹 — 명령·서브에이전트 동작 동일, 슬래시 자동완성 목록만 정리됨)
 - **v0.6.0**: 작업 폴더 쓰기를 모든 흐름에서 차단 (브레이킹 — 독립 다이어그램 출력 경로가 중앙 `diagrams/<YYYY-MM-DD>/`로 이동, `--standalone` 플래그 신설)
 - **v0.5.0**: 연구 로그 파이프라인을 중앙 보관소 직행으로 단순화 (`next-basename.js` 도입)
 - **v0.4.3**: DOCX 코드 블록 멀티라인 줄바꿈 복구, 버전 동기화 흐름 간소화
 - **v0.4.1**: 다이어그램 스킬을 단일 Silotek 라이트 규칙 세트로 통합, 병렬 다이어그램 생성
-- **v0.3.0**: 패키지명을 `silotek-research-log` → `silotek-tools`로 변경 (브레이킹)
+- **v0.3.0**: 패키지명을 `silotek-research-log` → `research-log`로 변경 (브레이킹)

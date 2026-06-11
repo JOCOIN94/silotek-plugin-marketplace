@@ -1,0 +1,16 @@
+{
+  "name": "research-log",
+  "description": "Create Silotek research-log YAML/DOCX artifacts and standalone editorial diagrams from Claude Code.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Silotek"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "research-log",
+    "docx",
+    "yaml",
+    "diagram",
+    "silotek"
+  ]
+}

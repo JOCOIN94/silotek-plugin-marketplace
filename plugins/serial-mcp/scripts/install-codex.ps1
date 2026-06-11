@@ -3,7 +3,7 @@
 [CmdletBinding()]
 param(
     [string]$Name = "serial-mcp",
-    [string]$PackageSource = "git+https://github.com/JOCOIN94/silotek-serial-mcp",
+    [string]$PackageSource = "git+https://github.com/JOCOIN94/serial-mcp-server",
     [string]$PackageCommand = "serial-mcp",
     [string]$SerialPort,
     [string]$SerialNames,

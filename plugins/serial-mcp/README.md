@@ -1,16 +1,16 @@
 # Serial MCP plugin
 
-`serial-mcp` is a standalone plugin entry in the Silotek marketplace. It is separate from the `silotek-tools` research-log/diagram plugin; install it only when an AI session needs embedded-board serial logs.
+`serial-mcp` is a standalone plugin entry in the Silotek marketplace. It is separate from the `research-log` research-log/diagram plugin; install it only when an AI session needs embedded-board serial logs.
 
 ## What lives here
 
 - `.claude-plugin/plugin.json`: Claude Code plugin metadata and inline MCP server registration.
-- `.codex-plugin/plugin.json`: Codex plugin metadata and the `serial-debugging` skill.
+- `.codex-plugin/plugin.json`: Codex plugin metadata and the `serial` skill.
 - `scripts/install-codex.ps1`: Codex MCP registration wrapper. It calls `codex mcp add` so Codex exposes the tools through top-level MCP configuration.
 - `scripts/verify-codex.ps1`: Read-only Codex registration check.
-- `skills/serial-debugging/SKILL.md`: The black-box serial debugging loop.
+- `skills/serial/SKILL.md`: The black-box serial debugging loop.
 
-The actual MCP server code lives in `JOCOIN94/silotek-serial-mcp`.
+The actual MCP server code lives in `JOCOIN94/serial-mcp-server`.
 
 ## Claude Code install
 
@@ -18,7 +18,7 @@ Claude Code can consume the MCP server from `.claude-plugin/plugin.json`.
 
 ```text
 /plugin marketplace add <this repository URL or local path>
-/plugin install serial-mcp@silotek-tools --scope user
+/plugin install serial-mcp@silotek --scope user
 ```
 
 ## Codex install

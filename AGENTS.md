@@ -1,23 +1,24 @@
 # AGENTS.md
 
-이 저장소는 `silotek-tools`라는 이름의 로컬 Codex 플러그인 마켓플레이스입니다.
+이 저장소는 `silotek`이라는 이름의 로컬 Codex/Claude 플러그인 마켓플레이스입니다. 개별 플러그인은 기능 단위로 나누며, 현재 `research-log`와 `serial-mcp`를 제공한다.
 
 ## 현재 플러그인
 
-소스 위치:
+주요 소스 위치:
 
 ```text
-plugins/silotek-tools/
+plugins/research-log/  # 연구 로그 / 다이어그램 플러그인
+plugins/serial-mcp/    # 시리얼 MCP wrapper + serial skill
 ```
 
 노출되는 명령어:
 
 ```text
-/silotek-tools:setup-check
-/silotek-tools:research-log-yaml-create
-/silotek-tools:research-log-yaml-retouch
-/silotek-tools:research-log-docx-create
-/silotek-tools:diagram-create
+/research-log:setup-check
+/research-log:research-log-yaml-create
+/research-log:research-log-yaml-retouch
+/research-log:research-log-docx-create
+/research-log:diagram-create
 ```
 
 ## 아키텍처
@@ -105,15 +106,15 @@ purpose, claim, evidence, forbidden, palette, caption
 ## 로컬 검증
 
 ```powershell
-node --check plugins/silotek-tools/scripts/common.js
-node --check plugins/silotek-tools/scripts/save-draft.js
-node --check plugins/silotek-tools/scripts/build-docx.js
-node --check plugins/silotek-tools/scripts/rasterize-svg.js
-node --check plugins/silotek-tools/scripts/setup-check.js
-node --check plugins/silotek-tools/scripts/resolve-yaml.js
-node --check plugins/silotek-tools/scripts/next-diagram-path.js
-node --check plugins/silotek-tools/build.js
-npm.cmd test --prefix plugins/silotek-tools
+node --check plugins/research-log/scripts/common.js
+node --check plugins/research-log/scripts/save-draft.js
+node --check plugins/research-log/scripts/build-docx.js
+node --check plugins/research-log/scripts/rasterize-svg.js
+node --check plugins/research-log/scripts/setup-check.js
+node --check plugins/research-log/scripts/resolve-yaml.js
+node --check plugins/research-log/scripts/next-diagram-path.js
+node --check plugins/research-log/build.js
+npm.cmd test --prefix plugins/research-log
 Codex plugin validate .
 ```
 
@@ -121,9 +122,9 @@ Codex plugin validate .
 
 다음 파일들은 항상 동기화 상태로 유지하세요:
 
-- `.Codex-plugin/marketplace.json`
-- `plugins/silotek-tools/.Codex-plugin/plugin.json`
-- `plugins/silotek-tools/package.json`
-- `plugins/silotek-tools/package-lock.json`
+- `.claude-plugin/marketplace.json`
+- `plugins/research-log/.claude-plugin/plugin.json`
+- `plugins/research-log/package.json`
+- `plugins/research-log/package-lock.json`
 
-현재 브레이킹 변경: v0.3.0에서 `silotek-research-log` 패키지를 `silotek-tools`로 이름 변경. v0.4.1은 소스/유형 선택과 병렬 다이어그램 생성을 유지하면서 다이어그램 스킬을 단일 Silotek 라이트 규칙 세트로 정리(비-브레이킹).
+현재 브레이킹 변경: v1.0.0에서 marketplace ID를 `silotek`, 연구 로그 플러그인을 `research-log`, 시리얼 스킬을 `serial`, 서버 repo를 `serial-mcp-server`로 표준화한다.

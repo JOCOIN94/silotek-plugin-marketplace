@@ -1,12 +1,12 @@
 {
   "name": "serial-mcp",
-  "version": "0.1.2",
-  "description": "Headless MCP server for AI-assisted embedded-board serial log debugging.",
+  "version": "1.0.0",
+  "description": "Headless MCP server for AI-assisted embedded-board serial log debugging, gated command writes, and board resets.",
   "author": {
     "name": "Silotek"
   },
-  "homepage": "https://github.com/JOCOIN94/silotek-serial-mcp",
-  "repository": "https://github.com/JOCOIN94/silotek-serial-mcp",
+  "homepage": "https://github.com/JOCOIN94/serial-mcp-server",
+  "repository": "https://github.com/JOCOIN94/serial-mcp-server",
   "license": "UNLICENSED",
   "keywords": [
     "serial",
@@ -19,16 +19,17 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Serial MCP",
-    "shortDescription": "Read embedded-board serial logs through MCP.",
-    "longDescription": "Serial MCP lets Codex inspect ESP32, STM32, and other embedded-board text logs through a read-only FastMCP server. Codex currently needs the MCP server registered through top-level codex mcp configuration, so this plugin ships the debugging skill plus scripts/install-codex.ps1 to add the server without hand-editing config.toml.",
+    "shortDescription": "Inspect serial logs and run approved board command/reset workflows through MCP.",
+    "longDescription": "Serial MCP lets Codex inspect ESP32, STM32, and other embedded-board text logs through a FastMCP server. It also supports user-approved send_serial_command and reset_board workflows with audit markers. Codex currently needs the MCP server registered through top-level codex mcp configuration, so this plugin ships the serial skill plus scripts/install-codex.ps1 to add the server without hand-editing config.toml.",
     "developerName": "Silotek",
     "category": "Developer Tools",
     "capabilities": [
       "Interactive",
-      "Read"
+      "Read",
+      "Write"
     ],
     "defaultPrompt": [
-      "Use Serial MCP to inspect board logs and run a clear, trigger, query debugging loop."
+      "Use Serial MCP to inspect board logs, reset a board after approval, and run a clear, trigger, query debugging loop."
     ],
     "brandColor": "#2C8D8A",
     "screenshots": []
