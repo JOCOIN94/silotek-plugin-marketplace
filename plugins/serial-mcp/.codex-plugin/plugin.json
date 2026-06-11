@@ -1,0 +1,37 @@
+{
+  "name": "serial-mcp",
+  "version": "0.1.1",
+  "description": "Headless MCP server for AI-assisted embedded-board serial log debugging.",
+  "author": {
+    "name": "Silotek"
+  },
+  "homepage": "https://github.com/JOCOIN94/silotek-serial-mcp",
+  "repository": "https://github.com/JOCOIN94/silotek-serial-mcp",
+  "license": "UNLICENSED",
+  "keywords": [
+    "serial",
+    "mcp",
+    "esp32",
+    "stm32",
+    "firmware",
+    "silotek"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Serial MCP",
+    "shortDescription": "Read embedded-board serial logs through MCP.",
+    "longDescription": "Serial MCP lets Codex inspect ESP32, STM32, and other embedded-board text logs through a read-only FastMCP server. It monitors one or more USB serial ports, stores timestamped lines in a lock-protected ring buffer, exposes query/status tools, and provides a localhost web viewer for human inspection while Codex runs black-box firmware debugging loops.",
+    "developerName": "Silotek",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Read"
+    ],
+    "defaultPrompt": [
+      "Use Serial MCP to inspect board logs and run a clear, trigger, query debugging loop."
+    ],
+    "brandColor": "#2C8D8A",
+    "screenshots": []
+  }
+}

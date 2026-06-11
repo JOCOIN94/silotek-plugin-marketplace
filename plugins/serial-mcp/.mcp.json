@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "serial-mcp": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/JOCOIN94/silotek-serial-mcp",
+        "serial-mcp"
+      ]
+    }
+  }
+}
