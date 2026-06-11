@@ -1,0 +1,44 @@
+# Serial MCP plugin
+
+`serial-mcp` is a standalone plugin entry in the Silotek marketplace. It is separate from the `silotek-tools` research-log/diagram plugin; install it only when an AI session needs embedded-board serial logs.
+
+## What lives here
+
+- `.claude-plugin/plugin.json`: Claude Code plugin metadata and inline MCP server registration.
+- `.codex-plugin/plugin.json`: Codex plugin metadata and the `serial-debugging` skill.
+- `scripts/install-codex.ps1`: Codex MCP registration wrapper. It calls `codex mcp add` so Codex exposes the tools through top-level MCP configuration.
+- `scripts/verify-codex.ps1`: Read-only Codex registration check.
+- `skills/serial-debugging/SKILL.md`: The black-box serial debugging loop.
+
+The actual MCP server code lives in `JOCOIN94/silotek-serial-mcp`.
+
+## Claude Code install
+
+Claude Code can consume the MCP server from `.claude-plugin/plugin.json`.
+
+```text
+/plugin marketplace add <this repository URL or local path>
+/plugin install serial-mcp@silotek-tools --scope user
+```
+
+## Codex install
+
+Codex currently lists plugin-bundled MCP servers but does not reliably expose their tools to the model. For Codex, install the plugin for the skill and run the direct MCP registration wrapper:
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\plugins\serial-mcp\scripts\install-codex.ps1
+```
+
+Optional fixed-port example:
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\plugins\serial-mcp\scripts\install-codex.ps1 -SerialPort COM4 -SerialWeb 8743
+```
+
+Verify without changing configuration:
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\plugins\serial-mcp\scripts\verify-codex.ps1 -RequireDirectConfig
+```
+
+After installing, start a new Codex session. The tools should appear under the `serial-mcp` MCP namespace.

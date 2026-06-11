@@ -4,10 +4,14 @@ Silotek 워크플로용 내부 Claude Code 플러그인 마켓플레이스입니
 
 ## 플러그인
 
-이 저장소는 `silotek-tools` 한 개를 노출합니다 — 연구 로그 YAML 작성·재작성, DOCX 내보내기, 독립 다이어그램 생성, 설치 진단을 묶은 패키지입니다.
+이 저장소는 같은 marketplace 안에서 서로 독립된 플러그인 두 개를 노출합니다.
+
+- `silotek-tools`: 연구 로그 YAML 작성·재작성, DOCX 내보내기, 독립 다이어그램 생성, 설치 진단.
+- `serial-mcp`: 임베디드 보드 시리얼 로그를 AI가 읽는 MCP 서버 + 블랙박스 디버깅 스킬.
 
 ```text
-plugins/silotek-tools/          # 플러그인 소스
+plugins/silotek-tools/          # 연구 로그 / 다이어그램 플러그인
+plugins/serial-mcp/             # 시리얼 MCP 플러그인
 .claude-plugin/marketplace.json # 마켓플레이스 레지스트리
 ```
 
@@ -21,6 +25,8 @@ plugins/silotek-tools/          # 플러그인 소스
 /silotek-tools:diagram-create
 ```
 
+`serial-mcp`는 slash command가 아니라 MCP tools와 `serial-debugging` skill을 제공한다.
+
 ## 사전 요구사항
 
 - Node.js 18 LTS 이상 (개발은 Node 24에서 검증)
@@ -33,6 +39,14 @@ plugins/silotek-tools/          # 플러그인 소스
 /plugin install silotek-tools@silotek-tools --scope user
 ```
 
+시리얼 디버깅이 필요하면 별도로 설치합니다:
+
+```text
+/plugin install serial-mcp@silotek-tools --scope user
+```
+
+두 플러그인은 독립적입니다. 연구 로그/다이어그램만 쓰면 `serial-mcp`를 설치할 필요가 없고, 시리얼 디버깅만 쓰면 `silotek-tools`를 설치할 필요가 없습니다.
+
 설치 직후 진단을 한 번 돌려 의존성·저장소·매니페스트가 일치하는지 확인합니다:
 
 ```text
@@ -40,6 +54,22 @@ plugins/silotek-tools/          # 플러그인 소스
 ```
 
 7개 체크가 전부 `ok`로 보고되면 사용 준비 완료입니다. `dependencies` 또는 `rasterizer` 체크가 실패하면 플러그인 디렉터리에서 `npm install`을 한 번 실행한 뒤 다시 진단합니다.
+
+## Codex에서 serial-mcp 사용
+
+Codex는 현재 플러그인 내부 MCP 선언을 목록에는 올려도 대화 도구로 안정적으로 주입하지 못할 수 있습니다. `serial-mcp`는 Codex용 직접 MCP 등록 스크립트를 포함합니다:
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\plugins\serial-mcp\scripts\install-codex.ps1
+```
+
+검증:
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\plugins\serial-mcp\scripts\verify-codex.ps1 -RequireDirectConfig
+```
+
+설치 뒤 새 Codex 세션을 열면 `list_serial_ports`, `get_serial_status`, `get_recent_logs` 등 MCP 도구가 주입됩니다.
 
 ### v0.3.0 이전 이름(`silotek-research-log`)에서 옮겨오는 경우
 

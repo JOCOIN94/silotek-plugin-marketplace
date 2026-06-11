@@ -7,6 +7,24 @@ description: 시리얼/펌웨어 디버깅 중 장비 로그를 확인하거나,
 
 서버는 **읽기 전용**이다 — AI는 보드를 리셋·동작시킬 수 없고, 물리 동작은 항상 사람에게 요청한다. 각 도구의 인자·반환 구조는 도구 docstring이 자족적으로 설명한다(여기 중복하지 않음). 이 스킬은 **여러 도구를 엮는 순서·판단**만 담는다.
 
+## Codex 설치 확인
+
+Codex에서 이 스킬은 보이는데 `list_serial_ports` 같은 MCP 도구가 보이지 않으면, 플러그인 설치만 된 상태일 수 있다. 현재 Codex는 플러그인 내부 MCP 선언을 목록에는 올려도 대화 도구로 안정적으로 주입하지 못하므로, Codex에서는 top-level MCP 등록을 한 번 수행해야 한다.
+
+저장소 루트에서:
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\plugins\serial-mcp\scripts\install-codex.ps1
+```
+
+확인만 할 때:
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\plugins\serial-mcp\scripts\verify-codex.ps1 -RequireDirectConfig
+```
+
+등록 뒤에는 새 Codex 세션을 열어야 MCP tool schema가 다시 로드된다.
+
 ## 표준 루프
 
 1. `clear_log_buffer(port=...)` — 시험 시작. **관찰 대상 보드만 지정해 비워라.** 미지정은 전체 비우기다 — 다른 보드의 맥락 로그(예: 게이트웨이 쪽 통신 기록)를 보존해야 하면 반드시 선택 비우기.

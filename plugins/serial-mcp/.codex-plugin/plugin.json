@@ -1,6 +1,6 @@
 {
   "name": "serial-mcp",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Headless MCP server for AI-assisted embedded-board serial log debugging.",
   "author": {
     "name": "Silotek"
@@ -17,11 +17,10 @@
     "silotek"
   ],
   "skills": "./skills/",
-  "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "Serial MCP",
     "shortDescription": "Read embedded-board serial logs through MCP.",
-    "longDescription": "Serial MCP lets Codex inspect ESP32, STM32, and other embedded-board text logs through a read-only FastMCP server. It monitors one or more USB serial ports, stores timestamped lines in a lock-protected ring buffer, exposes query/status tools, and provides a localhost web viewer for human inspection while Codex runs black-box firmware debugging loops.",
+    "longDescription": "Serial MCP lets Codex inspect ESP32, STM32, and other embedded-board text logs through a read-only FastMCP server. Codex currently needs the MCP server registered through top-level codex mcp configuration, so this plugin ships the debugging skill plus scripts/install-codex.ps1 to add the server without hand-editing config.toml.",
     "developerName": "Silotek",
     "category": "Developer Tools",
     "capabilities": [
