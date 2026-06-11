@@ -35,6 +35,7 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File .\plugins\serial-mcp\scripts\verif
 ## 명령 전송 판단
 
 - `send_serial_command(command=..., port=...)`는 펌웨어가 제공하는 CLI/AT/진단 명령을 알고 있을 때만 쓴다. 명령 문법은 서버가 보장하지 않는다.
+- SSM 실장비 검증에서는 사람이 `/help`를 테스트 명령으로 지정했으므로, `send_serial_command(command="/help", port="SSM", wait_ms=1000)`를 승인받아 호출하고 응답 `lines`를 확인한다. 이 예시는 SSM 펌웨어용 smoke test이며 다른 보드에 일반화하지 않는다.
 - 호출마다 승인 팝업이 뜬다. `status="declined"`는 재시도 금지 신호다 — 같은 명령을 반복 호출하지 말고 사람에게 이유를 묻고 다음 행동을 합의한다.
 - 응답 `lines`에는 `[TX]` 송신 감사 마커가 함께 섞일 수 있다. 분석할 때 보드 응답과 감사 마커를 구분하라.
 
