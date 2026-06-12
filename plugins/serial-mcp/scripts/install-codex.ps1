@@ -115,6 +115,10 @@ if ($existing) {
 $envOptions = [ordered]@{
     PYTHONUTF8 = "1"
     PYTHONIOENCODING = "utf-8"
+    # 배포 표준 기본값 — Claude plugin.json의 ${SERIAL_CHAR_DELAY:-100}과 패리티.
+    # SB-STM 폴링 수신 문자 유실 대응(실측 atlas/sb-stm/exploration/2026-06-12-r1: 100ms 유실 0).
+    # -SerialCharDelay 지정 시 아래 foreach에서 덮어쓴다.
+    SERIAL_CHAR_DELAY = "100"
 }
 
 foreach ($nameValue in @(
