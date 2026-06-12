@@ -16,6 +16,8 @@ param(
     [string]$SerialDedup,
     [string]$SerialWeb,
     [string]$SerialHotplug,
+    [string]$SerialWrite,
+    [string]$SerialWriteConfirm,
     [switch]$Force,
     [switch]$SkipVerify
 )
@@ -125,7 +127,9 @@ foreach ($nameValue in @(
     @("SerialBufferLines", "SERIAL_BUFFER_LINES", $SerialBufferLines),
     @("SerialDedup", "SERIAL_DEDUP", $SerialDedup),
     @("SerialWeb", "SERIAL_WEB", $SerialWeb),
-    @("SerialHotplug", "SERIAL_HOTPLUG", $SerialHotplug)
+    @("SerialHotplug", "SERIAL_HOTPLUG", $SerialHotplug),
+    @("SerialWrite", "SERIAL_WRITE", $SerialWrite),
+    @("SerialWriteConfirm", "SERIAL_WRITE_CONFIRM", $SerialWriteConfirm)
 )) {
     if ($PSBoundParameters.ContainsKey($nameValue[0])) {
         $envOptions[$nameValue[1]] = $nameValue[2]
