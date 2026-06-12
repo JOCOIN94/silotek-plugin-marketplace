@@ -57,7 +57,7 @@ plugins/serial-mcp/             # 시리얼 MCP 플러그인
 
 ## Codex에서 serial-mcp 사용
 
-Codex는 현재 플러그인 내부 MCP 선언을 목록에는 올려도 대화 도구로 안정적으로 주입하지 못할 수 있습니다. `serial-mcp`는 Codex용 직접 MCP 등록 스크립트를 포함합니다:
+Codex에서는 먼저 `serial-mcp` 플러그인을 설치·활성화해 `serial` 스킬을 받습니다. 그 다음 MCP 도구는 direct 등록 스크립트로 top-level 설정에 추가합니다. Codex는 현재 플러그인 내부 MCP 선언을 목록에는 올려도 대화 도구로 안정적으로 주입하지 못할 수 있습니다.
 
 ```powershell
 pwsh -NoProfile -ExecutionPolicy Bypass -File .\plugins\serial-mcp\scripts\install-codex.ps1

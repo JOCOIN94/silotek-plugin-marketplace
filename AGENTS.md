@@ -122,9 +122,17 @@ Codex plugin validate .
 
 다음 파일들은 항상 동기화 상태로 유지하세요:
 
+research-log:
 - `.claude-plugin/marketplace.json`
 - `plugins/research-log/.claude-plugin/plugin.json`
 - `plugins/research-log/package.json`
 - `plugins/research-log/package-lock.json`
+
+serial-mcp:
+- `.claude-plugin/marketplace.json`
+- `plugins/serial-mcp/.claude-plugin/plugin.json`
+- `plugins/serial-mcp/.codex-plugin/plugin.json`
+- `plugins/serial-mcp/README.md`의 설치·버전 설명
+- `plugins/serial-mcp/scripts/install-codex.ps1`와 `verify-codex.ps1`의 서버 URL·명령 검증값
 
 현재 브레이킹 변경: v1.0.0에서 marketplace ID를 `silotek`, 연구 로그 플러그인을 `research-log`, 시리얼 스킬을 `serial`, 서버 repo를 `serial-mcp-server`로 표준화한다.
