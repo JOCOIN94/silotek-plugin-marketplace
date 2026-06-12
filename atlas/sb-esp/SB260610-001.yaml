@@ -1,0 +1,559 @@
+device: SB-ESP
+fw_version: SB260610-001
+source_ref: "https://github.com/stek747/SB-SmartBay.git@0b017619aed175ae7fdd72af5142f7f6993902c2"
+version_skew: null
+states:
+  runtime-serial:
+    entry: "Normal loop UART0 serial input after setup when AP mode is not active."
+    desc: "Serial characters are buffered into msg; backspace edits, tab echoes, < and > recall command history, and enter executes when msg.length() > 2."
+  apmode-serial:
+    entry: "Serial input inside the AP-mode setup loop."
+    desc: "AP-mode serial input shares the AP/telnet command parser, including short HELP and MHELP, then dispatches other messages to serialCmd()."
+  runtime-telnet:
+    entry: "Telnet client connected to the AP-mode telnet server."
+    desc: "Telnet input is echoed, newline sets fendMsg, and the AP-mode parser dispatches the received string to HELP/MHELP handling or serialCmd()."
+  boot_menu:
+    entry: "Reset-time setup window after SPIFFS mount, before normal runtime."
+    desc: "The menu starts with tmpcnt=1000, any received key refreshes tmpcnt to 5000, D/S/B/R are handled directly, and any other key only extends the window."
+commands:
+  - name: HELP
+    context: runtime-serial
+    syntax: "HELP"
+    prompts: []
+    description: "Prints the normal runtime serial command list."
+    effect: "Prints RESET, GID, UNITID, SETCONFIG, SETBAYCONFIG, REGMAC, SETREGMAC, MAC, VRSSI, FWVER, CHANNEL, COIN, APMODE, SHOWPROC, REMFILE, FORMAT, WFORMAT, VFILELST, VFILE, DOWNBIN, REFLASHSTM, REFLASHESP, STWIFI, SETWIFI, VEXTUNITINFO, SETRTCTIME, VRTC, ALIVE, VREVBUFF, CHKMEM, CMPMEM, SETCARDINFO, PRINTSENDPROC, VSAVEEVENTCNT."
+    risk: R0
+    risk_reason: "Print-only parser branch."
+    source_ref: "sb-esp32/SB_ESP32.ino:16578"
+    observed: null
+  - name: "???"
+    context: runtime-serial
+    syntax: "???"
+    prompts: []
+    description: "Alias for normal runtime serial HELP."
+    effect: "Prints the same normal runtime serial command list as HELP."
+    risk: R0
+    risk_reason: "Print-only parser branch."
+    source_ref: "sb-esp32/SB_ESP32.ino:16578"
+    observed: null
+  - name: HELP
+    context: apmode-serial/runtime-telnet
+    syntax: "HELP"
+    prompts: []
+    description: "Prints the short AP-mode/telnet help list."
+    effect: "Prints RESET, REFLASHSTM, and REFLASHESP."
+    risk: R0
+    risk_reason: "Print-only parser branch."
+    source_ref: "sb-esp32/SB_ESP32.ino:15908"
+    observed: null
+  - name: "???"
+    context: apmode-serial/runtime-telnet
+    syntax: "???"
+    prompts: []
+    description: "Alias for short AP-mode/telnet HELP."
+    effect: "Prints RESET, REFLASHSTM, and REFLASHESP."
+    risk: R0
+    risk_reason: "Print-only parser branch."
+    source_ref: "sb-esp32/SB_ESP32.ino:15908"
+    observed: null
+  - name: MHELP
+    context: apmode-serial/runtime-telnet
+    syntax: "MHELP"
+    prompts: []
+    description: "Prints the extended AP-mode/telnet command list."
+    effect: "Prints RESET, GID, UNITID, SETCONFIG, SETBAYCONFIG, REGMAC, SETREGMAC, MAC, VRSSI, FWVER, CHANNEL, COIN, APMODE, SHOWPROC, REMFILE, FORMAT, WFORMAT, VFILELST, VFILE, DOWNBIN, REFLASHSTM, REFLASHESP, STWIFI, SETWIFI, VEXTUNITINFO, SETRTCTIME, VRTC, ALIVE, VREVBUFF, SETCARDINFO."
+    risk: R0
+    risk_reason: "Print-only parser branch."
+    source_ref: "sb-esp32/SB_ESP32.ino:15913"
+    observed: null
+  - name: RESET
+    context: runtime-serial/apmode-serial/runtime-telnet
+    syntax: "RESET"
+    prompts: []
+    description: "Restarts the ESP32."
+    effect: "Calls ESP.restart()."
+    risk: R2
+    risk_reason: "Reboots the ESP32 and disrupts the connection."
+    source_ref: "sb-esp32/SB_ESP32.ino:15015"
+    observed: null
+  - name: PRINTSENDPROC
+    context: runtime-serial/apmode-serial/runtime-telnet
+    syntax: "PRINTSENDPROC"
+    prompts: []
+    description: "Toggles printing of the saved-packet send process."
+    effect: "Flips fprintProcToSendPacketSaved."
+    risk: R1
+    risk_reason: "Changes a diagnostic output state; reversible by issuing the command again."
+    source_ref: "sb-esp32/SB_ESP32.ino:15016"
+    observed: null
+  - name: VSAVEEVENTCNT
+    context: runtime-serial/apmode-serial/runtime-telnet
+    syntax: "VSAVEEVENTCNT"
+    prompts: []
+    description: "Prints the saved packet count."
+    effect: "Prints packetCntSaved."
+    risk: R0
+    risk_reason: "Output-only branch."
+    source_ref: "sb-esp32/SB_ESP32.ino:15020"
+    observed: null
+  - name: CHKMEM
+    context: runtime-serial/apmode-serial/runtime-telnet
+    syntax: "CHKMEM"
+    prompts: []
+    description: "Toggles periodic memory checking."
+    effect: "Flips fChkMemory."
+    risk: R1
+    risk_reason: "Changes a diagnostic state; reversible by issuing the command again."
+    source_ref: "sb-esp32/SB_ESP32.ino:15024"
+    observed: null
+  - name: CMPMEM
+    context: runtime-serial/apmode-serial/runtime-telnet
+    syntax: "CMPMEM"
+    prompts: []
+    description: "Prints heap and stack memory comparison values."
+    effect: "Prints boot/current heap and stack memory counters."
+    risk: R0
+    risk_reason: "Output-only branch."
+    source_ref: "sb-esp32/SB_ESP32.ino:15028"
+    observed: null
+  - name: SETRTCTIME
+    context: runtime-serial/apmode-serial/runtime-telnet
+    syntax: "SETRTCTIME"
+    prompts:
+      - ask: "Input year, month, day, hr(24h), miniute, sec as six newline-terminated values."
+        expects: "decimal date/time fields"
+        default: null
+    description: "Sets the RTC from entered local date/time fields."
+    effect: "Reads six values and calls setRtcFromLocalData(year, month, day, hour, minute, second)."
+    risk: R1
+    risk_reason: "Changes RTC state."
+    source_ref: "sb-esp32/SB_ESP32.ino:15050"
+    observed: null
+  - name: VRTC
+    context: runtime-serial/apmode-serial/runtime-telnet
+    syntax: "VRTC"
+    prompts: []
+    description: "Prints RTC date/time values."
+    effect: "Prints rtc.getTimeDate(), rtc.getDateTime(), and rtc.getTime()."
+    risk: R0
+    risk_reason: "Output-only branch."
+    source_ref: "sb-esp32/SB_ESP32.ino:15080"
+    observed: null
+  - name: MGWANGCHA
+    context: runtime-serial/apmode-serial/runtime-telnet
+    syntax: "MGWANGCHA"
+    prompts: []
+    description: "Sends the manage-mode command to STM32."
+    effect: "Calls Send_SetManageMode(1), which writes 0x6d, 1, 0xFB to Serial2."
+    risk: R1
+    risk_reason: "Changes STM32-side operating mode."
+    source_ref: "sb-esp32/SB_ESP32.ino:15086; sb-esp32/SB_ESP32.ino:13530"
+    observed: null
+  - name: OPERFUNCT
+    context: runtime-serial/apmode-serial/runtime-telnet
+    syntax: "OPERFUNCT"
+    prompts:
+      - ask: "Input a number of the function with enter key."
+        expects: "integer 0..9"
+        default: null
+    description: "Sends a function-selection command to STM32."
+    effect: "Reads one value; if it is 0..9, calls Send_SetFunct(value), which writes 0x70, value, 0xFB to Serial2."
+    risk: R1
+    risk_reason: "Sends a state-changing operation command to STM32."
+    source_ref: "sb-esp32/SB_ESP32.ino:15091; sb-esp32/SB_ESP32.ino:13567"
+    observed: null
+  - name: STWIFI
+    context: runtime-serial/apmode-serial/runtime-telnet
+    syntax: "STWIFI"
+    prompts: []
+    description: "Prints WiFi country and TX power status."
+    effect: "Reads esp_wifi_get_country() and WiFi.getTxPower(), then prints the values."
+    risk: R0
+    risk_reason: "Output-only branch."
+    source_ref: "sb-esp32/SB_ESP32.ino:15104"
+    observed: null
+  - name: SETWIFI
+    context: runtime-serial/apmode-serial/runtime-telnet
+    syntax: "SETWIFI"
+    prompts:
+      - ask: "Input the tx power with enter key after the printed WiFi power table."
+        expects: "wifi_power_t numeric value, such as 84, 82, 80, 78, 76, 74, 68, 60, 52, 44, 34, 28, 20, 8, or -4"
+        default: null
+    description: "Sets ESP32 WiFi TX power."
+    effect: "Reads one numeric value and calls WiFi.setTxPower((wifi_power_t)value)."
+    risk: R1
+    risk_reason: "Changes WiFi radio transmit power."
+    source_ref: "sb-esp32/SB_ESP32.ino:15129"
+    observed: null
+  - name: VRSSI
+    context: runtime-serial/apmode-serial/runtime-telnet
+    syntax: "VRSSI"
+    prompts: []
+    description: "Views nearby information."
+    effect: "Calls viewNearbyInfo()."
+    risk: R0
+    risk_reason: "Observed branch only delegates to a viewing function."
+    source_ref: "sb-esp32/SB_ESP32.ino:15158"
+    observed: null
+  - name: VEXTUNITINFO
+    context: runtime-serial/apmode-serial/runtime-telnet
+    syntax: "VEXTUNITINFO"
+    prompts: []
+    description: "Toggles extended unit-info display."
+    effect: "Flips fvExtUnitInfo and prints its O/X state."
+    risk: R1
+    risk_reason: "Changes a diagnostic display state; reversible by issuing the command again."
+    source_ref: "sb-esp32/SB_ESP32.ino:15162"
+    observed: null
+  - name: FWVER
+    context: runtime-serial/apmode-serial/runtime-telnet
+    syntax: "FWVER"
+    prompts: []
+    description: "Prints ESP32 and STM32 firmware version strings."
+    effect: "Prints versionInfo and FWVer_STM32."
+    risk: R0
+    risk_reason: "Output-only branch."
+    source_ref: "sb-esp32/SB_ESP32.ino:15169"
+    observed: null
+  - name: DOWNBIN
+    context: runtime-serial/apmode-serial/runtime-telnet
+    syntax: "DOWNBIN"
+    prompts:
+      - ask: "Select a number of BPS from 1..8; transfer SB_ESP32.bin or SmartBay.bin by YMODEM after the baud change."
+        expects: "1=9600, 2=19200, 3=38400, 4=57600, 5=115200, 6=230400, 7=460800, 8=921600; undefined defaults to 921600"
+        default: "921600 for undefined selection"
+    description: "Deletes non-special files, receives a binary by YMODEM, and may reflash firmware."
+    effect: "Calls downBin(true); downBin removes files except special files, changes serial baud, runs esp32ymodem.SerialDownload(), and calls ReflashProc() for non-config downloads."
+    risk: R3
+    risk_reason: "Can delete files, download firmware, reflash ESP32 or STM32, and trigger reboot."
+    source_ref: "sb-esp32/SB_ESP32.ino:15173; sb-esp32/SB_ESP32.ino:3875"
+    observed: null
+  - name: CDOWNBIN
+    context: runtime-serial/apmode-serial/runtime-telnet
+    syntax: "CDOWNBIN"
+    prompts:
+      - ask: "Select and confirm a file to remove, then select BPS and transfer SB_ESP32.bin or SmartBay.bin by YMODEM."
+        expects: "file index or Q during removal, then BPS selector 1..8"
+        default: "921600 for undefined BPS selection"
+    description: "Runs selected file removal before binary download and possible reflash."
+    effect: "Calls downBin(false); downBin first calls RemoveFileProc(), then changes serial baud, receives a file, and calls ReflashProc() for non-config downloads."
+    risk: R3
+    risk_reason: "Can delete selected files, download firmware, reflash ESP32 or STM32, and trigger reboot."
+    source_ref: "sb-esp32/SB_ESP32.ino:15177; sb-esp32/SB_ESP32.ino:3875"
+    observed: null
+  - name: REMFILE
+    context: runtime-serial/apmode-serial/runtime-telnet
+    syntax: "REMFILE"
+    prompts:
+      - ask: "Select a file number to remove or Q to quit; confirm with Y(ENTER) or N."
+        expects: "numeric file index 1..9 or Q, then Y/N confirmation"
+        default: "Y when confirmation is just ENTER"
+    description: "Removes the selected SPIFFS file."
+    effect: "Calls RemoveFileProc(), which lists files, asks for a selection, confirms it, and calls SPIFFS.remove() on the selected path."
+    risk: R3
+    risk_reason: "Deletes a selected file from SPIFFS."
+    source_ref: "sb-esp32/SB_ESP32.ino:15181; sb-esp32/SB_ESP32.ino:3734"
+    observed: null
+  - name: FORMAT
+    context: runtime-serial/apmode-serial/runtime-telnet
+    syntax: "FORMAT"
+    prompts: []
+    description: "Formats SPIFFS and refreshes file-system processing."
+    effect: "Calls SPIFFS_Format(); on success resets packetCntSaved, prints total/used space, and calls SPIFFS_Proc()."
+    risk: R3
+    risk_reason: "Formats file-system storage."
+    source_ref: "sb-esp32/SB_ESP32.ino:15185"
+    observed: null
+  - name: WFORMAT
+    context: runtime-serial/apmode-serial/runtime-telnet
+    syntax: "WFORMAT"
+    prompts: []
+    description: "Formats the entire SPIFFS memory."
+    effect: "Calls SPIFFS_Format(); on success resets packetCntSaved and prints total/used space."
+    risk: R3
+    risk_reason: "Formats file-system storage."
+    source_ref: "sb-esp32/SB_ESP32.ino:15200"
+    observed: null
+  - name: REFLASHESP
+    context: runtime-serial/apmode-serial/runtime-telnet
+    syntax: "REFLASHESP"
+    prompts: []
+    description: "Reflashes ESP32 from the SPIFFS firmware file."
+    effect: "Calls ReflashProc(dSB_ESP32), which opens the ESP32 firmware file from SPIFFS and runs UpdateFirmwareFromSPIFFS(); parser sets fReset after reflash commands."
+    risk: R3
+    risk_reason: "Firmware reflash path for ESP32; parser schedules reset after the command."
+    source_ref: "sb-esp32/SB_ESP32.ino:15214; sb-esp32/SB_ESP32.ino:4076; sb-esp32/SB_ESP32.ino:15939"
+    observed: null
+  - name: REFLASHSTM
+    context: runtime-serial/apmode-serial/runtime-telnet
+    syntax: "REFLASHSTM"
+    prompts: []
+    description: "Transfers STM32 firmware from SPIFFS for STM32 reflashing."
+    effect: "Calls ReflashProc(dSB_STM32), which signals STM32 download mode and YMODEM-transmits SmartBay.bin from SPIFFS; parser sets fReset after reflash commands."
+    risk: R3
+    risk_reason: "Firmware reflash path for STM32; parser schedules reset after the command."
+    source_ref: "sb-esp32/SB_ESP32.ino:15224; sb-esp32/SB_ESP32.ino:4076; sb-esp32/SB_ESP32.ino:15939"
+    observed: null
+  - name: VAL
+    context: runtime-serial/apmode-serial/runtime-telnet
+    syntax: "VAL"
+    prompts: []
+    description: "Prints selected runtime variables."
+    effect: "Temporarily disables fSerial, prints reset_need, web_order, used_time_cnt, wash_bd_status, CntUsingBay, web_order0_rst, and noActEn, then restores fSerial."
+    risk: R0
+    risk_reason: "Output-only branch after restoring the previous fSerial value."
+    source_ref: "sb-esp32/SB_ESP32.ino:15234"
+    observed: null
+  - name: GID
+    context: runtime-serial/apmode-serial/runtime-telnet
+    syntax: "GID"
+    prompts: []
+    description: "Prints the configured group ID."
+    effect: "Prints config.Sid."
+    risk: R0
+    risk_reason: "Output-only branch."
+    source_ref: "sb-esp32/SB_ESP32.ino:15248"
+    observed: null
+  - name: UNITID
+    context: runtime-serial/apmode-serial/runtime-telnet
+    syntax: "UNITID"
+    prompts: []
+    description: "Prints the configured bay/unit ID."
+    effect: "Prints configBay.BayID."
+    risk: R0
+    risk_reason: "Output-only branch."
+    source_ref: "sb-esp32/SB_ESP32.ino:15249"
+    observed: null
+  - name: REGMAC
+    context: runtime-serial/apmode-serial/runtime-telnet
+    syntax: "REGMAC"
+    prompts: []
+    description: "Prints the registered MAC address buffer."
+    effect: "Temporarily disables fSerial, calls viewRegMacBuff(), then restores fSerial."
+    risk: R0
+    risk_reason: "Output-only branch."
+    source_ref: "sb-esp32/SB_ESP32.ino:15250; sb-esp32/SB_ESP32.ino:3058"
+    observed: null
+  - name: SETREGMAC
+    context: runtime-serial/apmode-serial/runtime-telnet
+    syntax: "SETREGMAC"
+    prompts:
+      - ask: "Enter a new MAC, V to view, C to clear registered MACs, or Q to quit; for new MACs enter side 0 or 1 and confirm with Y/N."
+        expects: "MAC as B7:77:04:7C:55:1C or B7,77,04,7C,55,1C; commands V/C/Q; side 0 or 1"
+        default: "Y when confirmation is just ENTER"
+    description: "Edits the registered MAC buffer and saves config when changed."
+    effect: "Calls setRegMac(); it can view registered MACs, remove selected registered MAC entries, add a MAC with side 0/1, saveConfig(), and recompute fAllowToBypass."
+    risk: R1
+    risk_reason: "Changes stored communication/bypass configuration."
+    source_ref: "sb-esp32/SB_ESP32.ino:15257; sb-esp32/SB_ESP32.ino:12767"
+    observed: null
+  - name: SETCONFIG
+    context: runtime-serial/apmode-serial/runtime-telnet
+    syntax: "SETCONFIG"
+    prompts:
+      - ask: "Step through AP SSID, GID, WiFi Channel, UnitID, RFID Rfgain, and SSID; Q quits, blank keeps current value, nonblank entries are confirmed with Y/N."
+        expects: "strings or decimal values with per-step range checks"
+        default: "current value when blank; Y when confirmation is just ENTER"
+    description: "Edits core ESP32 config fields and restarts if any value changes."
+    effect: "Calls setConfig(); changed values are saved by saveConfig(), then ESP.restart() is called."
+    risk: R2
+    risk_reason: "Writes configuration and reboots when changes are saved."
+    source_ref: "sb-esp32/SB_ESP32.ino:15264; sb-esp32/SB_ESP32.ino:11679"
+    observed: null
+  - name: SETCARDINFO
+    context: runtime-serial/apmode-serial/runtime-telnet
+    syntax: "SETCARDINFO"
+    prompts:
+      - ask: "Step through KeyA, KeyB, pPoint_HH, pPoint_HL, pPoint_LH, pPoint_LL, pNoOfCm_HH, pNoOfCm_HL, pNoOfCm_LH, pNoOfCm_LL; Q quits, blank keeps current value, nonblank entries are confirmed with Y/N."
+        expects: "KeyA/KeyB as six hex bytes; point entries as row,column decimal pairs under 1024 after row*16+column"
+        default: "current value when blank; Y when confirmation is just ENTER"
+    description: "Edits card key and card data offset configuration."
+    effect: "Calls setCardInfoConfig(); changed cardInfo fields are saved by saveCardInfoConfig()."
+    risk: R1
+    risk_reason: "Writes card-related configuration."
+    source_ref: "sb-esp32/SB_ESP32.ino:15271; sb-esp32/SB_ESP32.ino:12388"
+    observed: null
+  - name: SETBAYCONFIG
+    context: runtime-serial/apmode-serial/runtime-telnet
+    syntax: "SETBAYCONFIG"
+    prompts:
+      - ask: "Step through EndTime, Price1st, Price2nd, Number of Company, Temporary Stop Count, Temporary Stop Time, card touch method, Bubble, Under, Coating, MasterCard CUID list, allow configBay from SSM, min coin sensing time, and RS485 relay-board use; Q quits, blank keeps current value, nonblank entries are confirmed with Y/N."
+        expects: "decimal values with per-step range checks; MasterCard CUIDs as one to five four-byte hex card IDs separated by commas/colons"
+        default: "current value when blank; Y when confirmation is just ENTER"
+    description: "Edits bay configuration and sends the saved configuration to STM32."
+    effect: "Calls setBayConfig(); changed values are saved by saveBayConfig(), then Send_configBay() is called."
+    risk: R1
+    risk_reason: "Writes bay operating configuration and transmits it to STM32."
+    source_ref: "sb-esp32/SB_ESP32.ino:15278; sb-esp32/SB_ESP32.ino:11886"
+    observed: null
+  - name: VFILELST
+    context: runtime-serial/apmode-serial/runtime-telnet
+    syntax: "VFILELST"
+    prompts: []
+    description: "Prints SPIFFS space and file list."
+    effect: "Prints SPIFFS total/used bytes and calls ViewFileList()."
+    risk: R0
+    risk_reason: "Output-only branch."
+    source_ref: "sb-esp32/SB_ESP32.ino:15282"
+    observed: null
+  - name: VFILE
+    context: runtime-serial/apmode-serial/runtime-telnet
+    syntax: "VFILE"
+    prompts:
+      - ask: "Select a file number to read or Q to quit; confirm with Y(ENTER) or N."
+        expects: "numeric file index 1..9 or Q, then Y/N confirmation"
+        default: "Y when confirmation is just ENTER"
+    description: "Prints the selected SPIFFS file."
+    effect: "Calls VFileProc(), which asks for a file index, confirms it, then calls printFile() for the selected path."
+    risk: R0
+    risk_reason: "Reads and prints a selected file; no write observed in this branch."
+    source_ref: "sb-esp32/SB_ESP32.ino:15287; sb-esp32/SB_ESP32.ino:3651"
+    observed: null
+  - name: DUMPFILE
+    context: runtime-serial/apmode-serial/runtime-telnet
+    syntax: "DUMPFILE"
+    prompts:
+      - ask: "Select a file number to read out and confirm with Y(ENTER) or N; then use Tera Term File/Transfer/Ymodem/Receive."
+        expects: "numeric file index 1..9, then Y/N confirmation"
+        default: "Y when confirmation is just ENTER"
+    description: "Transmits a selected SPIFFS file by YMODEM."
+    effect: "Calls dumpBin(), then message_transmit(ret); dumpBin opens the selected file and calls esp32ymodem.Ymodem_Transmit()."
+    risk: R0
+    risk_reason: "Reads and transmits a selected file; no local write observed in this branch."
+    source_ref: "sb-esp32/SB_ESP32.ino:15291; sb-esp32/SB_ESP32.ino:3543"
+    observed: null
+  - name: APMODE
+    context: runtime-serial/apmode-serial/runtime-telnet
+    syntax: "APMODE"
+    prompts: []
+    description: "Sets EEPROM flag for AP mode and restarts ESP32."
+    effect: "Writes 0x55 to EEPROM address 1, commits, ends EEPROM, delays, and calls ESP.restart()."
+    risk: R2
+    risk_reason: "Changes boot mode flag and reboots."
+    source_ref: "sb-esp32/SB_ESP32.ino:15392"
+    observed: null
+  - name: MAC
+    context: runtime-serial/apmode-serial/runtime-telnet
+    syntax: "MAC"
+    prompts: []
+    description: "Prints the ESP32 MAC address string."
+    effect: "Prints MacAddr."
+    risk: R0
+    risk_reason: "Output-only branch."
+    source_ref: "sb-esp32/SB_ESP32.ino:15401"
+    observed: null
+  - name: CHANNEL
+    context: runtime-serial/apmode-serial/runtime-telnet
+    syntax: "CHANNEL"
+    prompts: []
+    description: "Prints the configured WiFi channel."
+    effect: "Prints config.Chn."
+    risk: R0
+    risk_reason: "Output-only branch."
+    source_ref: "sb-esp32/SB_ESP32.ino:15407"
+    observed: null
+  - name: COIN
+    context: runtime-serial/apmode-serial/runtime-telnet
+    syntax: "COIN"
+    prompts:
+      - ask: "Send number of coin you want (0..255), or press enter to charge one coin."
+        expects: "empty line or decimal integer 0..255"
+        default: "empty line sets fCoin true"
+    description: "Sends a coin count command to STM32."
+    effect: "For numeric input 0..255, sets web_coin, calls Send_SetCoin(web_coin), then resets web_coin to 0; empty input sets fCoin true."
+    risk: R1
+    risk_reason: "Changes coin/service state by sending a coin command to STM32."
+    source_ref: "sb-esp32/SB_ESP32.ino:15411; sb-esp32/SB_ESP32.ino:13306"
+    observed: null
+  - name: SERIAL
+    context: runtime-serial/apmode-serial/runtime-telnet
+    syntax: "SERIAL"
+    prompts: []
+    description: "Toggles serial debug output flag."
+    effect: "Flips fSerial."
+    risk: R1
+    risk_reason: "Changes diagnostic output state; reversible by issuing the command again."
+    source_ref: "sb-esp32/SB_ESP32.ino:15467"
+    observed: null
+  - name: SHOWPROC
+    context: runtime-serial/apmode-serial/runtime-telnet
+    syntax: "SHOWPROC"
+    prompts: []
+    description: "Prints saved process-buffer entries."
+    effect: "Temporarily disables fSerial, prints process buffer entries from oldest to newest, then restores fSerial."
+    risk: R0
+    risk_reason: "Output-only branch after restoring the previous fSerial value."
+    source_ref: "sb-esp32/SB_ESP32.ino:15472; sb-esp32/SB_ESP32.ino:2535"
+    observed: null
+  - name: ALIVE
+    context: runtime-serial/apmode-serial/runtime-telnet
+    syntax: "ALIVE"
+    prompts: []
+    description: "Toggles manager alive checking."
+    effect: "Flips fStopchkAlive and prints whether alive checking is stopped or started."
+    risk: R1
+    risk_reason: "Changes alive-check supervision state; reversible by issuing the command again."
+    source_ref: "sb-esp32/SB_ESP32.ino:15482"
+    observed: null
+  - name: VREVBUFF
+    context: runtime-serial/apmode-serial/runtime-telnet
+    syntax: "VREVBUFF"
+    prompts: []
+    description: "Toggles saved receive-buffer count display."
+    effect: "Flips fViewBuffSavedCount and prints O/X state."
+    risk: R1
+    risk_reason: "Changes diagnostic display state; reversible by issuing the command again."
+    source_ref: "sb-esp32/SB_ESP32.ino:15495"
+    observed: null
+  - name: D
+    context: boot_menu
+    syntax: "D"
+    prompts:
+      - ask: "Boot menu single-key input during the setup window."
+        expects: "D"
+        default: null
+    description: "Starts boot-menu file download without pre-formatting."
+    effect: "Calls downBin(false)."
+    risk: R3
+    risk_reason: "Boot-menu path can delete selected files, download firmware, and reflash."
+    source_ref: "sb-esp32/SB_ESP32.ino:15660"
+    observed: null
+  - name: S
+    context: boot_menu
+    syntax: "S"
+    prompts:
+      - ask: "Boot menu single-key input during the setup window, followed by SETCONFIG prompts."
+        expects: "S"
+        default: null
+    description: "Starts setup-time core config editing."
+    effect: "Calls setConfig(); comments state changed values reboot this unit."
+    risk: R2
+    risk_reason: "Writes configuration and can reboot after changes."
+    source_ref: "sb-esp32/SB_ESP32.ino:15664; sb-esp32/SB_ESP32.ino:11679"
+    observed: null
+  - name: B
+    context: boot_menu
+    syntax: "B"
+    prompts:
+      - ask: "Boot menu single-key input during the setup window, followed by SETBAYCONFIG prompts."
+        expects: "B"
+        default: null
+    description: "Starts setup-time bay config editing."
+    effect: "Calls setBayConfig()."
+    risk: R1
+    risk_reason: "Writes bay operating configuration."
+    source_ref: "sb-esp32/SB_ESP32.ino:15668; sb-esp32/SB_ESP32.ino:11886"
+    observed: null
+  - name: R
+    context: boot_menu
+    syntax: "R"
+    prompts:
+      - ask: "Boot menu single-key input during the setup window."
+        expects: "R"
+        default: null
+    description: "Schedules ESP32 restart from the boot menu."
+    effect: "Sets fReset true; after the menu loop, ESP.restart() is called."
+    risk: R2
+    risk_reason: "Reboots the ESP32."
+    source_ref: "sb-esp32/SB_ESP32.ino:15672"
+    observed: null

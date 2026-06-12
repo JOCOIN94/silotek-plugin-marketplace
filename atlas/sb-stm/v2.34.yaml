@@ -1,0 +1,145 @@
+device: SB-STM
+fw_version: v2.34
+source_ref: "https://github.com/stek747/SB-SmartBay.git@0b017619aed175ae7fdd72af5142f7f6993902c2"
+version_skew: null
+states:
+  runtime-serial:
+    entry: "STM32 UART0 command loop inside main()."
+    desc: "Characters are echoed into buf until enter; blank enter resets the MCU, backspace removes one buffered byte, unknown commands print Unknown command, and the buffer is cleared when Wrbufcnt reaches 49."
+commands:
+  - name: "<empty-line>"
+    context: runtime-serial
+    syntax: "press ENTER with an empty input buffer"
+    prompts: []
+    description: "Resets the STM32 when enter is received with no buffered command."
+    effect: "Calls Send_Alive(256), prints Reset, delays 100 ms, and calls NVIC_SystemReset()."
+    risk: R2
+    risk_reason: "Reboots the STM32."
+    source_ref: "smartBay/Core/Src/main.c:18165"
+    observed: null
+  - name: TESTALIVE
+    context: runtime-serial
+    syntax: "TESTALIVE"
+    prompts: []
+    description: "Toggles alive-packet sending."
+    effect: "Flips the local flag and sets fskipSendingAlive true or false, printing stop/restart messages."
+    risk: R1
+    risk_reason: "Changes alive-packet supervision behavior; reversible by issuing the command again."
+    source_ref: "smartBay/Core/Src/main.c:18174"
+    observed: null
+  - name: SETRFGAIN
+    context: runtime-serial
+    syntax: "SETRFGAIN"
+    prompts:
+      - ask: "Please enter a value(1~8) as shown below, or Q to exit."
+        expects: "single digit 1..8 or Q"
+        default: null
+    description: "Changes RFID receive gain and reports the new value to ESP32."
+    effect: "For input 1..8, clears TableRxRfgain, increments the selected slot, updates rfidRfgain, calls RFIDReader_Init(), then sends STMConfig Rfgain JSON to ESP32."
+    risk: R1
+    risk_reason: "Changes RFID reader configuration and sends updated config to ESP32."
+    source_ref: "smartBay/Core/Src/main.c:18189"
+    observed: null
+  - name: RFIDTEST
+    context: runtime-serial
+    syntax: "RFIDTEST"
+    prompts: []
+    description: "Toggles RFID test mode."
+    effect: "Flips fRFIDTest and prints RFID Test Mode Stop or Start."
+    risk: R1
+    risk_reason: "Changes test-mode state; reversible by issuing the command again."
+    source_ref: "smartBay/Core/Src/main.c:18245"
+    observed: null
+  - name: TOUCH
+    context: runtime-serial
+    syntax: "TOUCH"
+    prompts: []
+    description: "Sets card operation to one-time touch method."
+    effect: "Sets ConfigBay.fOperOneTimeTouch to true and prints the selected operation method."
+    risk: R1
+    risk_reason: "Changes card operation mode."
+    source_ref: "smartBay/Core/Src/main.c:18251"
+    observed: null
+  - name: INSERT
+    context: runtime-serial
+    syntax: "INSERT"
+    prompts: []
+    description: "Sets card operation to inserting method."
+    effect: "Sets ConfigBay.fOperOneTimeTouch to false and prints the selected operation method."
+    risk: R1
+    risk_reason: "Changes card operation mode."
+    source_ref: "smartBay/Core/Src/main.c:18256"
+    observed: null
+  - name: OPERFUNCT
+    context: runtime-serial
+    syntax: "OPERFUNCT"
+    prompts:
+      - ask: "Please input a value(0~9) with an Enter key to operate any function, or Q to quit."
+        expects: "single digit 0..9 or Q"
+        default: null
+    description: "Sets a function-operation bit."
+    effect: "For input 0..9, computes dat from the digit and sets SWVal |= (1 << dat)."
+    risk: R1
+    risk_reason: "Changes the function-operation state."
+    source_ref: "smartBay/Core/Src/main.c:18261"
+    observed: null
+  - name: VRGCNT
+    context: runtime-serial
+    syntax: "VRGCNT"
+    prompts: []
+    description: "Prints the RFID receive-gain counter table."
+    effect: "Prints TableRxRfgain counters for gain steps 1 through 8."
+    risk: R0
+    risk_reason: "Output-only branch."
+    source_ref: "smartBay/Core/Src/main.c:18300"
+    observed: null
+  - name: CLRRGCNT
+    context: runtime-serial
+    syntax: "CLRRGCNT"
+    prompts: []
+    description: "Clears the RFID receive-gain counter table."
+    effect: "Sets all TableRxRfgain entries to 0, increments the current operating RF gain slot, prints Done, and sets fCngTableValue true."
+    risk: R1
+    risk_reason: "Changes stored diagnostic/counter state."
+    source_ref: "smartBay/Core/Src/main.c:18309"
+    observed: null
+  - name: VCFGINDOOR
+    context: runtime-serial
+    syntax: "VCFGINDOOR"
+    prompts: []
+    description: "Prints indoor configuration values."
+    effect: "Prints price-by-step table, indoor time limit, alarm time, number of extensions, and extend time."
+    risk: R0
+    risk_reason: "Output-only branch."
+    source_ref: "smartBay/Core/Src/main.c:18319"
+    observed: null
+  - name: VDISPRS485
+    context: runtime-serial
+    syntax: "VDISPRS485"
+    prompts: []
+    description: "Toggles RS485 process display."
+    effect: "Flips fdisp_rs485 and prints whether RS485 relay-board communication process display is enabled."
+    risk: R1
+    risk_reason: "Changes diagnostic display state; reversible by issuing the command again."
+    source_ref: "smartBay/Core/Src/main.c:18334"
+    observed: null
+  - name: HELP
+    context: runtime-serial
+    syntax: "HELP"
+    prompts: []
+    description: "Prints the STM32 defined command list."
+    effect: "Prints SETRFGAIN, RFIDTEST, TOUCH, INSERT, OPERFUNCT, VRGCNT, CLRRGCNT, VCFGINDOOR, VDISPRS485."
+    risk: R0
+    risk_reason: "Print-only parser branch."
+    source_ref: "smartBay/Core/Src/main.c:18340"
+    observed: null
+  - name: "???"
+    context: runtime-serial
+    syntax: "???"
+    prompts: []
+    description: "Alias for STM32 HELP."
+    effect: "Prints SETRFGAIN, RFIDTEST, TOUCH, INSERT, OPERFUNCT, VRGCNT, CLRRGCNT, VCFGINDOOR, VDISPRS485."
+    risk: R0
+    risk_reason: "Print-only parser branch."
+    source_ref: "smartBay/Core/Src/main.c:18340"
+    observed: null
