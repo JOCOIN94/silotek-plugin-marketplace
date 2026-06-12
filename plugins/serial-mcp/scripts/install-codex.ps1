@@ -18,6 +18,7 @@ param(
     [string]$SerialHotplug,
     [string]$SerialWrite,
     [string]$SerialWriteConfirm,
+    [string]$SerialCharDelay,
     [switch]$Force,
     [switch]$SkipVerify
 )
@@ -129,7 +130,8 @@ foreach ($nameValue in @(
     @("SerialWeb", "SERIAL_WEB", $SerialWeb),
     @("SerialHotplug", "SERIAL_HOTPLUG", $SerialHotplug),
     @("SerialWrite", "SERIAL_WRITE", $SerialWrite),
-    @("SerialWriteConfirm", "SERIAL_WRITE_CONFIRM", $SerialWriteConfirm)
+    @("SerialWriteConfirm", "SERIAL_WRITE_CONFIRM", $SerialWriteConfirm),
+    @("SerialCharDelay", "SERIAL_CHAR_DELAY", $SerialCharDelay)
 )) {
     if ($PSBoundParameters.ContainsKey($nameValue[0])) {
         $envOptions[$nameValue[1]] = $nameValue[2]
