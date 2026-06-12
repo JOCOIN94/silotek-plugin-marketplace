@@ -1,7 +1,7 @@
 device: SB-ESP
 fw_version: SB260610-001
 source_ref: "https://github.com/stek747/SB-SmartBay.git@0b017619aed175ae7fdd72af5142f7f6993902c2"
-version_skew: null
+version_skew: "장비 SB1 ESP 배포 빌드 SB260526-002 (소스 HEAD SB260610-001) — 2026-06-12 실측에서 runtime-serial HELP 34개 목록은 HEAD와 동일함을 확인"
 states:
   runtime-serial:
     entry: "Normal loop UART0 serial input after setup when AP mode is not active."
@@ -25,7 +25,16 @@ commands:
     risk: R0
     risk_reason: "Print-only parser branch."
     source_ref: "sb-esp32/SB_ESP32.ino:16578"
-    observed: null
+    observed:
+      at: "2026-06-12 15:36"
+      lines:
+        - "[15:36:00.838] [TX] HELP"
+        - "[15:36:00.844] .HELP"
+        - "[15:36:00.850]  - Command : RESET, GID, UNITID, SETCONFIG, SETBAYCONFIG, REGMAC, SETREGMAC, MAC, VRSSI, FWVER,"
+        - "[15:36:00.860]              CHANNEL, COIN, APMODE, SHOWPROC, REMFILE, FORMAT, WFORMAT, VFILELST, VFILE, DOWNBIN,"
+        - "[15:36:00.866]              REFLASHSTM, REFLASHESP, STWIFI, SETWIFI, VEXTUNITINFO, SETRTCTIME, VRTC, ALIVE,"
+        - "[15:36:00.874]              VREVBUFF, CHKMEM, CMPMEM, SETCARDINFO, PRINTSENDPROC, VSAVEEVENTCNT"
+      matches_source: true
   - name: "???"
     context: runtime-serial
     syntax: "???"
@@ -214,7 +223,13 @@ commands:
     risk: R0
     risk_reason: "Output-only branch."
     source_ref: "sb-esp32/SB_ESP32.ino:15169"
-    observed: null
+    observed:
+      at: "2026-06-12 15:36"
+      lines:
+        - "[15:36:31.777] [TX] FWVER"
+        - "[15:36:31.785] .FWVER"
+        - "[15:36:31.787] ESP32 FW Ver. : SB260526-002, STM32 FW Ver. : v2.19"
+      matches_source: true
   - name: DOWNBIN
     context: runtime-serial/apmode-serial/runtime-telnet
     syntax: "DOWNBIN"
@@ -313,7 +328,14 @@ commands:
     risk: R0
     risk_reason: "Output-only branch."
     source_ref: "sb-esp32/SB_ESP32.ino:15248"
-    observed: null
+    observed:
+      at: "2026-06-12 15:37"
+      lines:
+        - "[15:37:10.034] [TX] GID"
+        - "[15:37:10.038] ......GID"
+        - "[15:37:10.038] 199"
+      matches_source: true
+      note: "SSM config의 Sid 199와 일치"
   - name: UNITID
     context: runtime-serial/apmode-serial/runtime-telnet
     syntax: "UNITID"
@@ -323,7 +345,14 @@ commands:
     risk: R0
     risk_reason: "Output-only branch."
     source_ref: "sb-esp32/SB_ESP32.ino:15249"
-    observed: null
+    observed:
+      at: "2026-06-12 15:37"
+      lines:
+        - "[15:37:24.039] [TX] UNITID"
+        - "[15:37:24.042] UNITID"
+        - "[15:37:24.043] 5"
+      matches_source: true
+      note: "SSM↔SB1 패킷의 UnID 5와 일치"
   - name: REGMAC
     context: runtime-serial/apmode-serial/runtime-telnet
     syntax: "REGMAC"
@@ -395,7 +424,19 @@ commands:
     risk: R0
     risk_reason: "Output-only branch."
     source_ref: "sb-esp32/SB_ESP32.ino:15282"
-    observed: null
+    observed:
+      at: "2026-06-12 15:37"
+      lines:
+        - "[15:37:54.187] [TX] VFILELST"
+        - "[15:37:54.190] VFILELST"
+        - "[15:37:54.280] File system's total space: 1441792, Used space : 1282048."
+        - "[15:37:54.297] 1. BayUnitPrice.txt"
+        - "[15:37:54.311] 2. Bayconfig.txt"
+        - "[15:37:54.326] 3. SB_ESP32.bin"
+        - "[15:37:54.342] 4. SB_ESP32_End.bin"
+        - "[15:37:54.357] 5. cardSec.txt"
+        - "[15:37:54.371] 6. config.txt"
+      matches_source: true
   - name: VFILE
     context: runtime-serial/apmode-serial/runtime-telnet
     syntax: "VFILE"
@@ -441,7 +482,14 @@ commands:
     risk: R0
     risk_reason: "Output-only branch."
     source_ref: "sb-esp32/SB_ESP32.ino:15401"
-    observed: null
+    observed:
+      at: "2026-06-12 15:36"
+      lines:
+        - "[15:36:54.375] [TX] MAC"
+        - "[15:36:54.380] .MAC"
+        - "[15:36:54.381] 30,AE,A4,4B,1A,0C"
+      matches_source: true
+      note: "SSM config.txt의 RegMac [48,174,164,75,26,12]와 일치 — 시스템 간 교차 검증"
   - name: CHANNEL
     context: runtime-serial/apmode-serial/runtime-telnet
     syntax: "CHANNEL"
@@ -451,7 +499,13 @@ commands:
     risk: R0
     risk_reason: "Output-only branch."
     source_ref: "sb-esp32/SB_ESP32.ino:15407"
-    observed: null
+    observed:
+      at: "2026-06-12 15:37"
+      lines:
+        - "[15:37:39.384] [TX] CHANNEL"
+        - "[15:37:39.388] .....CHANNEL"
+        - "[15:37:39.388] 11"
+      matches_source: true
   - name: COIN
     context: runtime-serial/apmode-serial/runtime-telnet
     syntax: "COIN"

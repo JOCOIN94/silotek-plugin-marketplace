@@ -1,7 +1,7 @@
 device: SB-STM
 fw_version: v2.34
 source_ref: "https://github.com/stek747/SB-SmartBay.git@0b017619aed175ae7fdd72af5142f7f6993902c2"
-version_skew: null
+version_skew: "장비 SB1 STM 배포 빌드 v2.19 (소스 HEAD v2.34) — 2026-06-12 실측에서 HELP 9개 목록은 HEAD와 동일함을 확인"
 states:
   runtime-serial:
     entry: "STM32 UART0 command loop inside main()."
@@ -92,7 +92,23 @@ commands:
     risk: R0
     risk_reason: "Output-only branch."
     source_ref: "smartBay/Core/Src/main.c:18300"
-    observed: null
+    observed:
+      at: "2026-06-12 15:32"
+      lines:
+        - "[15:32:25.182] [TX] VRGCNT"
+        - "[15:32:25.188] VRGCNT"
+        - "[15:32:25.188] Input : VRGCNT"
+        - "[15:32:25.188] < RxRfGain Counter Table >"
+        - "[15:32:25.194] Gain Step - Counter"
+        - "[15:32:25.194]       01  -  000"
+        - "[15:32:25.194]       02  -  000"
+        - "[15:32:25.194]       03  -  001"
+        - "[15:32:25.199]       04  -  000"
+        - "[15:32:25.200]       05  -  000"
+        - "[15:32:25.200]       06  -  000"
+        - "[15:32:25.200]       07  -  000"
+        - "[15:32:25.203]       08  -  000"
+      matches_source: true
   - name: CLRRGCNT
     context: runtime-serial
     syntax: "CLRRGCNT"
@@ -112,7 +128,20 @@ commands:
     risk: R0
     risk_reason: "Output-only branch."
     source_ref: "smartBay/Core/Src/main.c:18319"
-    observed: null
+    observed:
+      at: "2026-06-12 15:34"
+      lines:
+        - "[15:34:16.433] VCFGINDOOR"
+        - "[15:34:16.433] Input : VCFGINDOOR"
+        - "[15:34:16.434] *** configuration Info. for the indoor."
+        - "[15:34:16.439]  1. Price of Time table :"
+        - "[15:34:16.445]   - 12000, 18000, 24000, 28000, 32000, 36000, 40000, 44000, 48000, 52000, "
+        - "[15:34:16.450]  1. Setting Time Limit(Max.10, min.1) : 05h:00m"
+        - "[15:34:16.456]  2. inDoorAlarmTime(Max.60[sec]) : 30[sec]"
+        - "[15:34:16.456]  3  No Of Extensions(1~254, 255 means no limit) : 05."
+        - "[15:34:16.464]  4. inDoorExtendTime(Max.60[min], Min. 10[min]) : 10[min]"
+      matches_source: true
+      note: "1차 시도(15:32)는 문자 유실로 VFIDOR 수신·Unknown command — 재시도로 성공. 유실은 확률적(보드 루프 상태 의존)."
   - name: VDISPRS485
     context: runtime-serial
     syntax: "VDISPRS485"
@@ -132,7 +161,14 @@ commands:
     risk: R0
     risk_reason: "Print-only parser branch."
     source_ref: "smartBay/Core/Src/main.c:18340"
-    observed: null
+    observed:
+      at: "2026-06-12 15:31"
+      lines:
+        - "[15:31:57.742] [TX] HELP"
+        - "[15:31:57.748] HELP"
+        - "[15:31:57.749] Input : HELP"
+        - "[15:31:57.757] Defined Command : SETRFGAIN, RFIDTEST, TOUCH, INSERT, OPERFUNCT, VRGCNT, CLRRGCNT, VCFGINDOOR, VDISPRS485."
+      matches_source: true
   - name: "???"
     context: runtime-serial
     syntax: "???"
