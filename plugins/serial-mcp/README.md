@@ -29,6 +29,8 @@ Codex currently lists plugin-bundled MCP servers but does not reliably expose th
 pwsh -NoProfile -ExecutionPolicy Bypass -File .\plugins\serial-mcp\scripts\install-codex.ps1
 ```
 
+The wrapper registers `SERIAL_CHAR_DELAY=100` by default for the current SB-STM hardware profile. Override it with `-SerialCharDelay <ms>` if another board needs a different transmit delay.
+
 Optional fixed-port example:
 
 ```powershell

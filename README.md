@@ -27,6 +27,13 @@ plugins/serial-mcp/             # 시리얼 MCP 플러그인
 
 `serial-mcp`는 slash command가 아니라 MCP tools와 `serial` skill을 제공한다.
 
+## 스킬 증류 및 제작 준비
+C:\Users\User\projects\silotek-plugin-marketplace\atlas
+임베디드 보드 시리얼 로그를 AI가 읽는 MCP 서버를 구축, 개선, 디버깅 하는 모든 작업에서 얻는 정보 중에
+스킬제작시 필요한 가이드라인을 모으는 저장소이다.
+mcp가 있다고 하더라도 ai는 그 도구 사용법이 능숙하지않다.
+같은 도구를 쓰더라도 스킬이 있다면 더빠르고 정확하게 작업을 수행할수있을것이다. 그것을 위한것이라면 전부 모은다.
+
 ## 사전 요구사항
 
 - Node.js 18 LTS 이상 (개발은 Node 24에서 검증)
