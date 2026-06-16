@@ -1,0 +1,860 @@
+device: SSM
+fw_version: SSM260525-004
+source_ref: "https://github.com/stek747/ssm-esp32.git@178e29f7e94ab4ba2b1e1e2059e097bb377a2b98"
+version_skew: "Source HEAD reports SSM260525-004; deployed device version is unverified and must be checked by later hardware observation."
+states:
+  runtime-serial:
+    entry: "Main FreeRTOS task serial parser after setup."
+    desc: "main_repeat() buffers UART0 input, prints runtime HELP/HHELP/THELP at the runtime parser site, and dispatches other strings to serialCmd()."
+  apmode-serial-telnet:
+    entry: "AP-mode debug parser with telnet side effects."
+    desc: "AP-mode parser accepts UART/telnet input, prints short HELP, MHELP, HHELP, and THELP, then dispatches other strings to serialCmd()."
+  socketio-web:
+    entry: "Socket.IO/Web command path."
+    desc: "Web JSON is queued into the web command buffer and later decoded by operationType."
+  espnow-master:
+    entry: "ESP-NOW master path."
+    desc: "SSM sends JSON or binary packets to SB, APU, APU_C, Repeater, and related lower devices with sendMessage()."
+  ota-update:
+    entry: "OTA/download/reflash lifecycle."
+    desc: "TargetsPreparedForUpdate, DownloadedFile, fReflash, and Updatestep drive SSM and lower-device firmware update flow."
+  inspect-mode:
+    entry: "Communication inspection mode."
+    desc: "REQSTCOMM enables request/response inspection counters while blocking if inspect, comm-fault check, or OTA is active."
+  boot-menu:
+    entry: "Reset-time setup window before normal runtime."
+    desc: "After setup enters the menu loop, tmpcnt starts at 1000 and any received key refreshes tmpcnt to 5000; D/S/B/I/R are handled directly and other keys extend the window."
+commands:
+  - name: HELP
+    context: apmode-serial-telnet
+    syntax: "HELP"
+    prompts: []
+    description: "Prints the short AP-mode/telnet help list."
+    effect: "Prints RESET and REFLASHESP."
+    targets: [self]
+    risk: R0
+    risk_reason: "Print-only parser branch."
+    source_ref: "SSM_esp32.ino:20248"
+    observed: null
+  - name: "???"
+    context: apmode-serial-telnet
+    syntax: "???"
+    prompts: []
+    description: "Alias for AP-mode/telnet short HELP."
+    effect: "Prints RESET and REFLASHESP."
+    targets: [self]
+    risk: R0
+    risk_reason: "Print-only parser branch."
+    source_ref: "SSM_esp32.ino:20248"
+    observed: null
+  - name: MHELP
+    context: apmode-serial-telnet
+    syntax: "MHELP"
+    prompts: []
+    description: "Prints the AP-mode/telnet extended command list."
+    effect: "Prints RESET, REFLASHESP, REFLASH, APMODE, GID, UNITID, SETREGMAC, SETCONFIG, SETBAYCONFIG, INFO, MAC, VROUTERRSSI, VRSSI, FWVER, CHANNEL, DOWNBIN, CDOWNBIN, REMFILE, FORMAT, KSFFORMAT, WFORMAT, VFILELST, VFILE, REQDNFWVER, VUPDATE, VTIME, STWIFI, SETWIFI, SETRTCTIME, and VRTC."
+    targets: [self]
+    risk: R0
+    risk_reason: "Print-only parser branch."
+    source_ref: "SSM_esp32.ino:20253"
+    observed: null
+  - name: HHELP
+    context: apmode-serial-telnet
+    syntax: "HHELP"
+    prompts: []
+    description: "Prints the AP-mode/telnet hidden command list."
+    effect: "Prints SETSSMID and VSSMID."
+    targets: [self]
+    risk: R0
+    risk_reason: "Print-only parser branch."
+    source_ref: "SSM_esp32.ino:20262"
+    observed: null
+  - name: THELP
+    context: apmode-serial-telnet
+    syntax: "THELP"
+    prompts: []
+    description: "Prints the AP-mode/telnet test command list."
+    effect: "Prints VEXTUNITINFO, BYPASSCMD, VIRWEBCMD, DOWNBINWEB, SKIPDOWNLOAD, ALLREFLASH, CREQINFO, CLRINFO, REQSTCOMM, AUTOTEST, VAUTOTEST, CLRAUTOTEST, TXBINTEST, VREVBUFF, and CLRCURSSID."
+    targets: [self]
+    risk: R0
+    risk_reason: "Print-only parser branch."
+    source_ref: "SSM_esp32.ino:20267"
+    observed: null
+  - name: HELP
+    context: runtime-serial
+    syntax: "HELP"
+    prompts: []
+    description: "Prints the runtime serial command list."
+    effect: "Prints RESET, REFLASHESP, REFLASH, APMODE, GID, UNITID, SETREGMAC, SETCONFIG, SETBAYCONFIG, STCOMM, INFO, MAC, VROUTERRSSI, VRSSI, FWVER, CHANNEL, DOWNBIN, REMFILE, FORMAT, KSFFORMAT, WFORMAT, VFILELST, VFILE, REQDNFWVER, VUPDATE, VTIME, STWIFI, SETWIFI, SETRTCTIME, and VRTC."
+    targets: [self]
+    risk: R0
+    risk_reason: "Print-only parser branch."
+    source_ref: "SSM_esp32.ino:20967"
+    observed: null
+  - name: "???"
+    context: runtime-serial
+    syntax: "???"
+    prompts: []
+    description: "Alias for runtime serial HELP."
+    effect: "Prints the same runtime serial command list as HELP."
+    targets: [self]
+    risk: R0
+    risk_reason: "Print-only parser branch."
+    source_ref: "SSM_esp32.ino:20967"
+    observed: null
+  - name: HHELP
+    context: runtime-serial
+    syntax: "HHELP"
+    prompts: []
+    description: "Prints the runtime hidden command list."
+    effect: "Prints SETSSMID, VSSMID, CHKMEM, and CMPMEM."
+    targets: [self]
+    risk: R0
+    risk_reason: "Print-only parser branch."
+    source_ref: "SSM_esp32.ino:20973"
+    observed: null
+  - name: THELP
+    context: runtime-serial
+    syntax: "THELP"
+    prompts: []
+    description: "Prints the runtime test command list."
+    effect: "Prints VEXTUNITINFO, BYPASSCMD, VIRWEBCMD, DOWNBINWEB, SKIPDOWNLOAD, ALLREFLASH, CREQINFO, CLRINFO, REQSTCOMM, AUTOTEST, VAUTOTEST, CLRAUTOTEST, TXBINTEST, VREVBUFF, and VRXALLPKTS."
+    targets: [self]
+    risk: R0
+    risk_reason: "Print-only parser branch."
+    source_ref: "SSM_esp32.ino:20977"
+    observed: null
+  - name: D
+    context: boot-menu
+    syntax: "D"
+    prompts:
+      - ask: "Boot menu single-key input during the setup window."
+        expects: "D"
+        default: null
+    description: "Starts boot-menu file download."
+    effect: "Calls downBin(false); if fReflash is true after download, calls ReflashProc()."
+    targets: [self]
+    risk: R3
+    risk_reason: "Boot-menu path can download files and reflash firmware."
+    source_ref: "SSM_esp32.ino:19980; SSM_esp32.ino:19988"
+    observed: null
+  - name: S
+    context: boot-menu
+    syntax: "S"
+    prompts:
+      - ask: "Boot menu single-key input during the setup window, followed by SETCONFIG prompts."
+        expects: "S"
+        default: null
+    description: "Starts setup-time core config editing."
+    effect: "Calls setConfig(); if it returns 0, sets fReset true."
+    targets: [self, Web]
+    risk: R2
+    risk_reason: "Writes configuration and schedules reboot when changed."
+    source_ref: "SSM_esp32.ino:19996"
+    observed: null
+  - name: B
+    context: boot-menu
+    syntax: "B"
+    prompts:
+      - ask: "Boot menu single-key input during the setup window, followed by SETBAYCONFIG prompts."
+        expects: "B"
+        default: null
+    description: "Starts setup-time bay config editing."
+    effect: "Calls setBayConfig()."
+    targets: [self, SB]
+    risk: R1
+    risk_reason: "Writes bay configuration."
+    source_ref: "SSM_esp32.ino:20003"
+    observed: null
+  - name: I
+    context: boot-menu
+    syntax: "I"
+    prompts:
+      - ask: "Boot menu single-key input during the setup window, followed by SETSSMID prompts."
+        expects: "I"
+        default: null
+    description: "Starts setup-time SSM ID/auth-code editing."
+    effect: "Calls setSSMID(); if it succeeds, sets fReset true."
+    targets: [self, Web]
+    risk: R2
+    risk_reason: "Changes SSM identity/authCode and schedules reboot on success."
+    source_ref: "SSM_esp32.ino:20007"
+    observed: null
+  - name: R
+    context: boot-menu
+    syntax: "R"
+    prompts:
+      - ask: "Boot menu single-key input during the setup window."
+        expects: "R"
+        default: null
+    description: "Schedules SSM restart from the boot menu."
+    effect: "Sets fReset true and breaks the menu loop; after the loop, fReset triggers ESP.restart()."
+    targets: [self]
+    risk: R2
+    risk_reason: "Reboots SSM."
+    source_ref: "SSM_esp32.ino:20012; SSM_esp32.ino:20041"
+    observed: null
+  - name: RESET
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "RESET"
+    prompts: []
+    description: "Restarts the SSM ESP32."
+    effect: "Disconnects socketIO, waits 1500 ms, then calls ESP.restart()."
+    targets: [self, Web]
+    risk: R2
+    risk_reason: "Disconnects cloud socket and reboots SSM."
+    source_ref: "SSM_esp32.ino:18907"
+    observed: null
+  - name: CHKMEM
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "CHKMEM"
+    prompts: []
+    description: "Toggles periodic memory checking."
+    effect: "Flips fChkMemory."
+    targets: [self]
+    risk: R1
+    risk_reason: "Changes a diagnostic state; reversible by issuing the command again."
+    source_ref: "SSM_esp32.ino:18915"
+    observed: null
+  - name: CMPMEM
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "CMPMEM"
+    prompts: []
+    description: "Prints heap and stack memory comparison values."
+    effect: "Prints boot/current heap, used heap, minimum free heap, and current task stack high-water values."
+    targets: [self]
+    risk: R0
+    risk_reason: "Output-only branch."
+    source_ref: "SSM_esp32.ino:18919"
+    observed: null
+  - name: SETRTCTIME
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "SETRTCTIME"
+    prompts:
+      - ask: "Input year, month, day, hr(24h), miniute, and sec as six newline-terminated values."
+        expects: "decimal date/time fields"
+        default: null
+    description: "Sets the RTC from entered local date/time fields."
+    effect: "Reads six fields and calls setRtcFromLocalData(year, month, day, hour, minute, second)."
+    targets: [self]
+    risk: R1
+    risk_reason: "Changes local RTC state."
+    source_ref: "SSM_esp32.ino:18941; SSM_esp32.ino:13742"
+    observed: null
+  - name: VRTC
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "VRTC"
+    prompts: []
+    description: "Prints RTC time values."
+    effect: "Prints rtc.getTimeDate() and rtc.getTime()."
+    targets: [self]
+    risk: R0
+    risk_reason: "Output-only branch."
+    source_ref: "SSM_esp32.ino:18971"
+    observed: null
+  - name: VTIME
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "VTIME"
+    prompts: []
+    description: "Prints time diagnostics."
+    effect: "Calls VTime()."
+    targets: [self]
+    risk: R0
+    risk_reason: "Observed branch delegates to a viewing function."
+    source_ref: "SSM_esp32.ino:18977; SSM_esp32.ino:18403"
+    observed: null
+  - name: STWIFI
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "STWIFI"
+    prompts: []
+    description: "Prints WiFi, router, and socket status."
+    effect: "Prints WiFi country, TX power, module RSSI, current SSID connection state, fConnectSocket, and socketIO.isConnected()."
+    targets: [self, Web]
+    risk: R0
+    risk_reason: "Output-only branch."
+    source_ref: "SSM_esp32.ino:18981"
+    observed: null
+  - name: CLRCURSSID
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "CLRCURSSID"
+    prompts: []
+    description: "Clears the current SSID cache."
+    effect: "Sets curfoundSSID to an empty string."
+    targets: [self]
+    risk: R1
+    risk_reason: "Changes a runtime WiFi diagnostic/cache value."
+    source_ref: "SSM_esp32.ino:19018"
+    observed: null
+  - name: VROUTERRSSI
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "VROUTERRSSI"
+    prompts: []
+    description: "Prints router RSSI information."
+    effect: "Prints current connected SSID and calls GetRSSI(config.ssid, config.testssid)."
+    targets: [self]
+    risk: R0
+    risk_reason: "Output-only scan/diagnostic branch."
+    source_ref: "SSM_esp32.ino:19022"
+    observed: null
+  - name: SETWIFI
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "SETWIFI"
+    prompts:
+      - ask: "Input the tx power with enter key after the printed WiFi power table."
+        expects: "wifi_power_t numeric value, such as 84, 82, 80, 78, 76, 74, 68, 60, 52, 44, 34, 28, 20, 8, or -4"
+        default: null
+    description: "Sets ESP32 WiFi TX power."
+    effect: "Reads one numeric value and calls WiFi.setTxPower((wifi_power_t)value)."
+    targets: [self]
+    risk: R1
+    risk_reason: "Changes WiFi radio transmit power."
+    source_ref: "SSM_esp32.ino:19029"
+    observed: null
+  - name: VRSSI
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "VRSSI"
+    prompts: []
+    description: "Prints nearby device RSSI information."
+    effect: "Calls viewNearbyInfo()."
+    targets: [self, SB, APU, APU_C, Repeater]
+    risk: R0
+    risk_reason: "Observed branch only delegates to a viewing function."
+    source_ref: "SSM_esp32.ino:19058; SSM_esp32.ino:5688"
+    observed: null
+  - name: VEXTUNITINFO
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "VEXTUNITINFO"
+    prompts: []
+    description: "Toggles extended unit-info display."
+    effect: "Flips fvExtUnitInfo and prints its O/X state."
+    targets: [self]
+    risk: R1
+    risk_reason: "Changes diagnostic display state; reversible by issuing the command again."
+    source_ref: "SSM_esp32.ino:19062"
+    observed: null
+  - name: VRXALLPKTS
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "VRXALLPKTS"
+    prompts: []
+    description: "Toggles all-packet receive printing."
+    effect: "Flips fprintAllReceivedPackets."
+    targets: [self]
+    risk: R1
+    risk_reason: "Changes diagnostic log verbosity; reversible by issuing the command again."
+    source_ref: "SSM_esp32.ino:19068"
+    observed: null
+  - name: FWVER
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "FWVER"
+    prompts: []
+    description: "Prints SSM firmware version."
+    effect: "Prints versionInfo."
+    targets: [self]
+    risk: R0
+    risk_reason: "Output-only branch."
+    source_ref: "SSM_esp32.ino:19072"
+    observed: null
+  - name: VIRWEBCMD
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "VIRWEBCMD [json]"
+    prompts:
+      - ask: "If JSON is not supplied inline, repeatedly enter JSON web-command text; ESC exits."
+        expects: "JSON text beginning with { and ending with }"
+        default: null
+    description: "Injects a virtual Web command into the local web-command buffer."
+    effect: "With inline JSON, extracts text after VIRWEBCMD and calls wrWebMsg(); otherwise interactively collects JSON and calls wrWebMsg()."
+    targets: [self, Web, SB, APU, APU_C, Repeater, WSCL]
+    risk: R3
+    risk_reason: "Can enqueue arbitrary Web operationType JSON, including commands that may reflash, reset, or affect lower devices."
+    source_ref: "SSM_esp32.ino:18903; SSM_esp32.ino:19076"
+    observed: null
+  - name: BYPASSCMD
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "BYPASSCMD [json]"
+    prompts:
+      - ask: "If JSON is not supplied inline, repeatedly enter JSON ESP-NOW command text; ESC exits."
+        expects: "JSON text beginning with { and ending with }"
+        default: null
+    description: "Bypasses normal command construction and sends raw JSON to lower devices."
+    effect: "With inline JSON, extracts text after BYPASSCMD and calls sendMessage(); otherwise interactively collects JSON and calls sendMessage()."
+    targets: [SB, APU, APU_C, Repeater]
+    risk: R3
+    risk_reason: "Can send arbitrary ESP-NOW JSON toward lower devices, so downstream effect depends on the supplied payload."
+    source_ref: "SSM_esp32.ino:18899; SSM_esp32.ino:19162"
+    observed: null
+  - name: TXBINTEST
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "TXBINTEST"
+    prompts: []
+    description: "Sends a binary test packet."
+    effect: "Fills a PSIZE buffer with incrementing bytes and calls sendMessage(1, dSB_STM32, 1, 8000, buf, 230)."
+    targets: [SB]
+    risk: R2
+    risk_reason: "Transmits a raw binary packet to a lower-device target; downstream state effect is payload-dependent."
+    source_ref: "SSM_esp32.ino:19253"
+    observed: null
+  - name: DOWNBINWEB
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "DOWNBINWEB"
+    prompts:
+      - ask: "Enter unit number: SSM=1, dAPU=2, dAPUC=3, dSB_ESP32=4, dSB_STM32=5, dRPT=6."
+        expects: "integer 1..6"
+        default: null
+    description: "Prepares a target for web binary download."
+    effect: "Sets TargetsPreparedForUpdate for the chosen unit, removes non-special files unless fSkipDownload is true, disables fvExtUnitInfo, clears Updatestep, and starts the OTA process timer."
+    targets: [self, SB, APU, APU_C, Repeater]
+    risk: R3
+    risk_reason: "Prepares firmware download and file removal paths."
+    source_ref: "SSM_esp32.ino:19262"
+    observed: null
+  - name: SKIPDOWNLOAD
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "SKIPDOWNLOAD"
+    prompts: []
+    description: "Skips the download phase for a later update flow."
+    effect: "Sets fSkipDownload true."
+    targets: [self]
+    risk: R1
+    risk_reason: "Changes update-flow state."
+    source_ref: "SSM_esp32.ino:19310"
+    observed: null
+  - name: ALLREFLASH
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "ALLREFLASH"
+    prompts: []
+    description: "Starts reflash flow for all device classes."
+    effect: "Sets TargetsPreparedForUpdate for SSM, APU, APUC, SB_ESP32, SB_STM32, and dRPT; sets fReflash true; sets Updatestep to 1; starts the OTA process timer."
+    targets: [self, SB, APU, APU_C, Repeater]
+    risk: R3
+    risk_reason: "Firmware reflash path across all targets."
+    source_ref: "SSM_esp32.ino:19315"
+    observed: null
+  - name: REFLASH
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "REFLASH"
+    prompts:
+      - ask: "Enter unit number: SSM=1, dAPU=2, dAPUC=3, dSB_ESP32=4, dSB_STM32=5, dRPT=6."
+        expects: "integer 1..6"
+        default: null
+    description: "Starts reflash flow for one selected device class."
+    effect: "Sets TargetsPreparedForUpdate for the chosen unit, sets fReflash true, sets Updatestep to 1, and starts the OTA process timer."
+    targets: [self, SB, APU, APU_C, Repeater]
+    risk: R3
+    risk_reason: "Firmware reflash path."
+    source_ref: "SSM_esp32.ino:19324"
+    observed: null
+  - name: REFLASHESP
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "REFLASHESP"
+    prompts: []
+    description: "Reflashes SSM ESP32 from local storage."
+    effect: "Calls ReflashProc()."
+    targets: [self]
+    risk: R3
+    risk_reason: "Firmware reflash path for SSM."
+    source_ref: "SSM_esp32.ino:19350; SSM_esp32.ino:16691"
+    observed: null
+  - name: DOWNBIN
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "DOWNBIN"
+    prompts:
+      - ask: "Select baud rate and transfer a binary by YMODEM."
+        expects: "baud-rate selector followed by YMODEM file transfer"
+        default: null
+    description: "Downloads a binary over serial after formatting/removing files."
+    effect: "Calls downBin(true)."
+    targets: [self]
+    risk: R3
+    risk_reason: "Binary download and possible firmware update path."
+    source_ref: "SSM_esp32.ino:19354; SSM_esp32.ino:16391"
+    observed: null
+  - name: CDOWNBIN
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "CDOWNBIN"
+    prompts:
+      - ask: "Select files/removal options, baud rate, and transfer a binary by YMODEM."
+        expects: "interactive file/baud/YMODEM sequence"
+        default: null
+    description: "Downloads a binary over serial without the same format flag as DOWNBIN."
+    effect: "Calls downBin(false)."
+    targets: [self]
+    risk: R3
+    risk_reason: "Binary download, file removal, and possible firmware update path."
+    source_ref: "SSM_esp32.ino:19358; SSM_esp32.ino:16391"
+    observed: null
+  - name: REMFILE
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "REMFILE"
+    prompts:
+      - ask: "Select a file to remove and confirm."
+        expects: "file selection and confirmation"
+        default: null
+    description: "Removes a selected LittleFS/SPIFFS file."
+    effect: "Calls RemoveFileProc()."
+    targets: [self]
+    risk: R3
+    risk_reason: "Deletes a selected file from device storage."
+    source_ref: "SSM_esp32.ino:19362; SSM_esp32.ino:16204"
+    observed: null
+  - name: FORMAT
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "FORMAT"
+    prompts: []
+    description: "Removes non-special files."
+    effect: "Calls RemoveFileExeptSpecialFileProc()."
+    targets: [self]
+    risk: R3
+    risk_reason: "Deletes files from device storage."
+    source_ref: "SSM_esp32.ino:19366; SSM_esp32.ino:16325"
+    observed: null
+  - name: KSFFORMAT
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "KSFFORMAT"
+    prompts: []
+    description: "Formats memory while keeping set files per command comment."
+    effect: "Calls SPIFFS_Format(); on success prints total/used space and calls SPIFFS_Proc()."
+    targets: [self]
+    risk: R3
+    risk_reason: "Formats device file-system storage."
+    source_ref: "SSM_esp32.ino:19370"
+    observed: null
+  - name: WFORMAT
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "WFORMAT"
+    prompts: []
+    description: "Formats the entire memory."
+    effect: "Calls SPIFFS_Format(); on success prints total/used space."
+    targets: [self]
+    risk: R3
+    risk_reason: "Formats device file-system storage."
+    source_ref: "SSM_esp32.ino:19384"
+    observed: null
+  - name: DUMPFILE
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "DUMPFILE"
+    prompts:
+      - ask: "Select a file and receive it by YMODEM."
+        expects: "file selection and YMODEM receive on host"
+        default: null
+    description: "Transmits a selected file by YMODEM."
+    effect: "Calls dumpBin(), then message_transmit(ret)."
+    targets: [self]
+    risk: R0
+    risk_reason: "Reads and transmits a selected file; no local write is observed in this branch."
+    source_ref: "SSM_esp32.ino:19403"
+    observed: null
+  - name: VFILELST
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "VFILELST"
+    prompts: []
+    description: "Prints file-system capacity and file list."
+    effect: "Prints SPIFFS total/used bytes and calls ViewFileList()."
+    targets: [self]
+    risk: R0
+    risk_reason: "Output-only branch."
+    source_ref: "SSM_esp32.ino:19419"
+    observed: null
+  - name: VFILE
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "VFILE"
+    prompts:
+      - ask: "Select a file to view."
+        expects: "file selection"
+        default: null
+    description: "Prints a selected file."
+    effect: "Calls VFileProc()."
+    targets: [self]
+    risk: R0
+    risk_reason: "Read-only file viewing branch."
+    source_ref: "SSM_esp32.ino:19424"
+    observed: null
+  - name: REQDNFWVER
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "REQDNFWVER"
+    prompts: []
+    description: "Requests downloaded firmware version from lower devices."
+    effect: "Builds JSON DNFWVER=ALL and sends it with sendMessage()."
+    targets: [SB, APU, APU_C, Repeater]
+    risk: R1
+    risk_reason: "Sends an ESP-NOW request to lower devices."
+    source_ref: "SSM_esp32.ino:19428"
+    observed: null
+  - name: VUPDATE
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "VUPDATE"
+    prompts: []
+    description: "Prints update status for all devices."
+    effect: "Calls RdInfoUpdateBuffer()."
+    targets: [self, SB, APU, APU_C, Repeater]
+    risk: R0
+    risk_reason: "Output-only status branch."
+    source_ref: "SSM_esp32.ino:19444; SSM_esp32.ino:1195"
+    observed: null
+  - name: APMODE
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "APMODE"
+    prompts: []
+    description: "Schedules AP mode and restarts SSM."
+    effect: "Writes 0x55 to EEPROM address 1, disconnects socketIO, waits 1500 ms, and calls ESP.restart()."
+    targets: [self, Web]
+    risk: R2
+    risk_reason: "Changes boot mode flag and reboots SSM."
+    source_ref: "SSM_esp32.ino:19448"
+    observed: null
+  - name: GID
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "GID"
+    prompts: []
+    description: "Prints group/site ID."
+    effect: "Prints config.Sid."
+    targets: [self]
+    risk: R0
+    risk_reason: "Output-only branch."
+    source_ref: "SSM_esp32.ino:19503"
+    observed: null
+  - name: UNITID
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "UNITID"
+    prompts: []
+    description: "Prints known lower-device unit IDs."
+    effect: "Prints each InfoListArr entry with unitName, MAC, and UnitID."
+    targets: [self, SB, APU, APU_C, Repeater]
+    risk: R0
+    risk_reason: "Output-only branch."
+    source_ref: "SSM_esp32.ino:19507"
+    observed: null
+  - name: REGMAC
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "REGMAC"
+    prompts: []
+    description: "Prints registered MAC buffer."
+    effect: "Temporarily disables fSerial, calls viewRegMacBuff(), then restores fSerial."
+    targets: [self, SB, APU, APU_C, Repeater]
+    risk: R0
+    risk_reason: "Output-only branch."
+    source_ref: "SSM_esp32.ino:19517"
+    observed: null
+  - name: SETREGMAC
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "SETREGMAC"
+    prompts:
+      - ask: "Interactive registered-MAC editing sequence."
+        expects: "MAC/edit commands accepted by setRegMac()"
+        default: null
+    description: "Edits registered lower-device MAC buffer."
+    effect: "Temporarily disables fSerial, calls setRegMac(), then restores fSerial."
+    targets: [self, SB, APU, APU_C, Repeater]
+    risk: R1
+    risk_reason: "Changes stored communication/registration configuration."
+    source_ref: "SSM_esp32.ino:19525; SSM_esp32.ino:13820"
+    observed: null
+  - name: SETCONFIG
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "SETCONFIG"
+    prompts:
+      - ask: "Interactive core SSM config editing sequence."
+        expects: "values accepted by setConfig()"
+        default: null
+    description: "Edits core SSM configuration."
+    effect: "Disables info timer, calls setConfig(); if setConfig() returns 0, prints Reboot, disconnects socketIO, waits 1500 ms, and calls ESP.restart()."
+    targets: [self, Web]
+    risk: R2
+    risk_reason: "Writes configuration and can reboot SSM."
+    source_ref: "SSM_esp32.ino:19532; SSM_esp32.ino:13937"
+    observed: null
+  - name: SETBAYCONFIG
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "SETBAYCONFIG"
+    prompts:
+      - ask: "Interactive bay configuration editing sequence."
+        expects: "values accepted by setBayConfig()"
+        default: null
+    description: "Edits SSM bay configuration."
+    effect: "Disables info timer, calls setBayConfig(), then re-enables info timer."
+    targets: [self, SB]
+    risk: R1
+    risk_reason: "Writes bay configuration used for lower-device configuration flow."
+    source_ref: "SSM_esp32.ino:19554; SSM_esp32.ino:14379"
+    observed: null
+  - name: INFO
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "INFO"
+    prompts: []
+    description: "Prints simplified equipment information."
+    effect: "Calls simplevInfoBuffer()."
+    targets: [self, SB, APU, APU_C, Repeater]
+    risk: R0
+    risk_reason: "Output-only status branch."
+    source_ref: "SSM_esp32.ino:19565; SSM_esp32.ino:1487"
+    observed: null
+  - name: STCOMM
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "STCOMM"
+    prompts: []
+    description: "Prints lower-device communication state."
+    effect: "Calls vCommStateWithUnits()."
+    targets: [self, SB, APU, APU_C, Repeater]
+    risk: R0
+    risk_reason: "Output-only communication status branch."
+    source_ref: "SSM_esp32.ino:19569; SSM_esp32.ino:1454"
+    observed: null
+  - name: TINFO
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "TINFO"
+    prompts: []
+    description: "Prints full equipment information table."
+    effect: "Calls vInfoBuffer()."
+    targets: [self, SB, APU, APU_C, Repeater]
+    risk: R0
+    risk_reason: "Output-only status branch."
+    source_ref: "SSM_esp32.ino:19573; SSM_esp32.ino:1567"
+    observed: null
+  - name: OLDINFO
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "OLDINFO"
+    prompts: []
+    description: "Prints old INFO buffer format."
+    effect: "Calls RdInfoBuffer()."
+    targets: [self, SB, APU, APU_C, Repeater]
+    risk: R0
+    risk_reason: "Output-only status branch."
+    source_ref: "SSM_esp32.ino:19577; SSM_esp32.ino:1647"
+    observed: null
+  - name: CLRINFO
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "CLRINFO"
+    prompts: []
+    description: "Clears the INFO buffer."
+    effect: "Calls WrInfoBuffer(\"\") and prints that the whole INFO buffer was cleared."
+    targets: [self]
+    risk: R1
+    risk_reason: "Clears runtime lower-device information buffer."
+    source_ref: "SSM_esp32.ino:19581"
+    observed: null
+  - name: REQSTCOMM
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "REQSTCOMM"
+    prompts:
+      - ask: "Input number of communication checks, Q to quit, or blank for 1."
+        expects: "integer 0..255, blank, or Q"
+        default: "blank and 0 are handled as 1"
+    description: "Starts communication inspection mode."
+    effect: "If inspection, fault-check, and OTA modes are inactive, clears inspection variables with ReqInfoTo(true), clears inspection buffers with WrInfoBuffer(AllClrBufferAboutInspect), sets fInspectMode true, resets timeInspectMode, and sets cntInfo."
+    targets: [self, SB, APU, APU_C, Repeater]
+    risk: R1
+    risk_reason: "Changes inspection-mode state and sends/records lower-device checks."
+    source_ref: "SSM_esp32.ino:19586; SSM_esp32.ino:1817"
+    observed: null
+  - name: MAC
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "MAC"
+    prompts: []
+    description: "Prints SSM MAC address."
+    effect: "Prints MacAddr."
+    targets: [self]
+    risk: R0
+    risk_reason: "Output-only branch."
+    source_ref: "SSM_esp32.ino:19639"
+    observed: null
+  - name: CREQINFO
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "CREQINFO"
+    prompts: []
+    description: "Toggles periodic information requests."
+    effect: "Alternates fReqInfo false/true and prints stopped/started messages."
+    targets: [self, SB, APU, APU_C, Repeater]
+    risk: R1
+    risk_reason: "Changes periodic lower-device request state; reversible by issuing the command again."
+    source_ref: "SSM_esp32.ino:19645"
+    observed: null
+  - name: CHANNEL
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "CHANNEL"
+    prompts: []
+    description: "Prints current WiFi channel."
+    effect: "Prints ichannel."
+    targets: [self]
+    risk: R0
+    risk_reason: "Output-only branch."
+    source_ref: "SSM_esp32.ino:19660"
+    observed: null
+  - name: SETSSMID
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "SETSSMID"
+    prompts:
+      - ask: "Interactive SSM ID/auth-code editing sequence."
+        expects: "values accepted by setSSMID()"
+        default: null
+    description: "Edits SSM ID/authCode."
+    effect: "Calls setSSMID() and prints Fail-setSSMID() if it returns -1."
+    targets: [self, Web]
+    risk: R1
+    risk_reason: "Changes SSM identity/authCode configuration."
+    source_ref: "SSM_esp32.ino:19664; SSM_esp32.ino:14263"
+    observed: null
+  - name: VSSMID
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "VSSMID"
+    prompts: []
+    description: "Prints SSM ID/authCode."
+    effect: "Prints authCode."
+    targets: [self]
+    risk: R0
+    risk_reason: "Output-only branch."
+    source_ref: "SSM_esp32.ino:19668"
+    observed: null
+  - name: SERIAL
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "SERIAL"
+    prompts: []
+    description: "Toggles serial debug output."
+    effect: "Flips fSerial."
+    targets: [self]
+    risk: R1
+    risk_reason: "Changes diagnostic output state; reversible by issuing the command again."
+    source_ref: "SSM_esp32.ino:19674"
+    observed: null
+  - name: AUTOTEST
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "AUTOTEST"
+    prompts: []
+    description: "Runs automatic test procedure."
+    effect: "Disables info timer, adjusts request timing, calls AutoTestProc(), then re-enables info timer."
+    targets: [self, SB, APU, APU_C, Repeater]
+    risk: R1
+    risk_reason: "Changes test/request state and can exercise lower-device communication paths."
+    source_ref: "SSM_esp32.ino:19679; SSM_esp32.ino:5930"
+    observed: null
+  - name: VAUTOTEST
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "VAUTOTEST"
+    prompts: []
+    description: "Prints recorded automatic test results."
+    effect: "Calls ViewRecordResultOfAutoTest()."
+    targets: [self]
+    risk: R0
+    risk_reason: "Output-only branch."
+    source_ref: "SSM_esp32.ino:19690; SSM_esp32.ino:6088"
+    observed: null
+  - name: CLRAUTOTEST
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "CLRAUTOTEST"
+    prompts: []
+    description: "Clears recorded automatic test results."
+    effect: "Calls ClrBuffrecordResultOfAutoTest()."
+    targets: [self]
+    risk: R1
+    risk_reason: "Clears recorded diagnostic/autotest data."
+    source_ref: "SSM_esp32.ino:19694; SSM_esp32.ino:5914"
+    observed: null
+  - name: VREVBUFF
+    context: runtime-serial/apmode-serial-telnet
+    syntax: "VREVBUFF"
+    prompts: []
+    description: "Toggles saved receive-buffer count display."
+    effect: "Flips fViewBuffSavedCount and prints VBuffSavedCount O/X."
+    targets: [self]
+    risk: R1
+    risk_reason: "Changes diagnostic display state; reversible by issuing the command again."
+    source_ref: "SSM_esp32.ino:19698"
+    observed: null
