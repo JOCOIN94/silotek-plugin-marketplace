@@ -4,7 +4,7 @@
 
 ## 1. 목표
 
-`C:\Users\User\projects\SB-SmartBay` 소스에서 두 보드(**SB-ESP32**, **SB-STM32**)의 시리얼 명령 인터페이스를 **전수 추출**해 아틀라스 YAML 2개 + 노트 2개를 작성한다. **장비 접근 불필요 — 소스만 읽는다. 어떤 시리얼 포트에도 연결하지 마라.**
+`C:\Users\User\projects\firmware-src\SB-SmartBay` 소스에서 두 보드(**SB-ESP32**, **SB-STM32**)의 시리얼 명령 인터페이스를 **전수 추출**해 아틀라스 YAML 2개 + 노트 2개를 작성한다. **장비 접근 불필요 — 소스만 읽는다. 어떤 시리얼 포트에도 연결하지 마라.**
 
 ## 2. 배경
 
@@ -28,7 +28,7 @@
 - L18336 부근에 HELP 목록에 없는 토글(`VDISPRS485` 류)이 보이므로 **숨은 명령이 더 있을 가능성이 높다** — 같은 if-else 사다리 전체를 훑어 전수 추출하라.
 - FW 버전: 소스 define/문자열에서 찾아라(커밋 메시지상 v2.19 계열). 못 찾으면 `UNKNOWN-2026-06-12.yaml` + notes에 사유.
 
-**주의 (실측에서 확인된 사실)**: 배포 장비의 HELP 목록은 소스 HEAD와 다를 수 있다(버전 스큐). 너의 기준은 **클론 HEAD 소스**다. `source_ref`에 커밋 해시(`git -C C:\Users\User\projects\SB-SmartBay rev-parse HEAD`)를 기록하라.
+**주의 (실측에서 확인된 사실)**: 배포 장비의 HELP 목록은 소스 HEAD와 다를 수 있다(버전 스큐). 너의 기준은 **클론 HEAD 소스**다. `source_ref`에 커밋 해시(`git -C C:\Users\User\projects\firmware-src\SB-SmartBay rev-parse HEAD`)를 기록하라.
 
 ## 4. 작업 내용
 
