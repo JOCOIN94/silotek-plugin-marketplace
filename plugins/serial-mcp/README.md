@@ -31,6 +31,8 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File .\plugins\serial-mcp\scripts\insta
 
 The wrapper registers `SERIAL_CHAR_DELAY=100` by default for the current SB-STM hardware profile. Override it with `-SerialCharDelay <ms>` if another board needs a different transmit delay.
 
+`-SerialWeb 0` disables only the web UI. The server still keeps the default `8743` owner lock so another `serial-mcp` session cannot open the same COM ports at the same time.
+
 Optional fixed-port example:
 
 ```powershell

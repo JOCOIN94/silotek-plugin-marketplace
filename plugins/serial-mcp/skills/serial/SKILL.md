@@ -30,6 +30,7 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File .\plugins\serial-mcp\scripts\verif
 이 skill이 발동되면, **사용자가 링크를 요청하지 않아도** 가장 먼저 `get_serial_status`를 호출해 응답의 `viewer_url`(웹 뷰어 — 포트 셀렉터·실시간 스트림)을 사용자에게 안내한다. 목적은 사용자가 같은 실시간 스트림을 눈으로 보며 AI가 회수·판단한 결과를 직접 교차검증하게 하는 것이다 — AI가 블랙박스로 읽고 단정하지 않는다.
 
 - **URL을 기억·하드코딩하지 마라.** `viewer_url`의 포트는 서버 재시작마다 바뀌므로 매번 `get_serial_status` 응답에서 새로 읽는다.
+- `SERIAL_WEB=0` 또는 설치 스크립트 `-SerialWeb 0`은 웹 UI만 끈다. 이때도 owner 잠금은 기본 8743에 유지되며, `viewer_url`이 없으면 링크 안내 없이 owner 세션 종료 또는 해당 세션의 해제를 요청한다.
 - 진입 시 1회 안내로 충분하다 — 이후 매 응답마다 반복하지는 않되, 로그를 회수해 보고할 때는 판단 근거가 된 라인과 함께 다시 동봉한다.
 - 서버 미기동이거나 포트가 모두 미연결이면 뷰어는 빈 화면일 수 있다 — 그 사실(예: 포트 점유 `last_error`)도 함께 알려 사용자가 원인을 같이 보게 한다.
 
