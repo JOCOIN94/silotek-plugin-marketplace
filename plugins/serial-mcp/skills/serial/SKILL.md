@@ -56,6 +56,7 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File .\plugins\serial-mcp\scripts\verif
 
 ## 함정·해석
 
+- **모니터 대상은 AI가 고르지 않는다 / `list_serial_ports`의 "0개 모니터링 중"에 속지 마라**: 서버가 USB 포트를 자동 모니터링하며, 모니터링은 `get_serial_status`(또는 다른 조회 도구) 첫 호출 때 owner를 잡으면서 시작된다. `list_serial_ports`는 OS 포트 나열만 하고 owner를 안 잡으므로, 그것만 반복하면 영영 "0개 모니터링"이다. **사람에게 "어느 포트를 SSM으로 잡을까요?"라고 묻지 말고 곧장 `get_serial_status`를 호출**하라(SSM 등 별칭도 AI가 붙이는 게 아니라 `SERIAL_NAMES`/`SERIAL_AUTONAME`이 만든다). 0개가 계속되면 다른 세션이 점유 중인 것이니 웹 뷰어 [해제]를 안내해 소유권을 넘겨받게 한다. (응답의 `hint` 필드가 같은 안내다.)
 - **첫 `get_serial_status`의 `connected=false`는 '꺼짐'이 아니다**: 서버는 첫 시리얼 도구 호출 때 포트를 lazy로 열기 시작하고, status는 그 첫 open을 잠깐(기본 1.5초) 기다린 뒤 답한다. 그래도 `opening=true`(message '응답 없음')면 아직 여는 중이다 — `last_error`가 있을 때만 실제 실패(점유·미배선 등)로 판단하고, 없으면 잠시 후 재확인하라. (집계 호출 한 번의 `0/N` false를 '보드 꺼짐'으로 단정하지 말 것.)
 - **포트 점유 에러**(`connected=false` + 점유/권한 `last_error`): 플래싱 도구·IDE 시리얼 모니터·테라텀이 쥔 것이다 — 사람에게 해당 프로그램 종료를 요청하고 재확인(서버가 3초 간격으로 자동 재연결).
 - **서버 기동 후에 꽂은 보드**도 핫플러그 스캔(기본 5초 간격)이 자동 추가한다 — 새 보드가 `list_serial_ports`에 monitored=false로 나오면 몇 초 뒤 재조회하고, 그래도 안 붙으면 `SERIAL_PORT` 고정 모드인지(고정 모드는 스캔 없음) 확인하라.
