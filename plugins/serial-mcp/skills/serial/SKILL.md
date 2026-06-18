@@ -8,7 +8,7 @@ description: serial-mcp로 임베디드 보드의 serial port, 로그/logs, stat
 serial-mcp로 임베디드 보드를 **관찰·조작·검증**하는 공통 하네스. 서버의 조회 도구는 읽기 전용이고, 쓰기는 `send_serial_command`·`reset_board` 2종만 매 호출 승인 게이트로 허용된다. 각 도구의 인자·반환 구조는 도구 docstring이 자족적으로 설명한다 — 이 스킬은 여러 도구를 엮는 순서·판단만 담는다.
 
 - **운용 방법**(observe→act→verify, 표준 루프, risk gate, interactive prompt 처리, secret redaction, 보드 식별, 함정) → `references/ops.md`. 거의 모든 시리얼 작업이 이 문서로 처리된다.
-- **보드별 명령 의미**(이 명령이 무엇을 하는지, risk·검증 시그니처) → 해당 board 스킬과 그 `references/atlas-extract.md`.
+- **보드별 명령 의미**(이 명령이 무엇을 하는지, risk·검증 시그니처) → 해당 board 스킬과 그 `references/command-surface.md`.
 
 ## live board 작업 시작 시 — viewer_url 안내
 
@@ -21,7 +21,7 @@ serial-mcp로 임베디드 보드를 **관찰·조작·검증**하는 공통 하
 
 ## 위험 작업 gate (요약)
 
-명령의 risk 등급 정의와 게이트 절차는 `references/ops.md`의 risk gate를, 명령별 risk 판정은 보드 atlas-extract를 따른다. 요약하면 **R0** 조회는 바로 / **R1** 복원 가능 변경은 snapshot·verify / **R2** 재부팅·재연결·영구 변경은 사람 입회+검증 / **R3** 재플래시·포맷·임의 주입은 실행 금지(기본). SKILL.md는 등급 의미를 재정의하지 않는다.
+명령의 risk 등급 정의와 게이트 절차는 `references/ops.md`의 risk gate를, 명령별 risk 판정은 보드 command-surface를 따른다. 요약하면 **R0** 조회는 바로 / **R1** 복원 가능 변경은 snapshot·verify / **R2** 재부팅·재연결·영구 변경은 사람 입회+검증 / **R3** 재플래시·포맷·임의 주입은 실행 금지(기본). SKILL.md는 등급 의미를 재정의하지 않는다.
 
 ## MCP 도구가 보이지 않을 때만
 

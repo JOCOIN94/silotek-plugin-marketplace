@@ -1,7 +1,7 @@
-# SSM atlas extract
+# SSM command surface
 
 > SSM 게이트웨이(ESP32-S3) 운용 증류본. **출처**: `atlas/ssm/SSM260525-004.yaml`, `notes-config-model.md`, `notes-log-vocabulary.md`, `notes-reset-triggers.md`, `notes-comm-health.md`, `exploration/2026-06-13-nocompany-truth-source`.
-> 전체 명령 사전·`source_ref`는 atlas YAML이 단일 진실원이다. 다만 atlas는 plugin payload 밖의 원천 자료이므로, 정상 runtime 작업 중에는 이 extract에 없는 명령을 임의로 실행하지 않는다 — 필요한 명령이 extract에 없으면 atlas 보강·skill 재증류 대상으로 보고하고 멈춘다.
+> 전체 명령 사전·`source_ref`는 atlas YAML이 단일 진실원이다. 다만 atlas는 plugin payload 밖의 원천 자료이므로, 정상 runtime 작업 중에는 이 command surface에 없는 명령을 임의로 실행하지 않는다 — 필요한 명령이 command surface에 없으면 atlas 보강·skill 재증류 대상으로 보고하고 멈춘다.
 > 운용 절차(루프·승인·interactive prompt·redaction·검증)는 `serial` 스킬 `references/ops.md`.
 
 ## Board identity

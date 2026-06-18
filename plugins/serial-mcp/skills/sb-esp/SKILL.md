@@ -7,7 +7,7 @@ description: SB-ESP 보드(SmartBay ESP32, SB260610-001)를 serial-mcp로 다룰
 
 SB-ESP는 SmartBay의 ESP32(통신·WiFi 담당, STM32와 짝)다. 이 스킬은 SB-ESP **명령의 의미·risk·prompt 동작·검증 신호**를 담는다. 관찰·조작·검증 절차(루프·승인 게이트·interactive prompt·risk gate)는 `serial` 스킬의 `references/ops.md`를 따른다.
 
-- 작업 전 **`references/atlas-extract.md`를 읽어라** — 의도→명령, critical confusion(SETWIFI≠credential), 명령별 risk, interactive 동작, 검증 신호가 거기 있다.
+- 작업 전 **`references/command-surface.md`를 읽어라** — 의도→명령, critical confusion(SETWIFI≠credential), 명령별 risk, interactive 동작, 검증 신호가 거기 있다.
 - runtime HELP(34개)와 AP-mode/telnet HELP(3개) surface가 다르고, boot-menu(D/S/B/R)는 리셋 직후 setup 창 전용이다.
 
 ## 자주 혼동되는 것

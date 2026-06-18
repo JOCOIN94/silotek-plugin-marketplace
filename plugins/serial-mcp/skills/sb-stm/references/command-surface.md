@@ -1,7 +1,7 @@
-# SB-STM atlas extract
+# SB-STM command surface
 
 > SmartBay STM32(v2.34) 운용 증류본. **출처**: `atlas/sb-stm/v2.34.yaml`, `notes-uart1-sharing.md`, `notes-injection-vector.md`, `notes-source-analysis.md`, `exploration/2026-06-12-*`.
-> 전체 명령 사전·`source_ref`는 atlas YAML이 단일 진실원이다. 다만 atlas는 plugin payload 밖의 원천 자료이므로, 정상 runtime 작업 중에는 이 extract에 없는 명령(특히 hidden/source-only)을 임의로 실행하지 않는다 — 필요하면 atlas 보강·skill 재증류 대상으로 보고하고 멈춘다.
+> 전체 명령 사전·`source_ref`는 atlas YAML이 단일 진실원이다. 다만 atlas는 plugin payload 밖의 원천 자료이므로, 정상 runtime 작업 중에는 이 command surface에 없는 명령(특히 hidden/source-only)을 임의로 실행하지 않는다 — 필요하면 atlas 보강·skill 재증류 대상으로 보고하고 멈춘다.
 > 운용 절차(루프·승인·interactive prompt·redaction·검증)는 `serial` 스킬 `references/ops.md`.
 
 ## Board identity
@@ -10,19 +10,22 @@
 - 상태: **실측 일부 검증** — `HELP`·`VRGCNT`·`VCFGINDOOR` observed. version_skew: 배포 빌드 **v2.19**(소스 HEAD v2.34); 2026-06-12 실측에서 HELP 9개 목록은 HEAD와 동일 확인.
 - STM32 콘솔(UART, 예 COM12)은 ESP↔STM 바이너리 명령 채널과 **같은 UART1/Rx1 링버퍼를 공유**한다 — 콘솔 쓰기와 ESP 명령이 한 버스에서 경합한다.
 
-## command surface — observed-public vs hidden/source-only
+## command surface (runtime 조작 표면의 경계)
 
 핵심 구분. **runtime-sendable로 취급하는 것은 실제 HELP 출력에서 관측된 public 명령뿐이다.**
 
-### observed-public (HELP 출력 = runtime-sendable)
+### Observed public command surface (HELP 출력 = runtime-sendable)
 
 실측 HELP(`Defined Command : ...`): `SETRFGAIN` `RFIDTEST` `TOUCH` `INSERT` `OPERFUNCT` `VRGCNT` `CLRRGCNT` `VCFGINDOOR` `VDISPRS485` (+ `HELP`/`???` 자체).
 
-### hidden/source-only (HELP에 없음 — runtime-sendable 아님)
+### Hidden / source-only commands (HELP에 없음 — runtime-sendable 아님)
 
 - `TESTALIVE` — 소스의 콘솔 명령이나 HELP 목록에 노출되지 않음(alive-packet toggle).
-- ESP↔STM **inter-MCU UART1 바이너리 프레임** `0x60`~`0x77`, `0xEE` — ESP가 STM에 보내는 `[CMD][VAL][0xFB][+payload]` 바이너리 명령. **일반 text serial 명령이 아니며** `send_serial_command`(UTF-8)로 보낼 수 없다.
-- 이들은 **brute-force로 찾지 않는다.** 실제 echo/response/안전성 근거가 생기기 전까지 runtime 실행 금지 — 필요하면 atlas 보강·skill 재증류 대상으로 보고하고 멈춘다.
+- HELP에 없거나 runtime sendability가 검증되지 않은 항목은 **brute-force로 찾지 않는다.** 실제 echo/response/안전성 근거가 생기기 전까지 runtime 실행 금지 — 필요하면 atlas 보강·skill 재증류 대상으로 보고하고 멈춘다.
+
+### Internal protocol / non-text surface
+
+ESP↔STM **inter-MCU UART1 바이너리 프레임** `0x60`~`0x77`, `0xEE` — ESP가 STM에 보내는 `[CMD][VAL][0xFB][+payload]` 바이너리 명령. **일반 text serial 명령으로 취급하지 않는다** — `send_serial_command`(UTF-8)로 보낼 수 없는 UART-level 프로토콜이다.
 
 ## risk별 명령 (observed-public 기준; 전체·바이너리는 atlas YAML)
 

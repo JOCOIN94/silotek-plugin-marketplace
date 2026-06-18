@@ -1,6 +1,6 @@
 # serial-mcp 범용 운용 (ops)
 
-이 문서는 **보드 종류와 무관한** serial-mcp 운용 하네스다 — *어떻게* 관찰·조작·검증하는지만 정의한다. 명령의 *의미*(어떤 명령이 무엇을 하고 risk가 얼마인지)는 보드 스킬(`ssm` 등)의 `references/atlas-extract.md`에 있다. 각 도구의 인자·반환 구조는 도구 docstring이 자족적으로 설명한다 — 여기 중복하지 않는다.
+이 문서는 **보드 종류와 무관한** serial-mcp 운용 하네스다 — *어떻게* 관찰·조작·검증하는지만 정의한다. 명령의 *의미*(어떤 명령이 무엇을 하고 risk가 얼마인지)는 보드 스킬(`ssm` 등)의 `references/command-surface.md`에 있다. 각 도구의 인자·반환 구조는 도구 docstring이 자족적으로 설명한다 — 여기 중복하지 않는다.
 
 ## 핵심 원칙 — observe → act → verify
 
@@ -18,13 +18,13 @@
 
 ## 명령 전송 판단
 
-- `send_serial_command(command=..., port=...)`는 펌웨어가 제공하는 CLI/AT/진단 명령을 알고 있을 때만 쓴다. 명령 문법은 서버가 보장하지 않는다 — 의미·risk는 보드 atlas-extract에서 확인한다. 이름만으로 명령 의미를 추측하지 마라.
+- `send_serial_command(command=..., port=...)`는 펌웨어가 제공하는 CLI/AT/진단 명령을 알고 있을 때만 쓴다. 명령 문법은 서버가 보장하지 않는다 — 의미·risk는 보드 command-surface에서 확인한다. 이름만으로 명령 의미를 추측하지 마라.
 - 호출마다 승인 팝업이 뜬다. `status="declined"`는 재시도 금지 신호다 — 같은 명령을 반복 호출하지 말고 사람에게 이유를 묻고 다음 행동을 합의한다.
 - 응답 `lines`에는 `[TX]` 송신 감사 마커가 함께 섞일 수 있다. 분석할 때 보드 응답과 감사 마커를 구분하라.
 
 ## risk gate
 
-명령의 risk 등급은 보드 atlas-extract에 명시돼 있다. 등급별 게이트:
+명령의 risk 등급은 보드 command-surface에 명시돼 있다. 등급별 게이트:
 
 | 등급 | 정의 | 운용 |
 |---|---|---|
@@ -33,7 +33,7 @@
 | R2 | 설정 쓰기·재부팅·재연결·영구 동작 변경 | 사람 입회. 대상·의도한 변경을 명확히 하고, 변경 전 snapshot, 재부팅·재연결·boot 완료까지 검증 |
 | R3 | 파괴 가능 (재플래시·FW 다운로드·포맷·임의 페이로드 주입) | 기본 정책은 **실행 금지** |
 
-- R0은 추가 확인 없이 바로 조회한다. 다만 secret을 출력하는 R0-sensitive 명령(해당 board skill의 atlas-extract.md가 표시)은 필요한 경우에만 사용하고 출력·요약·로그에서 값을 redaction한다.
+- R0은 추가 확인 없이 바로 조회한다. 다만 secret을 출력하는 R0-sensitive 명령(해당 board skill의 command-surface.md가 표시)은 필요한 경우에만 사용하고 출력·요약·로그에서 값을 redaction한다.
 - R1·R2는 **보드 정체·포트·prompt 상태·의도한 변경 중 하나라도 모호하면** 진행하지 말고 멈춰 사람과 합의한다.
 - R3는 명시 승인만으로 실행하지 않는다. **보드별 안전 절차 + 복구/백업 경로 + 정확한 대상 확인 + 명시 승인** 네 가지가 모두 갖춰졌을 때만 진행하며, 현재 skill extract에 안전 절차가 없으면 실행하지 말고 멈춰 사람에게 넘긴다.
 
@@ -41,21 +41,21 @@
 
 일부 시리얼 명령은 입력을 기다리는 블로킹 프롬프트 시퀀스에 진입한다(펌웨어가 메인 루프를 점유한 채 입력 대기). 완주하거나 탈출 키로 빠져나가기 전까지 정상 로그·보드 동작이 멈춘다. 이때:
 
-- **통째로 multiline을 밀어넣지 마라** — 해당 board skill의 atlas-extract.md가 안전하다고 명시한 경우가 아니면.
+- **통째로 multiline을 밀어넣지 마라** — 해당 board skill의 command-surface.md가 안전하다고 명시한 경우가 아니면.
 - entry 명령(예: `SETCONFIG`)을 **먼저** 보낸다.
 - echo 또는 다음 prompt가 보일 때까지 **기다린다**. 응답 침묵은 프롬프트 대기일 수 있다.
 - 각 prompt를 **상태**로 다룬다 — 관측한 prompt에만 응답한다.
 - prompt가 예상과 다르면 **중단**하고 현재 상태를 보고한다.
-- **빈 줄(blank)로 찔러보지 마라.** blank가 "현재값 유지" 같은 의미를 가진다고 해당 board skill의 atlas-extract.md가 문서화한 명령에서만 blank를 쓴다. (보드에 따라 빈 줄이 리셋 등 위험 동작일 수 있다.)
-- 탈출 키(예: `Q`)가 abort라고 해당 board skill의 atlas-extract.md가 문서화하지 않았으면 blind 탈출 키 입력을 하지 마라.
+- **빈 줄(blank)로 찔러보지 마라.** blank가 "현재값 유지" 같은 의미를 가진다고 해당 board skill의 command-surface.md가 문서화한 명령에서만 blank를 쓴다. (보드에 따라 빈 줄이 리셋 등 위험 동작일 수 있다.)
+- 탈출 키(예: `Q`)가 abort라고 해당 board skill의 command-surface.md가 문서화하지 않았으면 blind 탈출 키 입력을 하지 마라.
 - secret을 묻는 prompt에서는 입력값·echo를 로그·요약에서 가린다(아래 secret redaction).
-- **config 마법사는 트랜잭션형일 수 있다.** 보드에 따라, 중간에 종료 키로 빠지면 편집이 폐기되고 끝까지 완주해야 커밋되는 구조일 수 있다. 그러니 "중간에 멈추면 안전"이라고 가정하지 마라. 탈출 키 유무·동작과 커밋 시점은 해당 board skill의 atlas-extract.md가 문서화한 대로만 따른다.
+- **config 마법사는 트랜잭션형일 수 있다.** 보드에 따라, 중간에 종료 키로 빠지면 편집이 폐기되고 끝까지 완주해야 커밋되는 구조일 수 있다. 그러니 "중간에 멈추면 안전"이라고 가정하지 마라. 탈출 키 유무·동작과 커밋 시점은 해당 board skill의 command-surface.md가 문서화한 대로만 따른다.
 
 ## secret redaction
 
 비밀번호·인증코드 등 민감값은 결정적으로 가린다:
 
-- secret 필드(보드 atlas-extract의 secrets 목록)는 송신 명령·회수 로그·사용자 요약 어디에도 평문으로 남기지 않는다.
+- secret 필드(보드 command-surface의 secrets 목록)는 송신 명령·회수 로그·사용자 요약 어디에도 평문으로 남기지 않는다.
 - secret을 출력하는 조회 명령(예: 인증코드 출력)의 출력도 가려서 보고한다.
 - 사용자가 직접 준 비밀번호도 확인용으로 되읽지 않는다.
 
@@ -63,7 +63,7 @@
 
 리셋·재부팅을 유발한 뒤에는 보드가 실제로 재연결·부팅 완료했는지 검증한다:
 
-- boot 배너 + setup 완료 시그니처를 **둘 다** 확인한다(보드 atlas-extract의 verification signatures). 배너만으로는 setup 중 블로킹 상태일 수 있다.
+- boot 배너 + setup 완료 시그니처를 **둘 다** 확인한다(보드 command-surface의 verification signatures). 배너만으로는 setup 중 블로킹 상태일 수 있다.
 - 재부팅 후 회수가 0이면 핫플러그 재연결(서버가 자동 재연결)을 몇 초 기다린 뒤 재조회한다.
 - 예기치 않은 재부팅이면, 최종 리셋 로그만으로 원인을 단정하지 말고 더 앞선 로그에서 트리거(reset 트리거 시그니처)를 찾는다.
 
