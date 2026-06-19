@@ -25,7 +25,7 @@
       "name": "serial-mcp",
       "source": "./plugins/serial-mcp",
       "description": "AI가 임베디드 보드(ESP32/STM32)의 시리얼 로그를 직접 읽고 승인 후 명령 전송·보드 리셋까지 수행하는 독립 MCP 서버 플러그인. Claude는 플러그인 MCP로, Codex는 scripts/install-codex.ps1로 직접 MCP 등록.",
-      "version": "1.4.0",
+      "version": "1.5.0",
       "author": {
         "name": "Silotek"
       },
@@ -40,3 +40,4 @@
     }
   ]
 }
+

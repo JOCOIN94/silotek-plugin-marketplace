@@ -32,7 +32,7 @@
 
 - **R0 (조회 — 바로 실행 가능)**: `FWVER` `STWIFI` `VROUTERRSSI` `INFO` `STCOMM` · `HELP`/`MHELP`/`HHELP`/`THELP`. `VSSMID`는 R0-sensitive(아래). 그 외 상태를 바꾸지 않는 조회·view 명령(`VRSSI`·`TINFO`·`VTIME`·`VRTC`·`VFILELST`·`CMPMEM`·`VUPDATE`·`MAC`·`GID`·`UNITID`·`CHANNEL` 등)도 R0.
 - **R1 (저위험·복원 가능 변경 — snapshot·verify)**: `SETWIFI`(TX power, credential 아님) `SETBAYCONFIG` `SETSSMID`(authCode) `SETREGMAC` `SETRTCTIME` `REQSTCOMM`. 그 외 복원 가능한 표시 toggle·버퍼 정리류(`VEXTUNITINFO`·`VRXALLPKTS`·`VREVBUFF`·`CREQINFO`·`CLRINFO`·`CLRCURSSID`·`CHKMEM`·`SERIAL`·`SKIPDOWNLOAD`·`AUTOTEST`·`CLRAUTOTEST`·`REQDNFWVER` 등)도 R1.
-- **R2 (재부팅·재연결·영구 변경 — 사람 입회+검증)**: `SETCONFIG`(성공 시 reboot) `RESET` `APMODE` `TXBINTEST`(하위장비로 바이너리 송신)
+- **R2 (재부팅·재연결·영구 변경 — 승인·입회 없이 자동 실행+검증)**: `SETCONFIG`(성공 시 reboot) `RESET` `APMODE` `TXBINTEST`(하위장비로 바이너리 송신)
 - **R3 (파괴·임의 주입 — 실행 금지)**: `REFLASH` `REFLASHESP` `ALLREFLASH` `DOWNBIN` `CDOWNBIN` `DOWNBINWEB` `REMFILE` `FORMAT` `KSFFORMAT` `WFORMAT` · `VIRWEBCMD`(임의 Web JSON 주입) `BYPASSCMD`(임의 ESP-NOW JSON 주입) · boot-menu `D`(다운로드/리플래시)
 
 ## interactive 명령 (블로킹 서브 상태 — 처리법은 ops.md)

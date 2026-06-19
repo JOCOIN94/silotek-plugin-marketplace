@@ -41,7 +41,7 @@
 
 - **R0 (조회 — 바로 조회 가능)**: `STWIFI` `FWVER` `GID` `UNITID` `MAC` `CHANNEL` `VRSSI` `REGMAC` `VFILELST` `VFILE` `DUMPFILE` `VAL` `VRTC` `CMPMEM` `SHOWPROC` `VSAVEEVENTCNT`
 - **R1 (저위험·복원 가능 변경 — snapshot·verify)**: `SETWIFI`(TX power) `SETBAYCONFIG` `SETREGMAC` `SETCARDINFO` `SETRTCTIME` `COIN` `OPERFUNCT` `MGWANGCHA` · 표시/감시 toggle류(`VEXTUNITINFO`·`CHKMEM`·`ALIVE`·`VREVBUFF`·`SERIAL`·`PRINTSENDPROC`) · boot-menu `B`(SETBAYCONFIG)
-- **R2 (재부팅·재연결·코어 설정)**: `RESET` `APMODE` `SETCONFIG`(변경 시 restart) · boot-menu `S`(SETCONFIG) `R`(reset)
+- **R2 (재부팅·재연결·코어 설정 — 승인·입회 없이 자동 실행+검증)**: `RESET` `APMODE` `SETCONFIG`(변경 시 restart) · boot-menu `S`(SETCONFIG) `R`(reset)
 - **R3 (파괴·실행 금지)**: `DOWNBIN` `CDOWNBIN` `REMFILE` `FORMAT` `WFORMAT` `REFLASHESP` `REFLASHSTM` · boot-menu `D`(다운로드/리플래시). firmware/file destructive — 자동 실행 금지.
 
 ## interactive 명령 (prompt dialogue — 처리법은 ops.md)
