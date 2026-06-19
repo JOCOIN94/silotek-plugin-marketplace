@@ -36,6 +36,7 @@
 - R0은 추가 확인 없이 바로 조회한다. 다만 secret을 출력하는 R0-sensitive 명령(해당 board skill의 command-surface.md가 표시)은 필요한 경우에만 사용하고 출력·요약·로그에서 값을 redaction한다.
 - R1·R2는 **보드 정체·포트·prompt 상태·의도한 변경 중 하나라도 모호하면** 진행하지 말고 멈춰 사람과 합의한다.
 - R3는 명시 승인만으로 실행하지 않는다. **보드별 안전 절차 + 복구/백업 경로 + 정확한 대상 확인 + 명시 승인** 네 가지가 모두 갖춰졌을 때만 진행하며, 현재 skill extract에 안전 절차가 없으면 실행하지 말고 멈춰 사람에게 넘긴다.
+- **서버측 R3 게이트(배포 기본)**: `SERIAL_WRITE_CONFIRM=r3`(서버 v1.2.0+, Silotek 배포 기본)에서 서버가 R3 파괴 명령에만 승인 팝업(elicitation)을 띄우고 비-R3·`reset_board`는 통과시킨다. R0/R1/R2를 보낼 때 팝업이 없는 것은 정상이다. R3 판정 목록의 단일 진실원은 각 board `command-surface.md`이고 서버 `_R3_COMMANDS`는 그 증류본이니, **command-surface의 R3 집합을 바꾸면 서버 `_R3_COMMANDS`도 동기화**한다.
 
 ## interactive prompt 명령 (블로킹 서브 상태)
 

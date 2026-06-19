@@ -3,7 +3,7 @@
 [CmdletBinding()]
 param(
     [string]$Name = "serial-mcp",
-    [string]$PackageSource = "git+https://github.com/JOCOIN94/serial-mcp-server@v1.1.1",
+    [string]$PackageSource = "git+https://github.com/JOCOIN94/serial-mcp-server@v1.2.0",
     [string]$PackageCommand = "serial-mcp",
     [string]$SerialPort,
     [string]$SerialNames,
@@ -119,6 +119,10 @@ $envOptions = [ordered]@{
     # SB-STM 폴링 수신 문자 유실 대응(실측 atlas/sb-stm/exploration/2026-06-12-r1: 100ms 유실 0).
     # -SerialCharDelay 지정 시 아래 foreach에서 덮어쓴다.
     SERIAL_CHAR_DELAY = "100"
+    # 배포 표준 기본값 — Claude plugin.json ${SERIAL_WRITE_CONFIRM:-r3}과 패리티.
+    # R3(reflash/format/주입 등) 파괴 명령만 승인 팝업, 그 외는 통과(서버 v1.2.0+).
+    # -SerialWriteConfirm 지정 시 아래 foreach에서 덮어쓴다(all/r3/off).
+    SERIAL_WRITE_CONFIRM = "r3"
 }
 
 foreach ($nameValue in @(
