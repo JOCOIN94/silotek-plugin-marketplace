@@ -85,8 +85,8 @@
 
 ## 보드 식별 — 추측하지 말 것
 
-- **별칭이 진실이다**: `list_serial_ports`/`get_serial_status`의 `name`·`label`(SERIAL_NAMES/SERIAL_AUTONAME 산출). **VID/PID로 칩 벤더를 보고 보드를 단정하지 마라** — 이 환경은 CH343·Prolific 같은 범용 USB-UART 어댑터를 쓰므로 벤더가 보드 종류를 말해주지 않는다(ESP32가 ST 어댑터에, STM32가 CH 어댑터에 물릴 수 있다).
-- **이름 없는 포트 = 아직 침묵한 보드**일 수 있다. 자동 식별(SERIAL_AUTONAME)은 그 보드의 로그가 처음 흘러야 1회 확정되므로, idle 보드는 동작/리셋을 시키면 이름이 붙는다.
+- **별칭(`name`)이 붙어 있으면 그것이 보드 식별 기준이다**: `list_serial_ports`/`get_serial_status`의 `name`·`label`(SERIAL_NAMES/SERIAL_AUTONAME 산출). **VID/PID로 칩 벤더를 보고 보드를 단정하지 마라** — 이 환경은 CH343·Prolific 같은 범용 USB-UART 어댑터를 쓰므로 벤더가 보드 종류를 말해주지 않는다(ESP32가 ST 어댑터에, STM32가 CH 어댑터에 물릴 수 있다). **별칭이 없으면 추정하지 말고 로그 내용 또는 사람으로 식별한다(아래).**
+- **이름 없는 포트 = 아직 침묵한 보드**일 수 있다. **SERIAL_AUTONAME이 설정돼 있으면** 그 보드의 로그가 처음 흘러야 1회 확정되므로 idle 보드는 동작/리셋을 시키면 이름이 붙는다. **단 AUTONAME 미설정이거나 자동식별이 불가한 보드(예: 바이너리 출력 — SB-STM)는 동작시켜도 이름이 안 붙으니 로그 내용 또는 사람으로 식별한다.**
 - **모니터 대상은 AI가 고르지 않는다 / `list_serial_ports`의 "0개 모니터링 중"에 속지 마라**: 서버가 USB 포트를 자동 모니터링하며, 모니터링은 `get_serial_status`(또는 다른 조회 도구) 첫 호출 때 owner를 잡으면서 시작된다. `list_serial_ports`는 OS 포트 나열만 하고 owner를 안 잡으므로, 그것만 반복하면 영영 "0개 모니터링"이다. 사람에게 "어느 포트를 잡을까요?"라고 묻지 말고 곧장 `get_serial_status`를 호출하라(별칭도 AI가 붙이는 게 아니라 `SERIAL_NAMES`/`SERIAL_AUTONAME`이 만든다). 0개가 계속되면 다른 세션이 점유 중인 것이니 웹 뷰어 [해제]를 안내해 소유권을 넘겨받게 한다. (응답의 `hint` 필드가 같은 안내다.)
 - 그래도 모호하면 사람에게 포트↔보드 매핑을 물어라.
 
