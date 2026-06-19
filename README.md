@@ -1,13 +1,15 @@
 # Silotek Plugin Marketplace
 
-Silotek 워크플로용 내부 AI 플러그인 마켓플레이스입니다. marketplace ID는 `silotek`이고, 설치 가능한 기능 단위는 개별 플러그인(`research-log`, `serial-mcp`)으로 분리합니다.
+Silotek 워크플로용 내부 AI 플러그인 마켓플레이스입니다. 
+marketplace ID는 `silotek`이고, 설치 가능한 기능 단위는 개별 플러그인
+(`research-log`, `serial-mcp`)으로 분리합니다.
 
 ## 플러그인
 
 이 저장소는 같은 marketplace 안에서 서로 독립된 플러그인 두 개를 노출합니다.
 
 - `research-log`: 연구 로그 YAML 작성·재작성, DOCX 내보내기, 독립 다이어그램 생성, 설치 진단.
-- `serial-mcp`: 임베디드 보드 시리얼 로그를 AI가 읽는 MCP 서버 + 블랙박스 디버깅 스킬.
+- `serial-mcp`: 임베디드 보드 시리얼 로그를 AI가 읽는 MCP 서버 + F.W 관련 도메인 스킬.
 
 ```text
 plugins/research-log/          # 연구 로그 / 다이어그램 플러그인
