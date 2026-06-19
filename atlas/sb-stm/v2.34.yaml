@@ -6,6 +6,9 @@ states:
   runtime-serial:
     entry: "STM32 UART0 command loop inside main()."
     desc: "Characters are echoed into buf until enter; blank enter resets the MCU, backspace removes one buffered byte, unknown commands print Unknown command, and the buffer is cleared when Wrbufcnt reaches 49."
+  inter-mcu-uart1:
+    entry: "ESP->STM binary command channel on USART1, sharing the same Rx1 ring buffer as the runtime-serial CLI (HAL_UART_RxCpltCallback main.c:3170-3178). The SB-STM debug header (e.g. COM12) writes onto this same line, so console writes and ESP commands compete on one bus."
+    desc: "ChkPacket() (main.c:7856) scans Rx1 once >=3 bytes are buffered: 0xFF ping (echo 0xFF), 0xFA,0xFA long frame ([FA FA][CMD][LenH][LenL][Data..][sum][FB], sum=CMD+Len+Data), 0x02 STX camera frame, or 3-byte [CMD,VAL,0xFB] (no checksum). Command_Proc() (main.c:8607) dispatches CMD; follow-up payload bytes are read by RecieveData() (main.c:8368, 200ms/byte, big-endian). Responses return on the same channel via ok_return [CMD,VAL,0xFB] / unknown_return [E2,00,FB] / fail_return [FF,FF,FF] (main.c:7760-7806). Full analysis in notes-injection-vector.md."
 commands:
   - name: "<empty-line>"
     context: runtime-serial
@@ -178,4 +181,235 @@ commands:
     risk: R0
     risk_reason: "Print-only parser branch."
     source_ref: "smartBay/Core/Src/main.c:18340"
+    observed: null
+  # --- Inter-MCU UART1 binary command channel (ESP->STM). Frame [CMD][VAL][0xFB][+payload]; payload big-endian via RecieveData(). See notes-injection-vector.md. ---
+  - name: "0x60 (System hold/run/update)"
+    context: inter-mcu-uart1
+    syntax: "60 [VAL] FB  (VAL 0=Hold, 2=Run, 3=Update)"
+    prompts: []
+    description: "ESP commands the STM operating state."
+    effect: "holdProc(); VAL=0 sets fHold and DISP_UNIT_HALT, VAL=2 clears fHold to NOTUSED, VAL=3 sets fHold + DISP_UPDATE; cancels online card control. ok_return."
+    risk: R1
+    risk_reason: "Changes run/hold state; reversible."
+    source_ref: "smartBay/Core/Src/main.c:8657"
+    observed: null
+  - name: "0x60 VAL=1 (Reset)"
+    context: inter-mcu-uart1
+    syntax: "60 01 FB"
+    prompts: []
+    description: "ESP commands an STM reboot."
+    effect: "Send_Alive(256), HAL_Delay(100), NVIC_SystemReset()."
+    risk: R2
+    risk_reason: "Reboots the STM32."
+    source_ref: "smartBay/Core/Src/main.c:8688"
+    observed: null
+  - name: "0x64 (Unit price info)"
+    context: inter-mcu-uart1
+    syntax: "64 [VAL] FB + multi-byte (Unit_price 2B, Unit_time 2B, AllowtimeForSWChg 1B, fextTime 1B, extcnt 1B)"
+    prompts: []
+    description: "Sets per-function unit price/time parameters."
+    effect: "Reads price/time fields via RecieveData and stores them. ok_return. uncertain: exact field order pending byte-level extraction."
+    risk: R1
+    risk_reason: "Changes pricing configuration; reversible."
+    source_ref: "smartBay/Core/Src/main.c:8758"
+    observed: null
+  - name: "0x65 (Set bay config)"
+    context: inter-mcu-uart1
+    syntax: "65 [VAL] FB + multi-byte (EndTime, prices, NoCompany, MasterCard, BayID, ...)"
+    prompts: []
+    description: "Sets bay configuration fields."
+    effect: "Reads ~14-20 config bytes via RecieveData into ConfigBay and stores them. ok_return. uncertain: exact field order pending byte-level extraction."
+    risk: R1
+    risk_reason: "Changes bay configuration; reversible."
+    source_ref: "smartBay/Core/Src/main.c:8793"
+    observed: null
+  - name: "0x66 (Set/reset freemode + amount)"
+    context: inter-mcu-uart1
+    syntax: "66 [VAL] FB + 4B BE WebAmount  (VAL 1=set, 2=reset; 4 bytes read when VAL!=0)"
+    prompts: []
+    description: "Enters/exits free (web-controlled) mode with a web amount."
+    effect: "Reads 4-byte big-endian WebAmount; VAL=1 enters outdoor/indoor app free mode, VAL=2 resets; sets fBuzzer. ok_return."
+    risk: R1
+    risk_reason: "Changes billing/free-mode state and amount; reversible."
+    source_ref: "smartBay/Core/Src/main.c:8966"
+    observed: null
+  - name: "0x67 (Query state)"
+    context: inter-mcu-uart1
+    syntax: "67 [VAL!=0] FB"
+    prompts: []
+    description: "Requests the STM state bitmap."
+    effect: "sendStateOfStm32() sends {\"state\":N} upward (bit0 fReboot, bit1 fCoinInToSend, bit2 fCardTouched, bit3 fCardInserting, bit4 fFree). No state change."
+    risk: R0
+    risk_reason: "Read/report only."
+    source_ref: "smartBay/Core/Src/main.c:9298"
+    observed: null
+  - name: "0x68 (Set webcoin)"
+    context: inter-mcu-uart1
+    syntax: "68 [VAL!=0] FB + 4B BE count"
+    prompts: []
+    description: "Adds web coin count."
+    effect: "Reads 4-byte big-endian value, Webcoin_cnt += value; sets fBuzzer. ok_return."
+    risk: R1
+    risk_reason: "Changes coin/credit state; reversible."
+    source_ref: "smartBay/Core/Src/main.c:9305"
+    observed: null
+  - name: "0x69 (WebUserID, not used)"
+    context: inter-mcu-uart1
+    syntax: "69 [VAL!=0] FB + 2B BE len(==4) + 4B BE WebUserID"
+    prompts: []
+    description: "Sets WebUserID (marked not used in source)."
+    effect: "Reads 2-byte length (must equal 4) then 4-byte big-endian WebUserID. ok_return."
+    risk: R1
+    risk_reason: "Stores a user id; reversible. Marked not used."
+    source_ref: "smartBay/Core/Src/main.c:9327"
+    observed: null
+  - name: "0x6A (Request UnitID)"
+    context: inter-mcu-uart1
+    syntax: "6A [VAL!=0] FB"
+    prompts: []
+    description: "Requests the STM unit id."
+    effect: "Send_UnitID() sends {\"UnitID\":..} upward. ok_return. No state change."
+    risk: R0
+    risk_reason: "Read/report only."
+    source_ref: "smartBay/Core/Src/main.c:9357"
+    observed: null
+  - name: "0x6B (AutoTest)"
+    context: inter-mcu-uart1
+    syntax: "6B [VAL] FB + 2B BE count  (VAL 0=stop, 1=start)"
+    prompts: []
+    description: "Controls auto-test mode."
+    effect: "Sets fCMDAutoTest=VAL and reads a 2-byte big-endian AutoTestCnt. ok_return."
+    risk: R1
+    risk_reason: "Enters/exits an automated test loop; reversible."
+    source_ref: "smartBay/Core/Src/main.c:9365"
+    observed: null
+  - name: "0x6C (Request FW version)"
+    context: inter-mcu-uart1
+    syntax: "6C [VAL] FB"
+    prompts: []
+    description: "Requests the STM firmware version."
+    effect: "ok_return then Send_FWVer() sends {\"FWVer\":..} upward. No state change."
+    risk: R0
+    risk_reason: "Read/report only."
+    source_ref: "smartBay/Core/Src/main.c:9379"
+    observed: null
+  - name: "0x6D (Managing mode control)"
+    context: inter-mcu-uart1
+    syntax: "6D [VAL] FB  (VAL!=0 enter, 0 exit)"
+    prompts: []
+    description: "Enters/exits managing mode."
+    effect: "ok_return; VAL!=0 sets fManageMode true (when not free) and clears charge-related state; VAL=0 clears fManageMode."
+    risk: R1
+    risk_reason: "Changes operating mode; reversible."
+    source_ref: "smartBay/Core/Src/main.c:9385"
+    observed: null
+  - name: "0x6E (Set RF gain)"
+    context: inter-mcu-uart1
+    syntax: "6E [VAL] FB + 1B gain(1..8)"
+    prompts: []
+    description: "Sets RFID receive gain."
+    effect: "Reads 1 gain byte (1..8) and applies it. ok_return. uncertain: byte-level layout pending extraction."
+    risk: R1
+    risk_reason: "Changes RFID reader configuration; reversible."
+    source_ref: "smartBay/Core/Src/main.c:9455"
+    observed: null
+  - name: "0x6F (Receive ESP32 FW version)"
+    context: inter-mcu-uart1
+    syntax: "6F [LEN] FB + (LEN+1) bytes version string"
+    prompts: []
+    description: "Stores the ESP32 firmware version string reported by ESP."
+    effect: "ok_return; reads (VAL+1) bytes into fwVerEsp32 and null-terminates."
+    risk: R1
+    risk_reason: "Stores ESP version locally; reversible/benign."
+    source_ref: "smartBay/Core/Src/main.c:9480"
+    observed: null
+  - name: "0x70 (Press function button)"
+    context: inter-mcu-uart1
+    syntax: "70 [VAL] FB  (VAL 0..10 = button id)"
+    prompts: []
+    description: "Simulates a function button press."
+    effect: "ok_return; if VAL<=10 sets SWVal |= (1 << VAL)."
+    risk: R1
+    risk_reason: "Injects a button-press event; reversible."
+    source_ref: "smartBay/Core/Src/main.c:9497"
+    observed: null
+  - name: "0x71 (Unit time info)"
+    context: inter-mcu-uart1
+    syntax: "71 [VAL] FB + 3 signed bytes (timeAPP, timeCARD, timeCOIN; int8 two's complement)  (VAL 0..6)"
+    prompts: []
+    description: "Sets per-function unit-time adjustments."
+    effect: "Stores function id and three signed time deltas into stAdjUnitTimeBuf[VAL]. ok_return."
+    risk: R1
+    risk_reason: "Changes timing configuration; reversible."
+    source_ref: "smartBay/Core/Src/main.c:9506"
+    observed: null
+  - name: "0x72 (Control RF card)"
+    context: inter-mcu-uart1
+    syntax: "72 [VAL] FB + 4B BE points + 1B lenCuID + CuID[lenCuID]  (VAL 1..9)"
+    prompts: []
+    description: "RF card read/write/charge control. Requires the RFID reader and a physical card."
+    effect: "Per VAL: 1/8 request info, 2 ADD points (armed), 3 write, 4 change new<->old, 5 to GwangCha, 6 our->new, 7 SUB points (armed), 9 clear (from SSM Gubun:17). Gated by fManageMode/fFree/fuseBay/fCtrlCardOnline/fCardInit. Terminal result returns as ResRfCtrl + Amnt upward."
+    risk: R1
+    risk_reason: "Drives card/charge operations; effect depends on real card presence."
+    source_ref: "smartBay/Core/Src/main.c:9537"
+    observed: null
+  - name: "0x73 (Card info)"
+    context: inter-mcu-uart1
+    syntax: "73 [VAL] FB + multi-byte card-info payload"
+    prompts: []
+    description: "Supplies a card-info structure to the STM."
+    effect: "Reads card-info fields via RecieveData and stores them. uncertain: exact layout pending byte-level extraction."
+    risk: R1
+    risk_reason: "Changes card-related state; reversible."
+    source_ref: "smartBay/Core/Src/main.c:9848"
+    observed: null
+  - name: "0x74 (Set operating mode)"
+    context: inter-mcu-uart1
+    syntax: "74 [VAL] FB + multi-byte (indoor/outdoor mode config)"
+    prompts: []
+    description: "Sets indoor (TYPE_B) / outdoor (TYPE_A) operating mode."
+    effect: "Reads mode config bytes and applies the operating mode. ok_return. uncertain: exact layout pending byte-level extraction."
+    risk: R1
+    risk_reason: "Changes operating mode; reversible."
+    source_ref: "smartBay/Core/Src/main.c:9953"
+    observed: null
+  - name: "0x75 (Stop / clear coin)"
+    context: inter-mcu-uart1
+    syntax: "75 [VAL] FB  (VAL 1=force stop, 2=clear coin/touch amount)"
+    prompts: []
+    description: "Force-stops the running state or clears coin/touch amounts."
+    effect: "When not free: VAL=1 sets fforceStop (only if ChargedMoney && fBasePrice); VAL=2 clears CoinAmount/TouchCardAmount and sends Send_Alarm(S0008) under specific conditions. ok_return."
+    risk: R1
+    risk_reason: "Changes running/billing state; conditionally applied."
+    source_ref: "smartBay/Core/Src/main.c:10122"
+    observed: null
+  - name: "0x76 (Add time)"
+    context: inter-mcu-uart1
+    syntax: "76 [VAL] FB + 2B BE time  (VAL 1=apply)"
+    prompts: []
+    description: "Adds working time in indoor app mode."
+    effect: "Reads 2-byte big-endian time; if VAL=1 and indoor app mode is running with workingTime>=2, workingTime += time. ok_return."
+    risk: R1
+    risk_reason: "Changes remaining time; conditionally applied."
+    source_ref: "smartBay/Core/Src/main.c:10188"
+    observed: null
+  - name: "0x77 (Set time step)"
+    context: inter-mcu-uart1
+    syntax: "77 [VAL] FB + 2B BE step(60..65535)  (VAL 1=apply)"
+    prompts: []
+    description: "Sets indoor time-per-step."
+    effect: "Reads 2-byte big-endian step; if VAL=1 and not running indoor and 60<=step<=65535, sets inDoorTimePerStep. ok_return."
+    risk: R1
+    risk_reason: "Changes timing configuration; conditionally applied."
+    source_ref: "smartBay/Core/Src/main.c:10211"
+    observed: null
+  - name: "0xEE (Save FW image / YMODEM)"
+    context: inter-mcu-uart1
+    syntax: "EE [VAL] FB  then YMODEM stream (C / SOH|STX packets / CRC16)"
+    prompts: []
+    description: "Receives a firmware image over YMODEM and reflashes the STM."
+    effect: "ok_return; resets Rx1/Rx3 counters, 500ms delay, SerialDownload() (Ymodem_Receive, download.c:35 / ymodem.c:335), then NVIC_SystemReset()."
+    risk: R3
+    risk_reason: "Firmware download/reflash; bricking risk. Map from source only."
+    source_ref: "smartBay/Core/Src/main.c:10240"
     observed: null
