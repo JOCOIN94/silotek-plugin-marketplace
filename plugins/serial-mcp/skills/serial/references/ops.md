@@ -11,10 +11,11 @@
 ## 표준 루프
 
 1. **대상·연결 확인.** `get_serial_status`/`list_serial_ports`로 대상 포트와 연결 상태를 확인한다(가능하면 `viewer_url` 1회 확보).
-2. **clear 전에 증거 보존.** 기존 문제를 원인 분석하는 작업이면 먼저 `get_recent_logs(port=...)`(필요 시 `query_serial_logs(pattern=..., port=...)`)로 현재 로그를 snapshot 한다 — **root-cause 분석 전에는 `clear_log_buffer`를 호출하지 마라**(원인 로그가 지워진다).
-3. **새 controlled experiment를 시작할 때만 비운다.** `clear_log_buffer(port=...)`로 **관찰 대상 보드 port를 반드시 지정**해 비운다 — 미지정은 전체 비우기다. 다른 보드의 맥락 로그(게이트웨이 통신 기록 등)를 보존해야 하면 선택 비우기 필수이며, 전체 비우기는 사용자가 전 포트 클린 실험을 명시할 때만.
-4. **리셋이 필요하면** `reset_board(port=...)`. 배포 기본 게이트(`SERIAL_WRITE_CONFIRM=r3`)에서 `reset_board`(R2)는 승인 팝업 없이 바로 실행된다. (`SERIAL_WRITE_CONFIRM=all` 설치라 승인 팝업이 떠 `status="declined"`로 돌아오면 같은 리셋을 재시도하지 말고 사람과 이유·다음 행동을 합의한다.) 클라이언트가 승인 팝업을 지원하지 않거나, native-USB/미배선 보드라 0줄이 회수되면 폴백으로 사람에게 요청한다: "지금 [보드]를 리셋(또는 [동작])해 주세요. 하시면 알려 주세요."
-5. **회수·반복.** 응답 직후 `get_recent_logs(port=...)`. 비어 있으면 2~3초 간격으로 `get_log_buffer_info(port=...)`를 2~3회 폴링해 유입을 확인하고, 그래도 0이면 `get_serial_status`(연결) → 사람(전원·배선·리셋 재요청) 순으로 의심. 분석 → (필요 시 조작/코드 수정) → 새 실험이면 2~3단계로 반복. 표적 확인은 `query_serial_logs(pattern=..., port=...)`.
+2. **메시/멀티홉이면 토폴로지 먼저.** SSM/Repeater/APU/SB 경로를 해석할 때는 `get_topology()`로 전 포트 로스터와 최근 홉을 먼저 보고, 그 다음 필요한 포트 원문을 `get_recent_logs(port=...)`/`query_serial_logs(pattern=..., port=...)`로 좁힌다. `get_topology`는 전 포트 스냅샷이라 `port` 인자가 없다.
+3. **clear 전에 증거 보존.** 기존 문제를 원인 분석하는 작업이면 먼저 `get_recent_logs(port=...)`(필요 시 `query_serial_logs(pattern=..., port=...)`)로 현재 로그를 snapshot 한다 — **root-cause 분석 전에는 `clear_log_buffer`를 호출하지 마라**(원인 로그가 지워진다).
+4. **새 controlled experiment를 시작할 때만 비운다.** `clear_log_buffer(port=...)`로 **관찰 대상 보드 port를 반드시 지정**해 비운다 — 미지정은 전체 비우기다. 다른 보드의 맥락 로그(게이트웨이 통신 기록 등)를 보존해야 하면 선택 비우기 필수이며, 전체 비우기는 사용자가 전 포트 클린 실험을 명시할 때만.
+5. **리셋이 필요하면** `reset_board(port=...)`. 배포 기본 게이트(`SERIAL_WRITE_CONFIRM=r3`)에서 `reset_board`(R2)는 승인 팝업 없이 바로 실행된다. (`SERIAL_WRITE_CONFIRM=all` 설치라 승인 팝업이 떠 `status="declined"`로 돌아오면 같은 리셋을 재시도하지 말고 사람과 이유·다음 행동을 합의한다.) 클라이언트가 승인 팝업을 지원하지 않거나, native-USB/미배선 보드라 0줄이 회수되면 폴백으로 사람에게 요청한다: "지금 [보드]를 리셋(또는 [동작])해 주세요. 하시면 알려 주세요."
+6. **회수·반복.** 응답 직후 `get_recent_logs(port=...)`. 비어 있으면 2~3초 간격으로 `get_log_buffer_info(port=...)`를 2~3회 폴링해 유입을 확인하고, 그래도 0이면 `get_serial_status`(연결) → 사람(전원·배선·리셋 재요청) 순으로 의심. 분석 → (필요 시 조작/코드 수정) → 새 실험이면 3~4단계로 반복. 표적 확인은 `query_serial_logs(pattern=..., port=...)`.
 
 ## 명령 전송 판단
 
