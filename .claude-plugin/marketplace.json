@@ -25,7 +25,7 @@
       "name": "serial-mcp",
       "source": "./plugins/serial-mcp",
       "description": "AI가 임베디드 보드(ESP32/STM32 등)의 시리얼 로그를 직접 읽고 승인 후 명령 전송·보드 리셋까지 수행하는 헤드리스 MCP 서버 + 블랙박스 디버깅 안내 스킬. USB 시리얼 자동 인식·다중 포트·웹 뷰어 내장.",
-      "version": "1.9.2",
+      "version": "1.10.0",
       "author": {
         "name": "Silotek"
       },
