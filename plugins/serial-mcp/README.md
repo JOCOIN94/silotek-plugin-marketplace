@@ -11,7 +11,7 @@
 - `scripts/verify-codex.ps1`: Read-only Codex registration check.
 - `skills/serial/SKILL.md`: The black-box serial debugging loop.
 
-The actual MCP server code lives in `JOCOIN94/serial-mcp-server`. This plugin release is `1.16.1` and pins the server to `v1.13.1`.
+The actual MCP server code lives in `JOCOIN94/serial-mcp-server`. This plugin release is `1.17.0` and pins the server to `v1.14.0`.
 
 ## Claude Code install
 
