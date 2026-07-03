@@ -1,6 +1,6 @@
 {
   "name": "serial-mcp",
-  "version": "1.18.0",
+  "version": "1.19.0",
   "description": "Headless MCP server for AI-assisted embedded-board serial log debugging, gated command writes, and board resets.",
   "author": {
     "name": "Silotek"
