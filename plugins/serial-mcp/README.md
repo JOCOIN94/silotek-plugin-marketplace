@@ -6,11 +6,12 @@
 
 - `.claude-plugin/plugin.json`: Claude Code plugin metadata and inline MCP server registration.
 - `.codex-plugin/plugin.json`: Codex plugin metadata and the `serial` skill.
+- `hooks/`: Claude Code SessionStart hook (see below).
 - `scripts/install-codex.ps1`: Codex MCP registration wrapper. It calls `codex mcp add` so Codex exposes the tools through top-level MCP configuration.
 - `scripts/verify-codex.ps1`: Read-only Codex registration check.
 - `skills/serial/SKILL.md`: The black-box serial debugging loop.
 
-The actual MCP server code lives in `JOCOIN94/serial-mcp-server`. This plugin release is `1.15.5` and pins the server to `v1.12.3`.
+The actual MCP server code lives in `JOCOIN94/serial-mcp-server`. This plugin release is `1.15.6` and pins the server to `v1.12.3`.
 
 ## Claude Code install
 
@@ -21,7 +22,13 @@ Claude Code can consume the MCP server from `.claude-plugin/plugin.json`.
 /plugin install serial-mcp@silotek --scope user
 ```
 
-## Codex install
+## SessionStart hook (Claude Code only)
+
+The plugin ships a SessionStart hook that injects a small serial status board at session start (startup/resume/clear/compact):
+
+- If a serial-mcp owner is alive, it queries `http://127.0.0.1:<SERIAL_WEB>/api/status` (read-only, 1s timeout) and injects connected ports plus the viewer URL. If not, it enumerates OS COM port names only (never opens a port). **If no serial port exists, it injects nothing** (zero tokens for unrelated sessions).
+- When hardware is present it also injects a 3-line safety kernel (no R3 destructive commands, no writes during the boot window, no retry after a declined approval) so sessions that never load the skills still know the hard limits.
+- Windows PowerShell based; a hook failure never blocks session start. Codex has no hook mechanism — the same content is owned by the skills (`serial` ops, board command surfaces), so the hook is an accelerator, not the source of truth.
 
 Codex currently lists plugin-bundled MCP servers but does not reliably expose their tools to the model. For Codex, install the plugin for the skill and run the direct MCP registration wrapper:
 

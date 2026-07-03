@@ -1,0 +1,17 @@
+{
+  "description": "SessionStart 상황판 — 시리얼 장비가 있을 때만 포트 상태·안전 커널을 주입한다(장비 없으면 무출력·0토큰).",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"${CLAUDE_PLUGIN_ROOT}/hooks/session-start.ps1\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}
