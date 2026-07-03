@@ -1,6 +1,6 @@
 ---
 name: ssm
-description: SSM 게이트웨이 보드(ESP32-S3)를 serial-mcp로 다룰 때 쓴다 — SSM 로그·상태, WiFi/라우터/소켓 상태(STWIFI·VROUTERRSSI), SSID·비밀번호(credential)·네트워크 설정(SETCONFIG), WiFi 송신출력(SETWIFI), 재부팅·AP모드(RESET·APMODE), 펌웨어 버전·명령 목록(FWVER·HELP), 하위장비 통신(INFO·STCOMM·REQSTCOMM), bay 설정(SETBAYCONFIG·NoCompany), configuration 검증. 호스트 PC의 WiFi/네트워크 설정에는 쓰지 않는다.
+description: SSM 게이트웨이 보드(ESP32-S3)를 serial-mcp로 다룰 때 쓴다 — SSM 로그·상태, WiFi/라우터/소켓 상태(STWIFI·VROUTERRSSI), SSID·비밀번호(credential)·네트워크 설정(SETCONFIG), WiFi 송신출력(SETWIFI), 재부팅·AP모드(RESET·APMODE), 펌웨어 버전·명령 목록(FWVER·HELP), 하위장비 통신(INFO·STCOMM·REQSTCOMM), 하위장비가 안 잡힘·통신 0 복구(GID/채널 불일치), bay 설정(SETBAYCONFIG·NoCompany), configuration 검증. 호스트 PC의 WiFi/네트워크 설정에는 쓰지 않는다.
 ---
 
 # SSM 게이트웨이 (serial-mcp)

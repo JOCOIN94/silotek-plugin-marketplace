@@ -1,6 +1,6 @@
 ---
 name: serial
-description: serial-mcp로 임베디드 보드의 serial port, 로그/logs, status/상태, command send/명령 전송, reset/reconnect, interactive prompt/대화형 프롬프트, configuration change/설정 변경, observe-act-verify를 수행할 때 쓴다. 장비 로그 확인·블랙박스 시험 루프와 그 결과 검증을 포함한다. 보드별 명령 의미와 risk는 ssm 같은 board 스킬이 함께 다룬다. 호스트 PC WiFi/네트워크 설정이나 serial 장비와 무관한 코드 작업에는 쓰지 않는다.
+description: serial-mcp로 임베디드 보드의 serial port, 로그/logs, status/상태, command send/명령 전송, reset/reconnect, interactive prompt/대화형 프롬프트, configuration change/설정 변경, observe-act-verify를 수행할 때 쓴다. 장비 로그 확인·블랙박스 시험 루프와 그 결과 검증, 메시/멀티홉 로그 판독(WiFi_Rx·INFO·Unique·Cidx 해석, 수신/도착/경로 판정, get_topology)을 포함한다. 보드별 명령 의미와 risk는 ssm 같은 board 스킬이 함께 다룬다. 호스트 PC WiFi/네트워크 설정이나 serial 장비와 무관한 코드 작업에는 쓰지 않는다.
 ---
 
 # 시리얼 운용 (serial-mcp)
@@ -9,6 +9,7 @@ serial-mcp로 임베디드 보드를 **관찰·조작·검증**하는 공통 하
 
 - **운용 방법**(observe→act→verify, 표준 루프, risk gate, interactive prompt 처리, secret redaction, 보드 식별, 함정) → `references/ops.md`. 거의 모든 시리얼 작업이 이 문서로 처리된다.
 - **보드별 명령 의미**(이 명령이 무엇을 하는지, risk·검증 시그니처) → 해당 board 스킬과 그 `references/command-surface.md`.
+- **메시 로그 판독**(태그·필드 오판 방지 치환표 — `[WiFi_Rx]` 에코·INFO RSSI·Unique/Cidx 동일성) → `references/mesh-log.md`. **메시 로그를 해석하기 전에 먼저 본다.**
 - **메시/멀티홉 경로 해석**은 `get_topology`로 전 포트 로스터와 최근 홉을 먼저 확인한 뒤, 필요한 포트 원문을 `get_recent_logs`/`query_serial_logs`로 좁힌다.
 
 ## live board 작업 시작 시 — viewer_url 안내
