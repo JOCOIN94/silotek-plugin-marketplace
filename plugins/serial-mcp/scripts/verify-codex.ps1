@@ -44,7 +44,7 @@ if ($LASTEXITCODE -ne 0 -or -not $json) {
 $server = $json | ConvertFrom-Json
 $actualCommand = $server.transport.command
 $actualArgs = @($server.transport.args)
-$expectedArgs = @("--from", "git+https://github.com/JOCOIN94/serial-mcp-server@v1.19.4", "serial-mcp")
+$expectedArgs = @("--from", "git+https://github.com/JOCOIN94/serial-mcp-server@v1.19.5", "serial-mcp")
 
 if ($actualCommand -ne "uvx") {
     throw "Codex MCP '$Name' command가 uvx가 아닙니다: $actualCommand"
@@ -59,7 +59,7 @@ if ($RequireDirectConfig -and -not $isDirect) {
     throw "Codex MCP '$Name'은 보이지만 config.toml의 직접 [mcp_servers] 등록이 아닙니다. 플러그인 경유 MCP일 수 있으니 scripts/install-codex.ps1 -Force를 실행하세요."
 }
 
-Write-Host "ok: Codex MCP '$Name' -> uvx --from git+https://github.com/JOCOIN94/serial-mcp-server@v1.19.4 serial-mcp"
+Write-Host "ok: Codex MCP '$Name' -> uvx --from git+https://github.com/JOCOIN94/serial-mcp-server@v1.19.5 serial-mcp"
 if ($isDirect) {
     Write-Host "ok: direct config entry found in CODEX_HOME config.toml"
 } else {
