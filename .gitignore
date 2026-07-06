@@ -13,3 +13,5 @@ Thumbs.db
 **/.silotek-research-log-figures/
 
 .obsidian/
+
+.playwright-cli/
