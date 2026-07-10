@@ -122,21 +122,30 @@ claude
 
 ## Codex에서 serial-mcp 사용
 
-Codex는 플러그인 내부 MCP 선언을 대화 도구로 안정적으로 주입하지 못할 수 있어, MCP 도구를 직접 등록 스크립트로 추가합니다. (먼저 `serial-mcp` 플러그인을 설치·활성화해 `serial` 스킬을 받아 두세요. `uv`는 여기서도 필요합니다.)
+Codex용 `serial-mcp` 플러그인은 스킬과 MCP 서버 설정을 함께 번들합니다. 팀원은 플러그인을
+설치하거나 업데이트한 뒤 새 Codex 작업을 시작하면 됩니다(`uv` 필요).
 
-설치:
-
-```powershell
-pwsh -NoProfile -ExecutionPolicy Bypass -File .\plugins\serial-mcp\scripts\install-codex.ps1
-```
-
-검증:
+마켓플레이스 갱신·설치:
 
 ```powershell
-pwsh -NoProfile -ExecutionPolicy Bypass -File .\plugins\serial-mcp\scripts\verify-codex.ps1 -RequireDirectConfig
+codex plugin marketplace upgrade silotek --json
+codex plugin add serial-mcp@silotek --json
 ```
 
-설치 뒤 새 Codex 세션을 열면 `list_serial_ports`, `get_serial_status`, `get_recent_logs` 등 MCP 도구가 주입됩니다.
+`1.22.8` 이하에서 직접 MCP 등록 스크립트를 사용했던 PC는, 플러그인 번들보다 오래된 태그가
+우선하지 않도록 기존 top-level 등록을 한 번만 제거합니다:
+
+```powershell
+codex mcp remove serial-mcp
+```
+
+검증(읽기 전용):
+
+```powershell
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\plugins\serial-mcp\scripts\verify-codex.ps1
+```
+
+설치 뒤 새 Codex 작업을 열면 `list_serial_ports`, `get_serial_status`, `get_recent_logs` 등 MCP 도구가 주입됩니다. `scripts/install-codex.ps1`은 번들 MCP를 지원하지 않는 구형 Codex용 폴백입니다.
 
 ## v1.0.0 이전 이름에서 옮겨오는 경우
 

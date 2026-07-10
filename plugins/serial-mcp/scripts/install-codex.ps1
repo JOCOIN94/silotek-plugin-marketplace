@@ -1,5 +1,13 @@
 #requires -Version 5.1
 
+<#
+.SYNOPSIS
+  구형 Codex용 top-level MCP 직접 등록 폴백.
+.DESCRIPTION
+  serial-mcp 1.22.9부터 Codex 플러그인이 .mcp.json을 번들하므로 일반 설치·업데이트에는
+  이 스크립트가 필요 없다. 번들 MCP를 지원하지 않는 구형 Codex에서만 사용한다.
+#>
+
 [CmdletBinding()]
 param(
     [string]$Name = "serial-mcp",
@@ -24,6 +32,8 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+
+Write-Warning "Legacy fallback: current Codex installs serial-mcp from the plugin's bundled .mcp.json; do not run this script for routine updates."
 
 function Get-CodexHome {
     if ($env:CODEX_HOME -and $env:CODEX_HOME.Trim()) {

@@ -27,4 +27,4 @@ serial-mcp로 임베디드 보드를 **관찰·조작·검증**하는 공통 하
 
 ## MCP 도구가 보이지 않을 때만
 
-정상 live board 운용 중에는 실행하지 않는, 일회성 설치 troubleshooting이다. Codex에서 이 스킬은 보이는데 `list_serial_ports` 같은 MCP 도구가 보이지 않을 때만 `plugins/serial-mcp/README.md`의 'Codex install' 절차(`install-codex.ps1`)로 top-level MCP 등록을 한 번 수행한다(등록 후 새 Codex 세션을 열어야 MCP tool schema가 다시 로드된다).
+정상 live board 운용 중에는 실행하지 않는 설치 troubleshooting이다. Codex에서 이 스킬은 보이는데 `list_serial_ports` 같은 MCP 도구가 보이지 않으면 플러그인이 최신·활성 상태인지 확인하고 `plugins/serial-mcp/README.md`의 'Codex install and update' 절차로 플러그인을 갱신한 뒤 새 Codex 작업을 연다. `install-codex.ps1` 직접 등록은 번들 MCP를 지원하지 않는 구형 Codex 폴백일 뿐이며 일반 업데이트에는 사용하지 않는다.

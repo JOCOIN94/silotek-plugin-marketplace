@@ -131,8 +131,9 @@ research-log:
 serial-mcp (push 전 `plugins/serial-mcp/scripts/check-version-sync.ps1`로 핀 정합성 검증):
 - `.claude-plugin/marketplace.json`의 serial-mcp entry `version` — ⚠️ **빠뜨리면 실행(서버 태그)은 최신이어도 `/plugin` browse 목록이 옛 버전으로 남는다**(2026-06 실제 발생). description도 plugin.json과 맞춘다.
 - `plugins/serial-mcp/.claude-plugin/plugin.json`의 `version` + `mcpServers` args의 서버 태그 `@vX.Y.Z`
-- `plugins/serial-mcp/.codex-plugin/plugin.json`의 `version`
+- `plugins/serial-mcp/.codex-plugin/plugin.json`의 `version` + `mcpServers: "./.mcp.json"`
+- `plugins/serial-mcp/.mcp.json`의 Codex 번들 서버 태그 `@vX.Y.Z`와 배포 기본 env
 - `plugins/serial-mcp/README.md`의 설치·버전 설명
-- `plugins/serial-mcp/scripts/install-codex.ps1`와 `verify-codex.ps1`의 서버 URL·명령 검증값(서버 태그 `@vX.Y.Z`)
+- `plugins/serial-mcp/scripts/install-codex.ps1`(구형 Codex 폴백)와 `verify-codex.ps1`의 서버 URL·명령 검증값(서버 태그 `@vX.Y.Z`)
 
 현재 브레이킹 변경: v1.0.0에서 marketplace ID를 `silotek`, 연구 로그 플러그인을 `research-log`, 시리얼 스킬을 `serial`, 서버 repo를 `serial-mcp-server`로 표준화한다.

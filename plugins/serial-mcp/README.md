@@ -5,13 +5,14 @@
 ## What lives here
 
 - `.claude-plugin/plugin.json`: Claude Code plugin metadata and inline MCP server registration.
-- `.codex-plugin/plugin.json`: Codex plugin metadata and the `serial` skill.
+- `.codex-plugin/plugin.json`: Codex plugin metadata and bundled component pointers.
+- `.mcp.json`: Codex bundled MCP server registration. Plugin install/update carries this pin automatically.
 - `hooks/`: Claude Code SessionStart hook (see below).
-- `scripts/install-codex.ps1`: Codex MCP registration wrapper. It calls `codex mcp add` so Codex exposes the tools through top-level MCP configuration.
+- `scripts/install-codex.ps1`: Legacy Codex fallback only. Current Codex does not need it for routine install/update.
 - `scripts/verify-codex.ps1`: Read-only Codex registration check.
 - `skills/serial/SKILL.md`: The black-box serial debugging loop.
 
-The actual MCP server code lives in `JOCOIN94/serial-mcp-server`. This plugin release is `1.22.8` and pins the server to `v1.19.8`.
+The actual MCP server code lives in `JOCOIN94/serial-mcp-server`. This plugin release is `1.22.9` and pins the server to `v1.19.8`.
 
 ## Claude Code install
 
@@ -30,28 +31,34 @@ The plugin ships a SessionStart hook that injects a small serial status board at
 - When hardware is present it also injects a 3-line safety kernel (no R3 destructive commands, no writes during the boot window, no retry after a declined approval) so sessions that never load the skills still know the hard limits.
 - Windows PowerShell based; a hook failure never blocks session start. Codex has no hook mechanism — the same content is owned by the skills (`serial` ops, board command surfaces), so the hook is an accelerator, not the source of truth.
 
-Codex currently lists plugin-bundled MCP servers but does not reliably expose their tools to the model. For Codex, install the plugin for the skill and run the direct MCP registration wrapper:
+## Codex install and update
+
+Current Codex loads the serial skill and MCP server together from the plugin. Install or refresh the
+marketplace plugin, then start a new Codex task:
 
 ```powershell
-pwsh -NoProfile -ExecutionPolicy Bypass -File .\plugins\serial-mcp\scripts\install-codex.ps1
+codex plugin marketplace upgrade silotek --json
+codex plugin add serial-mcp@silotek --json
 ```
 
-The wrapper registers `SERIAL_CHAR_DELAY=100` by default for the current SB-STM hardware profile. Override it with `-SerialCharDelay <ms>` if another board needs a different transmit delay.
+The bundled `.mcp.json` sets `SERIAL_CHAR_DELAY=100` for the current SB-STM hardware profile and
+`SERIAL_WRITE_CONFIRM=r3` so only destructive R3 commands require approval. Other serial settings
+continue to come from the user's environment.
 
-The wrapper also registers `SERIAL_WRITE_CONFIRM=r3` by default (server v1.2.0+), so only destructive R3 commands (reflash/format/download/file-delete/raw JSON injection) raise an approval prompt while reads, recoverable settings, and resets pass through. Override with `-SerialWriteConfirm <all|r3|off>`.
+Users upgrading from plugin `1.22.8` or earlier may still have a top-level direct MCP entry that pins
+an old server tag. Remove it once so the bundled server owns future updates:
 
-`-SerialWeb 0` disables only the web UI. The server still keeps the default `8743` owner lock so another `serial-mcp` session cannot open the same COM ports at the same time.
-
-Optional fixed-port example:
-
-```powershell
-pwsh -NoProfile -ExecutionPolicy Bypass -File .\plugins\serial-mcp\scripts\install-codex.ps1 -SerialPort COM4 -SerialWeb 8743
+```text
+codex mcp remove serial-mcp
 ```
 
-Verify without changing configuration:
+This is a one-time migration, not a per-release step. If an older Codex build cannot load bundled MCP
+servers, `scripts/install-codex.ps1` remains available as a legacy direct-registration fallback.
+
+Verify the effective command and server tag without changing configuration:
 
 ```powershell
-pwsh -NoProfile -ExecutionPolicy Bypass -File .\plugins\serial-mcp\scripts\verify-codex.ps1 -RequireDirectConfig
+pwsh -NoProfile -ExecutionPolicy Bypass -File .\plugins\serial-mcp\scripts\verify-codex.ps1
 ```
 
 After installing, start a new Codex session. The tools should appear under the `serial-mcp` MCP namespace.

@@ -1,6 +1,6 @@
 {
   "name": "serial-mcp",
-  "version": "1.22.8",
+  "version": "1.22.9",
   "description": "Headless MCP server for AI-assisted embedded-board serial log debugging, gated command writes, and board resets.",
   "author": {
     "name": "Silotek"
@@ -17,10 +17,11 @@
     "silotek"
   ],
   "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "Serial MCP",
     "shortDescription": "Inspect serial logs and run approved board command/reset workflows through MCP.",
-    "longDescription": "Serial MCP lets Codex inspect ESP32, STM32, and other embedded-board text logs through a FastMCP server. It also supports user-approved send_serial_command and reset_board workflows with audit markers. Codex currently needs the MCP server registered through top-level codex mcp configuration, so this plugin ships the serial skill plus scripts/install-codex.ps1 to add the server without hand-editing config.toml.",
+    "longDescription": "Serial MCP lets Codex inspect ESP32, STM32, and other embedded-board text logs through a bundled FastMCP server. It also supports user-approved send_serial_command and reset_board workflows with audit markers. Installing or updating the plugin carries the pinned MCP server configuration without a separate top-level codex mcp registration step.",
     "developerName": "Silotek",
     "category": "Developer Tools",
     "capabilities": [

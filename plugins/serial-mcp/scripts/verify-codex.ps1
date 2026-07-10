@@ -56,12 +56,12 @@ if (($actualArgs -join "`0") -ne ($expectedArgs -join "`0")) {
 
 $isDirect = Test-DirectMcpConfig -ServerName $Name
 if ($RequireDirectConfig -and -not $isDirect) {
-    throw "Codex MCP '$Name'은 보이지만 config.toml의 직접 [mcp_servers] 등록이 아닙니다. 플러그인 경유 MCP일 수 있으니 scripts/install-codex.ps1 -Force를 실행하세요."
+    throw "Codex MCP '$Name'은 보이지만 config.toml의 직접 [mcp_servers] 등록이 아닙니다. -RequireDirectConfig는 구형 직접 등록 폴백 검증에만 사용하세요."
 }
 
 Write-Host "ok: Codex MCP '$Name' -> uvx --from git+https://github.com/JOCOIN94/serial-mcp-server@v1.19.8 serial-mcp"
 if ($isDirect) {
-    Write-Host "ok: direct config entry found in CODEX_HOME config.toml"
+    Write-Warning "legacy direct config entry found in CODEX_HOME config.toml; bundled MCP 업데이트를 받으려면 한 번 제거하세요: codex mcp remove $Name"
 } else {
-    Write-Warning "direct config entry was not found. Codex가 도구를 노출하지 않으면 scripts/install-codex.ps1 -Force로 직접 등록하세요."
+    Write-Host "ok: no legacy direct config entry; the plugin-bundled MCP can own this server"
 }

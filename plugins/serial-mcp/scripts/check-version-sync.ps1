@@ -6,7 +6,8 @@
   버전 bump 때 사람이 일부 파일을 빠뜨리는 사고를 기계가 막는다.
   두 종류의 정합성을 검사한다:
     (1) 플러그인 version  : 루트 marketplace.json entry ↔ .claude-plugin/plugin.json ↔ .codex-plugin/plugin.json
-    (2) 서버 태그 @vX.Y.Z : claude plugin.json mcpServers args ↔ install-codex.ps1 ↔ verify-codex.ps1
+    (2) Codex 번들 MCP    : .codex-plugin/plugin.json mcpServers ↔ .mcp.json
+    (3) 서버 태그 @vX.Y.Z : Claude/Codex MCP args ↔ install-codex.ps1 ↔ verify-codex.ps1
   특히 marketplace.json entry version을 빠뜨리면 실행(서버 태그)은 최신이어도
   /plugin browse 목록이 옛 버전으로 남는다(2026-06 실제 발생).
 #>
@@ -20,6 +21,7 @@ $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..\..")).Path
 $marketplaceJson  = Join-Path $repoRoot ".claude-plugin\marketplace.json"
 $claudePluginJson = Join-Path $repoRoot "plugins\serial-mcp\.claude-plugin\plugin.json"
 $codexPluginJson  = Join-Path $repoRoot "plugins\serial-mcp\.codex-plugin\plugin.json"
+$codexMcpJson     = Join-Path $repoRoot "plugins\serial-mcp\.mcp.json"
 $installPs1       = Join-Path $PSScriptRoot "install-codex.ps1"
 $verifyPs1        = Join-Path $PSScriptRoot "verify-codex.ps1"
 
@@ -52,15 +54,37 @@ if ($distinctVer.Count -ne 1) {
     $problems += "플러그인 version 불일치: $detail"
 }
 
-# --- (2) 서버 태그 @vX.Y.Z 정합성 ---
+# --- (2) Codex 번들 MCP 계약 ---
+if ($codex.mcpServers -ne "./.mcp.json") {
+    $problems += "Codex plugin.json mcpServers가 './.mcp.json'을 가리키지 않습니다: $($codex.mcpServers)"
+}
+
+$codexMcp = $null
+if (-not (Test-Path -LiteralPath $codexMcpJson)) {
+    $problems += "Codex 번들 MCP 파일이 없습니다: $codexMcpJson"
+} else {
+    $codexMcp = Get-Content -Raw -LiteralPath $codexMcpJson | ConvertFrom-Json
+    if (-not $codexMcp.mcpServers.'serial-mcp') {
+        $problems += "Codex .mcp.json에서 serial-mcp 서버를 찾지 못했습니다."
+    }
+}
+
+# --- (3) 서버 태그 @vX.Y.Z 정합성 ---
 $argsTag    = @($claude.mcpServers.'serial-mcp'.args | ForEach-Object { Get-ServerTag $_ } | Where-Object { $_ }) | Select-Object -First 1
+$codexTag   = @($codexMcp.mcpServers.'serial-mcp'.args | ForEach-Object { Get-ServerTag $_ } | Where-Object { $_ }) | Select-Object -First 1
 $installTag = Get-ServerTag (Get-Content -Raw -LiteralPath $installPs1)
 $verifyTag  = Get-ServerTag (Get-Content -Raw -LiteralPath $verifyPs1)
 
 $serverTags = [ordered]@{
     "claude plugin.json args" = $argsTag
+    "codex .mcp.json args"     = $codexTag
     "install-codex.ps1"       = $installTag
     "verify-codex.ps1"        = $verifyTag
+}
+foreach ($item in $serverTags.GetEnumerator()) {
+    if (-not $item.Value) {
+        $problems += "서버 태그를 찾지 못했습니다: $($item.Key)"
+    }
 }
 $distinctTag = @($serverTags.Values | Where-Object { $_ } | Select-Object -Unique)
 if ($distinctTag.Count -ne 1) {
