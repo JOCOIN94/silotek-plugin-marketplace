@@ -11,7 +11,7 @@
 [CmdletBinding()]
 param(
     [string]$Name = "serial-mcp",
-    [string]$PackageSource = "git+https://github.com/JOCOIN94/serial-mcp-server@v1.19.8",
+    [string]$PackageSource = "git+https://github.com/JOCOIN94/serial-mcp-server@v1.19.9",
     [string]$PackageCommand = "serial-mcp",
     [string]$SerialPort,
     [string]$SerialNames,
