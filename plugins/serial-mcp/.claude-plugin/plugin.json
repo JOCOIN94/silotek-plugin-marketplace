@@ -19,7 +19,7 @@
       "command": "uvx",
       "args": [
         "--from",
-        "git+https://github.com/JOCOIN94/serial-mcp-server@v1.19.9",
+        "git+https://github.com/stek747/serial-mcp-server@v1.19.9",
         "serial-mcp"
       ],
       "env": {

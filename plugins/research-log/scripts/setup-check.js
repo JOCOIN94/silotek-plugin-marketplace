@@ -180,7 +180,7 @@ function checkManifest(root) {
   };
 }
 
-const DEFAULT_UPDATE_URL = 'https://raw.githubusercontent.com/JOCOIN94/silotek-plugin-marketplace/main/.claude-plugin/marketplace.json';
+const DEFAULT_UPDATE_URL = 'https://raw.githubusercontent.com/stek747/silotek-plugin-marketplace/main/.claude-plugin/marketplace.json';
 
 async function checkLatestVersion(root, options = {}) {
   const skipEnv = options.skipEnv !== undefined

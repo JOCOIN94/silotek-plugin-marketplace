@@ -48,7 +48,7 @@ claude
 ### 2단계 — 마켓플레이스 등록 *(최초 1회)*
 
 ```text
-/plugin marketplace add JOCOIN94/silotek-plugin-marketplace
+/plugin marketplace add stek747/silotek-plugin-marketplace
 ```
 
 처음이면 "이 마켓플레이스를 신뢰하시겠습니까?" 같은 확인이 뜹니다 — 엔터 또는 `y`로 승인하세요.
@@ -154,7 +154,7 @@ pwsh -NoProfile -ExecutionPolicy Bypass -File .\plugins\serial-mcp\scripts\verif
 ```text
 /plugin uninstall silotek-tools@silotek-tools
 /plugin uninstall serial-mcp@silotek-tools
-/plugin marketplace add JOCOIN94/silotek-plugin-marketplace
+/plugin marketplace add stek747/silotek-plugin-marketplace
 /plugin install research-log@silotek --scope user
 /plugin install serial-mcp@silotek --scope user
 ```
